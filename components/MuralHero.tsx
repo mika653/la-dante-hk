@@ -4,7 +4,7 @@ import HeroCarousel from "./HeroCarousel";
 
 export default function MuralHero() {
   return (
-    <section className="relative bg-ink overflow-hidden min-h-[640px] md:min-h-[720px] lg:min-h-[760px] -mt-16 md:-mt-20">
+    <section className="relative bg-ink overflow-hidden min-h-[540px] md:min-h-[720px] lg:min-h-[760px] -mt-16 md:-mt-20">
       {/* Full-bleed photo carousel */}
       <div className="absolute inset-0">
         <HeroCarousel />
@@ -31,15 +31,15 @@ export default function MuralHero() {
       <div className="absolute top-0 inset-x-0 h-1 bg-sole z-[6]" aria-hidden />
 
       {/* Content — overlaid, left-aligned; top padding accounts for the transparent nav above */}
-      <div className="container-xl relative z-10 pt-32 md:pt-44 pb-20 md:pb-28 min-h-[640px] md:min-h-[720px] lg:min-h-[760px] flex items-center">
+      <div className="container-xl relative z-10 pt-24 md:pt-44 pb-16 md:pb-28 min-h-[540px] md:min-h-[720px] lg:min-h-[760px] flex items-center">
         <div className="max-w-[600px]">
           <p className="eyebrow flex items-center gap-2">
             <Sparkles size={14} className="text-ink" aria-hidden />
             Italiano · Latino · Hong Kong · 1935
           </p>
 
-          <div className="circle-accent mt-5">
-            <h1 className="text-[clamp(2.5rem,6.5vw,5rem)] uppercase text-ink">
+          <div className="circle-accent mt-4">
+            <h1 className="text-[2.25rem] xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl uppercase text-ink leading-[0.95]">
               Impara
               <br />
               <span className="italian normal-case" style={{ letterSpacing: "-0.02em" }}>l&apos;italiano</span>
@@ -48,7 +48,7 @@ export default function MuralHero() {
             </h1>
           </div>
 
-          <p className="mt-6 max-w-[520px] text-lg md:text-xl text-ink-muted">
+          <p className="mt-5 max-w-[520px] text-base md:text-xl text-ink-muted">
             Certified native teachers, CEFR-aligned courses, and a 90-year tradition of Italian culture in the heart of Wanchai.
           </p>
 

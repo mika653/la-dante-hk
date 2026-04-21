@@ -64,10 +64,10 @@ export default function MembershipClient() {
             const active = n === step;
             const past = n < step;
             return (
-              <li key={label} className="flex items-center gap-2 md:gap-3 flex-1">
-                <span className={`w-8 h-8 rounded-full inline-flex items-center justify-center font-heading font-bold shrink-0 ${active ? "bg-azzurro text-cream" : past ? "bg-sole text-ink" : "border border-line text-ink-muted"}`}>{past ? <Check size={14} /> : n}</span>
-                <span className={`font-medium ${active ? "text-ink" : "text-ink-muted"}`}>{label}</span>
-                {i < 3 && <span className="flex-1 h-px bg-line" aria-hidden />}
+              <li key={label} className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                <span className={`w-8 h-8 rounded-full inline-flex items-center justify-center font-heading font-bold shrink-0 ${active ? "bg-ink text-cream" : past ? "bg-sole text-ink" : "border border-line text-ink-muted"}`}>{past ? <Check size={14} /> : n}</span>
+                <span className={`font-medium hidden sm:inline ${active ? "text-ink" : "text-ink-muted"}`}>{label}</span>
+                {i < 3 && <span className="flex-1 h-px bg-line min-w-[12px]" aria-hidden />}
               </li>
             );
           })}

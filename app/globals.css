@@ -40,6 +40,7 @@ html {
   color: var(--fg);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;     /* belt-and-suspenders against any rogue overflow */
 }
 
 body {
@@ -49,7 +50,13 @@ body {
   line-height: 1.6;
   color: var(--color-ink);
   background: var(--color-cream);
+  overflow-x: hidden;
+  max-width: 100vw;
+  min-width: 0;
 }
+
+/* Ensure long unbreakable words never force horizontal scroll */
+h1, h2, h3, h4, p, li, td, span { overflow-wrap: break-word; }
 
 h1, h2, h3, h4, .h-display {
   font-family: var(--font-heading);

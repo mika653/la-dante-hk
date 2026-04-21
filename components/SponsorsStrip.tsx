@@ -20,9 +20,9 @@ export default function SponsorsStrip() {
 
         <div className="mt-12">
           <p className="eyebrow">Silver sponsors</p>
-          <div className="mt-6 grid grid-cols-3 md:grid-cols-6 gap-x-6 gap-y-8 items-center">
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-x-4 gap-y-6 items-center">
             {sponsors.silver.map((s) => (
-              <div key={s.name} className="font-heading font-bold tracking-wider text-sm md:text-base text-ink-muted hover:text-ink transition-colors">
+              <div key={s.name} className="font-heading font-bold tracking-wider text-[11px] sm:text-sm md:text-base text-ink-muted hover:text-ink transition-colors text-center break-words">
                 {s.logo}
               </div>
             ))}
