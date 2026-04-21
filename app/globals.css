@@ -230,19 +230,20 @@ html { scroll-behavior: smooth; }
   content: "";
   position: absolute;
   z-index: -1;
-  width: 180px;
-  height: 180px;
+  width: 150%;
+  aspect-ratio: 1 / 1;
+  min-width: 140px;
   border-radius: 9999px;
   background: var(--color-azzurro);
-  opacity: 0.5;
+  opacity: 0.55;
   filter: blur(1px);
   top: 50%;
-  left: -6px;
-  transform: translateY(-55%);
+  left: 50%;
+  transform: translate(-50%, -50%);
   pointer-events: none;
 }
 @media (min-width: 768px) {
-  .circle-accent-center::before { width: 220px; height: 220px; left: -14px; }
+  .circle-accent-center::before { min-width: 180px; }
 }
 
 /* Decorative Dante-style ring (like the logo's circle) */
