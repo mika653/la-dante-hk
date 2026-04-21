@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Trash2, Pencil } from "lucide-react";
+import { Plus, Search, Trash2, Pencil, CheckCircle2, ExternalLink, X } from "lucide-react";
 import { getCourses, removeCourse } from "@/lib/admin-store";
 import type { Course, Language, CourseType } from "@/lib/data";
 import { formatHKD } from "@/lib/utils";
@@ -11,8 +11,21 @@ export default function AdminCoursesList() {
   const [lang, setLang] = useState<"all" | Language>("all");
   const [type, setType] = useState<"all" | CourseType>("all");
   const [q, setQ] = useState("");
+  const [flash, setFlash] = useState<string | null>(null);
+  const [flashUrl, setFlashUrl] = useState<string | null>(null);
 
-  useEffect(() => { setCoursesState(getCourses()); }, []);
+  useEffect(() => {
+    setCoursesState(getCourses());
+    try {
+      const msg = sessionStorage.getItem("ladante-admin-flash");
+      if (msg) {
+        setFlash(msg);
+        sessionStorage.removeItem("ladante-admin-flash");
+      }
+      const url = new URLSearchParams(window.location.search).get("view");
+      if (url) setFlashUrl(url);
+    } catch {}
+  }, []);
 
   const filtered = useMemo(() => courses.filter((c) => {
     if (lang !== "all" && c.language !== lang) return false;
@@ -29,6 +42,21 @@ export default function AdminCoursesList() {
 
   return (
     <div className="max-w-6xl">
+      {flash && (
+        <div className="mb-6 frame p-4 bg-sole flex items-start gap-3">
+          <CheckCircle2 size={20} className="text-ink shrink-0 mt-0.5" aria-hidden />
+          <div className="flex-1 min-w-0 text-sm">
+            <p className="font-medium">{flash}</p>
+            {flashUrl && (
+              <Link href={flashUrl} target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 mt-1 text-azzurro-deep underline underline-offset-2 font-medium">
+                View on site <ExternalLink size={13} />
+              </Link>
+            )}
+          </div>
+          <button type="button" onClick={() => { setFlash(null); setFlashUrl(null); }} aria-label="Dismiss" className="text-ink/60 hover:text-ink"><X size={16} /></button>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
         <div>
           <p className="eyebrow">Admin · Courses</p>

@@ -1,9 +1,7 @@
 import PageHeader from "@/components/PageHeader";
-import CourseListView from "@/components/CourseListView";
-import { courses } from "@/lib/data";
+import CourseListClient from "@/components/CourseListClient";
 
 export default function KidsPage() {
-  const list = courses.filter((c) => c.type === "kids");
   return (
     <>
       <PageHeader
@@ -15,7 +13,7 @@ export default function KidsPage() {
       />
       <section className="bg-cream py-14">
         <div className="container-xl">
-          <CourseListView courses={list} />
+          <CourseListClient type="kids" />
         </div>
       </section>
     </>

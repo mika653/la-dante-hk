@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { questionBank, type Question, type CEFR, levelInfo } from "@/lib/placement-questions";
-import { courses } from "@/lib/data";
+import { useCourses } from "@/lib/use-courses";
 import { ArrowLeft, ArrowRight, Check, Mail, Sparkles, Clock } from "lucide-react";
 
 type Stage = "intro" | "testing" | "email" | "result";
@@ -55,6 +55,7 @@ function pickNextQuestion(servedIds: string[], currentLevel: CEFR): Question | n
 }
 
 export default function TestClient() {
+  const courses = useCourses();
   const [stage, setStage] = useState<Stage>("intro");
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [served, setServed] = useState<Question[]>([]);

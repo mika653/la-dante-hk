@@ -70,7 +70,17 @@ export default function NewCoursePage() {
       status: "Published",
     };
     addCourse(course);
-    router.push("/admin/courses");
+    // Where this course will appear on the public site
+    const publicPath =
+      course.type === "adult-group" ? "/courses/italian/adult-groups" :
+      course.type === "kids"        ? "/courses/italian/kids" :
+      course.type === "private"     ? "/courses/italian/private" :
+      course.type === "corporate"   ? "/courses/italian/corporate" :
+      course.type === "online"      ? "/courses/italian/online" :
+      course.type === "latin-group" ? "/courses/latin" :
+      "/courses";
+    try { sessionStorage.setItem("ladante-admin-flash", `Published "${course.title}". It's now live at ${publicPath}.`); } catch {}
+    router.push(`/admin/courses?view=${encodeURIComponent(publicPath)}`);
   }
 
   return (

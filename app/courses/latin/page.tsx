@@ -1,9 +1,7 @@
 import PageHeader from "@/components/PageHeader";
-import CourseListView from "@/components/CourseListView";
-import { courses } from "@/lib/data";
+import CourseListClient from "@/components/CourseListClient";
 
 export default function LatinPage() {
-  const list = courses.filter((c) => c.language === "latin");
   return (
     <>
       <PageHeader
@@ -15,7 +13,7 @@ export default function LatinPage() {
       />
       <section className="bg-cream py-14">
         <div className="container-xl">
-          <CourseListView courses={list} />
+          <CourseListClient language="latin" />
         </div>
       </section>
     </>

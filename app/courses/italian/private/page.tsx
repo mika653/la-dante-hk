@@ -1,11 +1,9 @@
 import PageHeader from "@/components/PageHeader";
-import CourseListView from "@/components/CourseListView";
-import { courses } from "@/lib/data";
+import CourseListClient from "@/components/CourseListClient";
 import Link from "next/link";
 import { ArrowRight, Clock, CheckCircle, Calendar } from "lucide-react";
 
 export default function PrivatePage() {
-  const list = courses.filter((c) => c.type === "private");
   return (
     <>
       <PageHeader
@@ -33,7 +31,7 @@ export default function PrivatePage() {
       <section className="bg-cream py-14">
         <div className="container-xl">
           <h2 className="text-2xl md:text-3xl mb-6">Private packages available now</h2>
-          <CourseListView courses={list} />
+          <CourseListClient type="private" />
           <div className="mt-10 text-center">
             <Link href="/contact" className="btn btn-yellow">Request a private lesson <ArrowRight size={16} /></Link>
           </div>

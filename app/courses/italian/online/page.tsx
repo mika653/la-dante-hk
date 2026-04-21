@@ -1,9 +1,7 @@
 import PageHeader from "@/components/PageHeader";
-import CourseListView from "@/components/CourseListView";
-import { courses } from "@/lib/data";
+import CourseListClient from "@/components/CourseListClient";
 
 export default function OnlinePage() {
-  const list = courses.filter((c) => c.location === "Online");
   return (
     <>
       <PageHeader
@@ -15,7 +13,7 @@ export default function OnlinePage() {
       />
       <section className="bg-cream py-14">
         <div className="container-xl">
-          <CourseListView courses={list} emptyMessage="No online classes this term — next intake: September 2026." />
+          <CourseListClient location="Online" emptyMessage="No online classes this term — next intake: September 2026." />
         </div>
       </section>
     </>
