@@ -16,17 +16,36 @@ export default function FeaturedCarousel() {
         </div>
       </div>
 
-      <div className="overflow-x-auto no-scrollbar">
-        <div className="container-xl flex gap-4 md:gap-6 pb-2 pr-4">
+      {/* Mobile: stacked cards (no more horizontal cut-off) */}
+      <div className="md:hidden container-xl space-y-3">
+        {featuredCards.map((c) => (
+          <Link
+            key={c.title}
+            href={c.href}
+            className="frame p-5 bg-white flex items-start justify-between gap-4"
+          >
+            <div className="flex-1 min-w-0">
+              <p className="eyebrow">{c.eyebrow}</p>
+              <h3 className="mt-2 text-lg font-semibold leading-snug">{c.title}</h3>
+              <p className="mt-1.5 text-[14px] text-ink-muted leading-relaxed">{c.body}</p>
+            </div>
+            <ArrowRight size={18} className="text-azzurro-deep mt-1 shrink-0" aria-hidden />
+          </Link>
+        ))}
+      </div>
+
+      {/* Desktop: horizontal snap-scroll carousel */}
+      <div className="hidden md:block overflow-x-auto no-scrollbar">
+        <div className="container-xl flex gap-6 pb-2 pr-4">
           {featuredCards.map((c) => (
             <Link
               key={c.title}
               href={c.href}
-              className="frame shrink-0 w-[280px] md:w-[340px] p-6 md:p-7 bg-white flex flex-col justify-between min-h-[220px]"
+              className="frame shrink-0 w-[340px] p-7 bg-white flex flex-col justify-between min-h-[220px]"
             >
               <div>
                 <p className="eyebrow">{c.eyebrow}</p>
-                <h3 className="mt-3 text-xl md:text-2xl font-semibold leading-tight">{c.title}</h3>
+                <h3 className="mt-3 text-2xl font-semibold leading-tight">{c.title}</h3>
                 <p className="mt-3 text-[15px] text-ink-muted leading-relaxed">{c.body}</p>
               </div>
               <span className="mt-5 inline-flex items-center gap-2 text-[14px] font-medium text-azzurro-deep">

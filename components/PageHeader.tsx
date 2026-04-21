@@ -16,9 +16,9 @@ export default function PageHeader({
   crumbs?: Crumb[];
   tone?: "cream" | "sole-soft" | "azzurro";
 }) {
-  const bg = tone === "azzurro" ? "bg-ink text-cream" : tone === "sole-soft" ? "bg-sole-soft" : "bg-cream";
-  const sub = tone === "azzurro" ? "text-cream/80" : "text-ink-muted";
-  const eb = tone === "azzurro" ? "!text-sole" : "";
+  const bg = tone === "azzurro" ? "bg-paper text-ink" : tone === "sole-soft" ? "bg-sole-soft" : "bg-cream";
+  const sub = "text-ink-muted";
+  const eb = tone === "azzurro" ? "!text-azzurro-deep" : "";
   return (
     <section className={`${bg} pt-12 pb-16 md:pt-20 md:pb-24 border-b border-line/50`}>
       <div className="container-xl">
@@ -26,14 +26,14 @@ export default function PageHeader({
           <nav aria-label="Breadcrumb" className={`text-[13px] ${sub} flex items-center gap-1.5 mb-4 flex-wrap`}>
             {crumbs.map((c, i) => (
               <span key={c.label} className="inline-flex items-center gap-1.5">
-                {c.href ? <Link href={c.href} className="hover:text-azzurro-deep">{c.label}</Link> : <span className={tone === "azzurro" ? "text-cream" : "text-ink"}>{c.label}</span>}
+                {c.href ? <Link href={c.href} className="hover:text-azzurro-deep">{c.label}</Link> : <span className="text-ink">{c.label}</span>}
                 {i < crumbs.length - 1 && <ChevronRight size={13} className="opacity-50" aria-hidden />}
               </span>
             ))}
           </nav>
         )}
         {eyebrow && <p className={`eyebrow ${eb}`}>{eyebrow}</p>}
-        <h1 className={`mt-3 text-4xl md:text-6xl max-w-3xl ${tone === "azzurro" ? "text-cream" : ""}`}>{title}</h1>
+        <h1 className="mt-3 text-4xl md:text-6xl max-w-3xl text-ink">{title}</h1>
         {subtitle && <p className={`mt-5 max-w-2xl text-lg ${sub}`}>{subtitle}</p>}
       </div>
     </section>

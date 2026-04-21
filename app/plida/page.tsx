@@ -64,12 +64,13 @@ export default function PLIDA() {
             </div>
           </div>
 
-          <div id="prepare" className="mt-16 frame p-8 md:p-10 bg-ink text-cream relative overflow-hidden">
-            <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-azzurro opacity-25 blur-[2px]" aria-hidden />
-            <p className="eyebrow !text-sole relative">Prepare</p>
+          <div id="prepare" className="mt-16 frame p-8 md:p-10 bg-paper text-ink relative overflow-hidden">
+            <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-azzurro opacity-50 blur-[2px]" aria-hidden />
+            <div className="absolute -bottom-10 -left-10 w-24 h-24 rounded-full bg-sole/40" aria-hidden />
+            <p className="eyebrow !text-azzurro-deep relative">Prepare</p>
             <h2 className="mt-3 text-3xl max-w-xl">PLIDA preparation workshops.</h2>
-            <p className="mt-3 max-w-xl text-cream/85">Six weeks of focused prep with past papers, timed practice, and feedback from certified PLIDA examiners. Open to members and non-members.</p>
-            <Link href="/contact" className="btn btn-yellow mt-5">Register interest <ArrowRight size={16} /></Link>
+            <p className="mt-3 max-w-xl text-ink-muted">Six weeks of focused prep with past papers, timed practice, and feedback from certified PLIDA examiners. Open to members and non-members.</p>
+            <Link href="/contact" className="btn btn-primary mt-5">Register interest <ArrowRight size={16} /></Link>
           </div>
         </div>
       </section>
