@@ -77,7 +77,7 @@ export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
+    const onScroll = () => setScrolled(window.scrollY > 80);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -88,7 +88,7 @@ export default function Nav() {
   }, [mobileOpen]);
 
   return (
-    <header className={`sticky top-0 z-40 transition-all duration-200 ${scrolled ? "bg-cream/85 backdrop-blur-md shadow-[0_1px_0_rgb(0_0_0_/_0.04)]" : "bg-cream"}`}>
+    <header className={`sticky top-0 z-40 transition-all duration-300 ${scrolled ? "bg-cream/90 backdrop-blur-md shadow-[0_1px_0_rgb(0_0_0_/_0.06)]" : "bg-transparent"}`}>
       <div className="container-xl flex items-center justify-between h-16 md:h-20 gap-6">
         <Wordmark />
 
