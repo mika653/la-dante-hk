@@ -10,7 +10,7 @@ const items = [
 const toneClass: Record<"yellow" | "white" | "blue", string> = {
   yellow: "bg-sole-soft text-ink",
   white:  "bg-white text-ink border border-line",
-  blue:   "bg-azzurro text-cream",
+  blue:   "bg-ink text-cream",
 };
 
 export default function LibraryTrio() {
@@ -26,11 +26,11 @@ export default function LibraryTrio() {
           {items.map(({ icon: Icon, title, blurb, href, tone }) => (
             <Link key={title} href={href} className={`group frame p-8 ${toneClass[tone]} flex flex-col`}>
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${tone === "blue" ? "bg-cream/15" : "bg-white"}`}>
-                <Icon size={22} className={tone === "blue" ? "text-cream" : "text-azzurro"} aria-hidden />
+                <Icon size={22} className={tone === "blue" ? "text-cream" : "text-azzurro-deep"} aria-hidden />
               </div>
               <h3 className="mt-6 text-2xl font-semibold">{title}</h3>
               <p className={`mt-3 text-[15px] leading-relaxed flex-1 ${tone === "blue" ? "text-cream/85" : "text-ink-muted"}`} dangerouslySetInnerHTML={{ __html: blurb }} />
-              <span className={`mt-6 inline-flex items-center gap-2 text-sm font-medium ${tone === "blue" ? "text-sole" : "text-azzurro"}`}>
+              <span className={`mt-6 inline-flex items-center gap-2 text-sm font-medium ${tone === "blue" ? "text-sole" : "text-azzurro-deep"}`}>
                 Explore <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
               </span>
             </Link>

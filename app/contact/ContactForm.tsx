@@ -16,10 +16,10 @@ export default function ContactForm() {
   return (
     <form onSubmit={(e) => { e.preventDefault(); setDone(true); }} className="frame p-6 md:p-8 bg-white space-y-4">
       <h2 className="text-2xl font-semibold">Send us a message</h2>
-      <label className="block text-sm font-medium">Name<input required className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-azzurro" /></label>
-      <label className="block text-sm font-medium">Email<input required type="email" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-azzurro" /></label>
+      <label className="block text-sm font-medium">Name<input required className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
+      <label className="block text-sm font-medium">Email<input required type="email" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
       <label className="block text-sm font-medium">Subject<select className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white"><option>Course enquiry</option><option>Private lesson</option><option>Corporate</option><option>PLIDA exam</option><option>Membership</option><option>Other</option></select></label>
-      <label className="block text-sm font-medium">Message<textarea required rows={5} className="mt-1 w-full p-4 rounded-xl border border-line bg-white focus:outline-none focus:border-azzurro" /></label>
+      <label className="block text-sm font-medium">Message<textarea required rows={5} className="mt-1 w-full p-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
       <button type="submit" className="btn btn-primary w-full">Send message</button>
     </form>
   );

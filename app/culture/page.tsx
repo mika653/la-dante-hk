@@ -28,7 +28,7 @@ export default function Culture() {
               <div key={e.title} className="frame p-5 md:p-6 bg-white grid md:grid-cols-[auto_1fr_auto] gap-4 items-center">
                 <span className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-sole-soft font-heading font-bold text-[13px] text-center leading-tight">{e.date.split(".").slice(0, 2).join(".")}<br />{e.date.split(".")[2]}</span>
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-azzurro font-medium">{e.kind}</p>
+                  <p className="text-xs uppercase tracking-wider text-azzurro-deep font-medium">{e.kind}</p>
                   <h3 className="mt-1 font-semibold text-lg">{e.title}</h3>
                   <div className="mt-1 flex gap-4 text-xs text-ink-muted">
                     <span className="inline-flex items-center gap-1"><Calendar size={12} />{e.date}</span>

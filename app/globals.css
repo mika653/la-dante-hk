@@ -1,18 +1,21 @@
 @import "tailwindcss";
 
 @theme inline {
+  /* Official Dante brand — from Codici colori guidelines, Release 1.1 Marzo 2021 */
   --color-cream: #fffbf0;
   --color-cream-2: #fef6e0;
-  --color-sole: #f5c518;
-  --color-sole-soft: #fef3c7;
-  --color-azzurro: #1e40af;
-  --color-azzurro-soft: #dbeafe;
-  --color-azzurro-deep: #1e3a8a;
-  --color-ink: #0f0f0f;
-  --color-ink-muted: #4a4a4a;
-  --color-ink-soft: #6b7280;
+  --color-paper: #f1f1f1;          /* Official off-white #F1F1F1 */
+  --color-sole: #ffed4e;           /* Official Dante yellow #FFED4E */
+  --color-sole-soft: #fff6a8;
+  --color-azzurro: #a6e4f8;        /* Official Dante sky blue #A6E4F8 */
+  --color-azzurro-soft: #dff3fc;
+  --color-azzurro-deep: #075985;   /* Derived deeper blue for text-on-light contrast */
+  --color-ink: #191919;            /* Official Dante black #191919 */
+  --color-ink-2: #212121;
+  --color-ink-muted: #5f5e5e;      /* Official grey #5F5E5E */
+  --color-ink-soft: #979797;       /* Official grey #979797 */
+  --color-line: #e1e1e1;           /* Official light grey #E1E1E1 */
   --color-rosso: #dc2626;
-  --color-line: #e7e2d3;
 
   --font-heading: var(--font-league-spartan), system-ui, sans-serif;
   --font-body: var(--font-poppins), system-ui, sans-serif;
@@ -21,9 +24,9 @@
   --radius-card: 1.25rem;
   --radius-pill: 9999px;
 
-  --shadow-frame: 0 1px 2px rgb(15 15 15 / 0.04), 0 12px 32px -12px rgb(15 15 15 / 0.12);
-  --shadow-card: 0 1px 2px rgb(15 15 15 / 0.04), 0 6px 20px -10px rgb(15 15 15 / 0.15);
-  --shadow-pop: 0 1px 2px rgb(15 15 15 / 0.04), 0 20px 50px -18px rgb(30 64 175 / 0.35);
+  --shadow-frame: 0 1px 2px rgb(25 25 25 / 0.04), 0 12px 32px -12px rgb(25 25 25 / 0.12);
+  --shadow-card: 0 1px 2px rgb(25 25 25 / 0.04), 0 6px 20px -10px rgb(25 25 25 / 0.15);
+  --shadow-pop: 0 1px 2px rgb(25 25 25 / 0.04), 0 20px 50px -18px rgb(25 25 25 / 0.35);
 }
 
 :root {
@@ -65,7 +68,7 @@ h3 { font-weight: 600; }
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 12px;
-  color: var(--color-azzurro);
+  color: var(--color-ink);
 }
 
 .italian {
@@ -81,9 +84,9 @@ h3 { font-weight: 600; }
   font-size: 11px;
 }
 
-/* Focus ring for accessibility */
+/* Focus ring */
 *:focus-visible {
-  outline: 2px solid var(--color-azzurro);
+  outline: 2px solid var(--color-ink);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -109,19 +112,27 @@ h3 { font-weight: 600; }
 .btn:hover { transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
 
+/* Primary = Dante black — aligns with the logo's aesthetic */
 .btn-primary {
-  background: var(--color-azzurro);
-  color: white;
+  background: var(--color-ink);
+  color: var(--color-cream);
   box-shadow: var(--shadow-card);
 }
-.btn-primary:hover { background: var(--color-azzurro-deep); box-shadow: var(--shadow-pop); }
+.btn-primary:hover { background: #000; box-shadow: var(--shadow-pop); }
 
 .btn-yellow {
   background: var(--color-sole);
   color: var(--color-ink);
   box-shadow: var(--shadow-card);
 }
-.btn-yellow:hover { background: #e0b314; }
+.btn-yellow:hover { background: #ffe000; }
+
+.btn-blue {
+  background: var(--color-azzurro);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-card);
+}
+.btn-blue:hover { background: #7ccef0; }
 
 .btn-ghost {
   background: transparent;
@@ -135,12 +146,12 @@ h3 { font-weight: 600; }
   color: white;
   border-color: rgba(255,255,255,0.5);
 }
-.btn-outline-white:hover { background: white; color: var(--color-azzurro); border-color: white; }
+.btn-outline-white:hover { background: white; color: var(--color-ink); border-color: white; }
 
 /* Frame card — polaroid style */
 .frame {
   background: white;
-  border: 1px solid rgb(15 15 15 / 0.06);
+  border: 1px solid rgb(25 25 25 / 0.06);
   border-radius: var(--radius-frame);
   box-shadow: var(--shadow-frame);
   overflow: hidden;
@@ -149,21 +160,15 @@ h3 { font-weight: 600; }
 .frame:hover { transform: translateY(-3px); box-shadow: var(--shadow-pop); }
 
 /* Wave dividers */
-.wave-layer {
-  display: block;
-  width: 100%;
-  height: 64px;
-  line-height: 0;
-}
+.wave-layer { display: block; width: 100%; height: 64px; line-height: 0; }
 
-/* Smooth scroll */
+/* Smooth scroll + reduced motion */
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
 
-/* Utility: container */
 .container-xl {
   max-width: 1200px;
   margin-inline: auto;
@@ -171,26 +176,82 @@ html { scroll-behavior: smooth; }
 }
 @media (min-width: 768px) { .container-xl { padding-inline: 2rem; } }
 
-/* Decorative circle accent */
-.dot-blue { color: var(--color-azzurro); }
-.dot-yellow { color: var(--color-sole); }
-
-/* Mural parallax dots (subtle) */
+/* Mural parallax floats */
 @keyframes floatA { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes floatB { 0%,100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 .float-a { animation: floatA 6s ease-in-out infinite; }
 .float-b { animation: floatB 7.5s ease-in-out infinite; }
 
-/* Announcement bar marquee */
-@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.marquee { animation: marquee 40s linear infinite; }
-
-/* Hide scrollbar but allow scroll (for horizontal carousels) */
+/* Hide scrollbar */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Hero overlay mask */
-.mural-fade {
-  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+/* Subtle brand blue circle accent — used behind headings.
+   Position the parent `relative` and set `isolation: isolate` to keep the circle behind text.
+*/
+.circle-accent {
+  position: relative;
+  isolation: isolate;
+}
+.circle-accent::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 220px;
+  height: 220px;
+  border-radius: 9999px;
+  background: var(--color-azzurro);
+  opacity: 0.55;
+  filter: blur(2px);
+  top: -30px;
+  left: -40px;
+  pointer-events: none;
+}
+.circle-accent-sm::before {
+  width: 120px;
+  height: 120px;
+  top: -12px;
+  left: -18px;
+  opacity: 0.7;
+}
+.circle-accent-right::before {
+  left: auto;
+  right: -40px;
+}
+.circle-accent-yellow::before { background: var(--color-sole); opacity: 0.5; }
+
+/* Centered variant — blue circle behind centered H2 */
+.circle-accent-center {
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+}
+.circle-accent-center::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 180px;
+  height: 180px;
+  border-radius: 9999px;
+  background: var(--color-azzurro);
+  opacity: 0.5;
+  filter: blur(1px);
+  top: 50%;
+  left: -6px;
+  transform: translateY(-55%);
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .circle-accent-center::before { width: 220px; height: 220px; left: -14px; }
+}
+
+/* Decorative Dante-style ring (like the logo's circle) */
+.ring-dot {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 9999px;
+  background: var(--color-azzurro);
+  vertical-align: middle;
+  margin: 0 0.15em;
 }

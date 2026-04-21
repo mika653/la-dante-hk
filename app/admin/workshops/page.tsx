@@ -22,7 +22,7 @@ export default function AdminWorkshops() {
           <div key={w.id} className="frame p-6 bg-white">
             <div className="aspect-[4/3] rounded-xl bg-sole-soft flex items-center justify-center text-6xl">{w.image}</div>
             <div className="mt-4 flex items-center gap-2 text-xs">
-              <span className={`px-2.5 py-1 rounded-full font-medium uppercase tracking-wider ${w.status === "planned" ? "bg-azzurro/10 text-azzurro" : "bg-sole text-ink"}`}>
+              <span className={`px-2.5 py-1 rounded-full font-medium uppercase tracking-wider ${w.status === "planned" ? "bg-azzurro/10 text-azzurro-deep" : "bg-sole text-ink"}`}>
                 {w.status === "planned" ? `Planned · ${w.dateLabel}` : `${w.interested} interested`}
               </span>
             </div>

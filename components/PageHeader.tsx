@@ -16,7 +16,7 @@ export default function PageHeader({
   crumbs?: Crumb[];
   tone?: "cream" | "sole-soft" | "azzurro";
 }) {
-  const bg = tone === "azzurro" ? "bg-azzurro text-cream" : tone === "sole-soft" ? "bg-sole-soft" : "bg-cream";
+  const bg = tone === "azzurro" ? "bg-ink text-cream" : tone === "sole-soft" ? "bg-sole-soft" : "bg-cream";
   const sub = tone === "azzurro" ? "text-cream/80" : "text-ink-muted";
   const eb = tone === "azzurro" ? "!text-sole" : "";
   return (
@@ -26,7 +26,7 @@ export default function PageHeader({
           <nav aria-label="Breadcrumb" className={`text-[13px] ${sub} flex items-center gap-1.5 mb-4 flex-wrap`}>
             {crumbs.map((c, i) => (
               <span key={c.label} className="inline-flex items-center gap-1.5">
-                {c.href ? <Link href={c.href} className="hover:text-azzurro">{c.label}</Link> : <span className={tone === "azzurro" ? "text-cream" : "text-ink"}>{c.label}</span>}
+                {c.href ? <Link href={c.href} className="hover:text-azzurro-deep">{c.label}</Link> : <span className={tone === "azzurro" ? "text-cream" : "text-ink"}>{c.label}</span>}
                 {i < crumbs.length - 1 && <ChevronRight size={13} className="opacity-50" aria-hidden />}
               </span>
             ))}

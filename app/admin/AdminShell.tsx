@@ -33,7 +33,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen bg-cream-2 flex">
       {/* Sidebar */}
-      <aside className={`${mobileNav ? "fixed inset-y-0 left-0 z-50" : "hidden"} lg:static lg:block w-64 bg-azzurro-deep text-cream min-h-screen flex-col`}>
+      <aside className={`${mobileNav ? "fixed inset-y-0 left-0 z-50" : "hidden"} lg:static lg:block w-64 bg-ink text-cream min-h-screen flex-col`}>
         <div className="p-6 border-b border-cream/10 flex items-center justify-between">
           <Wordmark color="cream" />
           <button type="button" onClick={() => setMobileNav(false)} className="lg:hidden" aria-label="Close menu"><X size={20} /></button>
@@ -61,7 +61,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
       {/* Main */}
       <div className="flex-1 min-w-0 flex flex-col">
-        <header className="lg:hidden bg-azzurro-deep text-cream flex items-center justify-between p-4">
+        <header className="lg:hidden bg-ink text-cream flex items-center justify-between p-4">
           <Wordmark color="cream" />
           <button type="button" onClick={() => setMobileNav(true)} aria-label="Open menu"><Menu size={20} /></button>
         </header>
@@ -95,7 +95,7 @@ function AdminLogin({ onOk }: { onOk: () => void }) {
         <p className="mt-3 text-sm text-ink-muted">Demo password: <code className="font-mono bg-cream-2 px-1.5 py-0.5 rounded">dante2026</code></p>
         <form onSubmit={submit} className="mt-6 grid gap-3 text-left">
           <label className="text-sm font-medium">Password
-            <input type="password" value={pw} onChange={(e) => { setPw(e.target.value); setErr(""); }} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-azzurro" required />
+            <input type="password" value={pw} onChange={(e) => { setPw(e.target.value); setErr(""); }} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" required />
           </label>
           {err && <p className="text-sm text-rosso">{err}</p>}
           <button type="submit" className="btn btn-primary mt-2">Sign in</button>

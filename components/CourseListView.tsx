@@ -17,7 +17,7 @@ export default function CourseListView({ courses, emptyMessage }: { courses: Cou
       {courses.map((c) => (
         <div key={c.id} className="frame p-5 md:p-6 bg-white grid md:grid-cols-[1fr_auto] gap-4 items-center">
           <div>
-            <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro">{typeof c.level === "string" ? c.level : ""}</p>
+            <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro-deep">{typeof c.level === "string" ? c.level : ""}</p>
             <h3 className="mt-1 text-lg md:text-xl font-semibold">{c.title}</h3>
             <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-[13px] text-ink-muted">
               <span className="inline-flex items-center gap-1.5"><Calendar size={13} aria-hidden />{formatDateRange(c.startISO, c.endISO)}</span>

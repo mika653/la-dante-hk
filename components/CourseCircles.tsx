@@ -36,7 +36,9 @@ export default function CourseCircles() {
     <section className="bg-white py-16 md:py-24">
       <div className="container-xl text-center">
         <p className="eyebrow">Four ways to learn</p>
-        <h2 className="mt-3 text-3xl md:text-5xl max-w-xl mx-auto">Find your course.</h2>
+        <h2 className="mt-3 text-3xl md:text-5xl max-w-xl mx-auto">
+          <span className="circle-accent-center">Find</span> your course.
+        </h2>
         <p className="mt-4 text-ink-muted max-w-xl mx-auto">
           Whether you&apos;re starting from scratch or reading Dante in the original, there&apos;s a seat for you.
         </p>

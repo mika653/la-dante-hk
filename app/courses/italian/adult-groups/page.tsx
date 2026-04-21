@@ -38,10 +38,10 @@ export default function AdultGroupsPage() {
             {LEVEL_ORDER.map((l, i) => (
               <li key={l.key} className="flex-1 min-w-[80px] flex items-center gap-2 md:gap-4">
                 <a href={`#${l.key}`} className="group flex flex-col items-center flex-1">
-                  <span className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-azzurro text-azzurro font-heading font-bold inline-flex items-center justify-center group-hover:bg-azzurro group-hover:text-cream transition-colors">
+                  <span className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-azzurro-deep text-azzurro-deep font-heading font-bold inline-flex items-center justify-center group-hover:bg-azzurro group-hover:text-cream transition-colors">
                     {l.key}
                   </span>
-                  <span className="mt-2 text-xs md:text-sm font-medium text-ink-muted group-hover:text-azzurro">
+                  <span className="mt-2 text-xs md:text-sm font-medium text-ink-muted group-hover:text-azzurro-deep">
                     {levelOutcomes[l.key]?.label}
                   </span>
                 </a>
@@ -80,7 +80,7 @@ export default function AdultGroupsPage() {
                     <p className="eyebrow">After this level you will</p>
                     <ul className="mt-3 grid sm:grid-cols-2 gap-x-8 gap-y-2">
                       {info?.outcomes.map((o) => (
-                        <li key={o} className="flex gap-2 text-[15px]"><span className="text-azzurro mt-2 w-1.5 h-1.5 rounded-full bg-azzurro shrink-0" aria-hidden />{o}</li>
+                        <li key={o} className="flex gap-2 text-[15px]"><span className="text-azzurro-deep mt-2 w-1.5 h-1.5 rounded-full bg-azzurro shrink-0" aria-hidden />{o}</li>
                       ))}
                     </ul>
                   </div>
@@ -88,13 +88,13 @@ export default function AdultGroupsPage() {
                   <div className="grid gap-3">
                     {matching.length === 0 && (
                       <div className="p-5 rounded-2xl bg-cream-2 border border-line text-[14px] text-ink-muted">
-                        No scheduled classes this term. <Link href="/contact" className="text-azzurro underline">Request one →</Link>
+                        No scheduled classes this term. <Link href="/contact" className="text-azzurro-deep underline">Request one →</Link>
                       </div>
                     )}
                     {matching.map((c) => (
                       <div key={c.id} className="p-5 rounded-2xl border border-line bg-cream-2/50 grid md:grid-cols-[1fr_auto] gap-4 items-center">
                         <div>
-                          <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro">{c.level}</p>
+                          <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro-deep">{c.level}</p>
                           <h3 className="mt-1 text-lg font-semibold">{c.title}</h3>
                           <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-[13px] text-ink-muted">
                             <span className="inline-flex items-center gap-1.5"><Calendar size={13} aria-hidden />{formatDateRange(c.startISO, c.endISO)}</span>
@@ -105,7 +105,7 @@ export default function AdultGroupsPage() {
                         </div>
                         <div className="flex items-center gap-3 md:flex-col md:items-end">
                           <span className="text-xl md:text-lg font-heading font-bold">{formatHKD(c.priceHKD)}</span>
-                          <span className={`text-xs px-2.5 py-1 rounded-full ${c.enrolled >= c.seats ? "bg-rosso/10 text-rosso" : "bg-azzurro/10 text-azzurro"}`}>
+                          <span className={`text-xs px-2.5 py-1 rounded-full ${c.enrolled >= c.seats ? "bg-rosso/10 text-rosso" : "bg-azzurro/10 text-azzurro-deep"}`}>
                             {c.enrolled >= c.seats ? "Waitlist" : `${c.seats - c.enrolled} seats left`}
                           </span>
                           <Link href="/membership" className={`btn ${c.enrolled >= c.seats ? "btn-ghost" : "btn-primary"} text-sm h-10 px-5`}>
@@ -117,7 +117,7 @@ export default function AdultGroupsPage() {
                   </div>
 
                   <div className="pt-2 text-sm text-ink-muted">
-                    Can&apos;t find a suitable time? <Link href="/contact" className="text-azzurro underline">Request a new class →</Link>
+                    Can&apos;t find a suitable time? <Link href="/contact" className="text-azzurro-deep underline">Request a new class →</Link>
                   </div>
                 </div>
               </details>

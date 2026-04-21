@@ -37,9 +37,9 @@ export default function EntryPopup() {
 
         <div className="p-6">
           <ul className="space-y-2.5 text-[15px]">
-            <li className="flex gap-2"><Sparkles size={16} className="text-azzurro mt-1 shrink-0" aria-hidden /><span>Early-bird <strong>10% off</strong> until 10 April</span></li>
-            <li className="flex gap-2"><Sparkles size={16} className="text-azzurro mt-1 shrink-0" aria-hidden /><span>University students <strong>−20%</strong> year-round</span></li>
-            <li className="flex gap-2"><Sparkles size={16} className="text-azzurro mt-1 shrink-0" aria-hidden /><span>Gift cards now available for friends & family</span></li>
+            <li className="flex gap-2"><Sparkles size={16} className="text-azzurro-deep mt-1 shrink-0" aria-hidden /><span>Early-bird <strong>10% off</strong> until 10 April</span></li>
+            <li className="flex gap-2"><Sparkles size={16} className="text-azzurro-deep mt-1 shrink-0" aria-hidden /><span>University students <strong>−20%</strong> year-round</span></li>
+            <li className="flex gap-2"><Sparkles size={16} className="text-azzurro-deep mt-1 shrink-0" aria-hidden /><span>Gift cards now available for friends & family</span></li>
           </ul>
           <div className="mt-6 flex gap-2">
             <Link href="/courses/italian/adult-groups" onClick={close} className="btn btn-primary flex-1">See courses</Link>

@@ -12,7 +12,7 @@ export default function FeaturedCarousel() {
             <p className="eyebrow">Happening at Dante</p>
             <h2 className="mt-2 text-3xl md:text-4xl">What&apos;s on</h2>
           </div>
-          <Link href="/culture" className="hidden md:inline text-sm font-medium text-azzurro hover:underline">See everything →</Link>
+          <Link href="/culture" className="hidden md:inline text-sm font-medium text-azzurro-deep hover:underline">See everything →</Link>
         </div>
       </div>
 
@@ -29,7 +29,7 @@ export default function FeaturedCarousel() {
                 <h3 className="mt-3 text-xl md:text-2xl font-semibold leading-tight">{c.title}</h3>
                 <p className="mt-3 text-[15px] text-ink-muted leading-relaxed">{c.body}</p>
               </div>
-              <span className="mt-5 inline-flex items-center gap-2 text-[14px] font-medium text-azzurro">
+              <span className="mt-5 inline-flex items-center gap-2 text-[14px] font-medium text-azzurro-deep">
                 {c.cta} <ArrowRight size={14} />
               </span>
             </Link>

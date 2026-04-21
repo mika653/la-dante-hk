@@ -37,7 +37,7 @@ export default function AdminOverview() {
           { icon: Calendar,    label: "Upcoming events",   value: "6",             href: "/admin/events" },
         ].map(({ icon: Icon, label, value, href }) => (
           <Link key={label} href={href} className="frame p-6 bg-white">
-            <Icon size={22} className="text-azzurro" aria-hidden />
+            <Icon size={22} className="text-azzurro-deep" aria-hidden />
             <p className="mt-4 text-[13px] uppercase tracking-wider text-ink-muted font-medium">{label}</p>
             <p className="mt-1 text-3xl font-heading font-extrabold">{value}</p>
           </Link>
@@ -64,14 +64,14 @@ export default function AdminOverview() {
               <li key={c.id} className="py-3 flex items-center gap-3 text-sm">
                 <span className="w-9 h-9 rounded-full bg-sole flex items-center justify-center shrink-0"><AlertCircle size={14} className="text-ink" aria-hidden /></span>
                 <span className="flex-1"><strong>{c.title}</strong> — almost full ({c.enrolled}/{c.seats}). Consider adding a second class.</span>
-                <Link href="/admin/courses" className="text-azzurro text-xs font-medium">Review <ArrowRight size={12} className="inline" /></Link>
+                <Link href="/admin/courses" className="text-azzurro-deep text-xs font-medium">Review <ArrowRight size={12} className="inline" /></Link>
               </li>
             ))}
             {lowEnrol.slice(0, 3).map((c) => (
               <li key={c.id} className="py-3 flex items-center gap-3 text-sm">
                 <span className="w-9 h-9 rounded-full bg-rosso/10 flex items-center justify-center shrink-0"><AlertCircle size={14} className="text-rosso" aria-hidden /></span>
                 <span className="flex-1"><strong>{c.title}</strong> — only {c.enrolled} enrolled. Boost with marketing or merge classes.</span>
-                <Link href="/admin/courses" className="text-azzurro text-xs font-medium">Review <ArrowRight size={12} className="inline" /></Link>
+                <Link href="/admin/courses" className="text-azzurro-deep text-xs font-medium">Review <ArrowRight size={12} className="inline" /></Link>
               </li>
             ))}
           </ul>

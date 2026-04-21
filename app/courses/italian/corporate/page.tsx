@@ -24,7 +24,7 @@ export default function CorporatePage() {
             { icon: Award,     title: "PLIDA certificates",body: "Formal recognition for HR and immigration needs." },
           ].map(({ icon: Icon, title, body }) => (
             <div key={title} className="frame p-6 bg-cream-2/50">
-              <Icon size={22} className="text-azzurro" aria-hidden />
+              <Icon size={22} className="text-azzurro-deep" aria-hidden />
               <h3 className="mt-3 font-semibold">{title}</h3>
               <p className="mt-1 text-sm text-ink-muted">{body}</p>
             </div>

@@ -46,7 +46,7 @@ export default function About() {
               { year: "2026", title: "Website reborn", body: "You&apos;re looking at it. New digital home, same 90-year spirit." },
             ].map((m) => (
               <div key={m.year} className="frame p-6 bg-cream-2/50">
-                <p className="font-heading font-extrabold text-3xl text-azzurro">{m.year}</p>
+                <p className="font-heading font-extrabold text-3xl text-azzurro-deep">{m.year}</p>
                 <h3 className="mt-1 font-semibold">{m.title}</h3>
                 <p className="mt-2 text-sm text-ink-muted" dangerouslySetInnerHTML={{ __html: m.body }} />
               </div>
@@ -67,7 +67,7 @@ export default function About() {
               { name: "Elena Conti",      role: "Culture programme" },
             ].map((p) => (
               <div key={p.name} className="text-center">
-                <div className="w-40 h-40 mx-auto rounded-full bg-azzurro text-cream font-heading font-extrabold text-5xl inline-flex items-center justify-center">{p.name.split(" ").map((x) => x[0]).join("")}</div>
+                <div className="w-40 h-40 mx-auto rounded-full bg-ink text-cream font-heading font-extrabold text-5xl inline-flex items-center justify-center">{p.name.split(" ").map((x) => x[0]).join("")}</div>
                 <p className="mt-4 font-semibold">{p.name}</p>
                 <p className="text-sm text-ink-muted">{p.role}</p>
               </div>

@@ -97,7 +97,7 @@ export default function Nav() {
             <div key={g.label} className="relative" onMouseEnter={() => g.columns && setOpenGroup(g.label)}>
               <Link
                 href={g.href}
-                className="inline-flex items-center gap-1 px-3 py-2 text-[15px] font-medium text-ink hover:text-azzurro rounded-full"
+                className="inline-flex items-center gap-1 px-3 py-2 text-[15px] font-medium text-ink hover:text-azzurro-deep rounded-full"
               >
                 {g.label}
                 {g.columns && <ChevronDown size={14} className="opacity-60" aria-hidden />}
@@ -111,7 +111,7 @@ export default function Nav() {
                         <ul className="space-y-1.5">
                           {col.items.map((it) => (
                             <li key={it.label}>
-                              <Link href={it.href} className="block text-[14px] text-ink-muted hover:text-azzurro py-1" onClick={() => setOpenGroup(null)}>
+                              <Link href={it.href} className="block text-[14px] text-ink-muted hover:text-azzurro-deep py-1" onClick={() => setOpenGroup(null)}>
                                 {it.label}
                               </Link>
                             </li>
@@ -127,7 +127,7 @@ export default function Nav() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-2">
-          <Link href="/placement-test" className="text-[14px] font-medium text-ink hover:text-azzurro">Placement test</Link>
+          <Link href="/placement-test" className="text-[14px] font-medium text-ink hover:text-azzurro-deep">Placement test</Link>
           <Link href="/courses/italian/adult-groups" className="btn btn-primary text-[14px]">Enrol →</Link>
         </div>
 

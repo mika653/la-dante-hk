@@ -23,7 +23,7 @@ export default function PrivatePage() {
             { icon: CheckCircle, title: "Any level, any goal", body: "Business meetings, opera librettos, travel, or PLIDA prep — you decide." },
           ].map(({ icon: Icon, title, body }) => (
             <div key={title} className="frame p-8 bg-cream-2/50">
-              <Icon size={22} className="text-azzurro mx-auto" aria-hidden />
+              <Icon size={22} className="text-azzurro-deep mx-auto" aria-hidden />
               <h3 className="mt-4 text-lg font-semibold">{title}</h3>
               <p className="mt-2 text-sm text-ink-muted">{body}</p>
             </div>

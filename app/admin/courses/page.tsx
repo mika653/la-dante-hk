@@ -41,7 +41,7 @@ export default function AdminCoursesList() {
       <div className="frame p-4 md:p-5 bg-white flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[220px]">
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-soft" aria-hidden />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by title, teacher, or level..." className="w-full h-11 pl-11 pr-4 rounded-xl border border-line bg-white focus:outline-none focus:border-azzurro" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by title, teacher, or level..." className="w-full h-11 pl-11 pr-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" />
         </div>
         <select value={lang} onChange={(e) => setLang(e.target.value as "all" | Language)} className="h-11 px-4 rounded-xl border border-line bg-white">
           <option value="all">All languages</option>
@@ -81,12 +81,12 @@ export default function AdminCoursesList() {
               {filtered.map((c) => (
                 <tr key={c.id} className="border-t border-line hover:bg-cream-2/30">
                   <td className="px-5 py-4 font-medium">{c.title}</td>
-                  <td className="px-5 py-4 font-mono text-xs uppercase tracking-widest text-azzurro">{c.level}</td>
+                  <td className="px-5 py-4 font-mono text-xs uppercase tracking-widest text-azzurro-deep">{c.level}</td>
                   <td className="px-5 py-4 text-ink-muted">{c.dayLabel}</td>
                   <td className="px-5 py-4 text-ink-muted">{c.teacher}</td>
                   <td className="px-5 py-4">{formatHKD(c.priceHKD)}</td>
                   <td className="px-5 py-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs ${c.enrolled >= c.seats ? "bg-rosso/10 text-rosso" : c.enrolled >= c.seats * 0.75 ? "bg-sole/30 text-ink" : "bg-azzurro/10 text-azzurro"}`}>
+                    <span className={`px-2.5 py-1 rounded-full text-xs ${c.enrolled >= c.seats ? "bg-rosso/10 text-rosso" : c.enrolled >= c.seats * 0.75 ? "bg-sole/30 text-ink" : "bg-azzurro/10 text-azzurro-deep"}`}>
                       {c.enrolled}/{c.seats}
                     </span>
                   </td>

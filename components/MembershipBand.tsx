@@ -3,12 +3,12 @@ import { ArrowRight } from "lucide-react";
 
 export default function MembershipBand() {
   return (
-    <section className="relative bg-azzurro text-cream py-20 md:py-28 overflow-hidden">
-      {/* Decorative circles echoing the mural */}
-      <div className="absolute -top-16 -left-10 w-56 h-56 rounded-full bg-azzurro-deep opacity-70" aria-hidden />
-      <div className="absolute -bottom-20 -right-10 w-80 h-80 rounded-full bg-sole/20" aria-hidden />
+    <section className="relative bg-ink text-cream py-20 md:py-28 overflow-hidden">
+      {/* Decorative brand-blue and yellow circles */}
+      <div className="absolute -top-24 -left-20 w-80 h-80 rounded-full bg-azzurro opacity-25 blur-[2px]" aria-hidden />
+      <div className="absolute -bottom-20 -right-10 w-80 h-80 rounded-full bg-sole/15" aria-hidden />
       <div className="absolute top-10 right-[20%] w-3 h-3 rounded-full bg-sole" aria-hidden />
-      <div className="absolute bottom-16 left-[18%] w-2 h-2 rounded-full bg-cream" aria-hidden />
+      <div className="absolute bottom-16 left-[18%] w-2 h-2 rounded-full bg-azzurro" aria-hidden />
 
       <div className="container-xl relative z-10 text-center">
         <p className="eyebrow !text-sole">Dante membership</p>

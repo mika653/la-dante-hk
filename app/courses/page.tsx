@@ -15,7 +15,7 @@ const paths = [
 ];
 
 const toneClass: Record<string, string> = {
-  blue:  "bg-azzurro text-cream",
+  blue:  "bg-ink text-cream",
   yellow:"bg-sole-soft text-ink",
   cream: "bg-cream-2 text-ink border border-line",
   white: "bg-white text-ink border border-line",
@@ -39,7 +39,7 @@ export default function CoursesIndex() {
                 <h3 className="mt-3 text-2xl font-semibold">{p.title}</h3>
                 <p className={`mt-2 text-[15px] leading-relaxed ${p.tone === "blue" ? "text-cream/85" : "text-ink-muted"}`}>{p.blurb}</p>
               </div>
-              <span className={`mt-5 inline-flex items-center gap-2 text-sm font-medium ${p.tone === "blue" ? "text-sole" : "text-azzurro"}`}>
+              <span className={`mt-5 inline-flex items-center gap-2 text-sm font-medium ${p.tone === "blue" ? "text-sole" : "text-azzurro-deep"}`}>
                 Explore <ArrowUpRight size={14} className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </span>
             </Link>

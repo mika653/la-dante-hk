@@ -141,9 +141,9 @@ export default function TestClient() {
               You&apos;ll answer up to 15 adaptive questions. Harder questions unlock higher levels. If you don&apos;t know the answer, that&apos;s fine — just pick your best guess.
             </p>
             <div className="mt-8 grid grid-cols-3 gap-2 max-w-md mx-auto text-center">
-              <div><Clock size={18} className="mx-auto text-azzurro" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">~5 minutes</p></div>
-              <div><Sparkles size={18} className="mx-auto text-azzurro" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">Adaptive</p></div>
-              <div><Mail size={18} className="mx-auto text-azzurro" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">Emailed to you</p></div>
+              <div><Clock size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">~5 minutes</p></div>
+              <div><Sparkles size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">Adaptive</p></div>
+              <div><Mail size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">Emailed to you</p></div>
             </div>
             <button type="button" onClick={begin} className="btn btn-primary mt-10">Begin the test <ArrowRight size={16} /></button>
             <p className="mt-4 text-xs text-ink-muted">No account needed. You can stop anytime.</p>
@@ -181,9 +181,9 @@ export default function TestClient() {
                     key={i}
                     type="button"
                     onClick={() => setSelected(i)}
-                    className={`text-left border rounded-2xl px-5 py-4 flex items-center gap-4 transition-all ${active ? "border-azzurro bg-azzurro/5" : "border-line hover:border-ink-muted"}`}
+                    className={`text-left border rounded-2xl px-5 py-4 flex items-center gap-4 transition-all ${active ? "border-azzurro-deep bg-azzurro/5" : "border-line hover:border-ink-muted"}`}
                   >
-                    <span className={`w-6 h-6 rounded-full border inline-flex items-center justify-center shrink-0 ${active ? "border-azzurro bg-azzurro text-cream" : "border-line"}`}>
+                    <span className={`w-6 h-6 rounded-full border inline-flex items-center justify-center shrink-0 ${active ? "border-azzurro-deep bg-azzurro text-cream" : "border-line"}`}>
                       {active && <Check size={14} />}
                     </span>
                     <span className="text-[16px]">{c}</span>
@@ -214,8 +214,8 @@ export default function TestClient() {
               onSubmit={(e) => { e.preventDefault(); setStage("result"); }}
               className="mt-8 grid gap-3 text-left"
             >
-              <label className="text-sm font-medium">First name<input required value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-azzurro" /></label>
-              <label className="text-sm font-medium">Email<input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-azzurro" /></label>
+              <label className="text-sm font-medium">First name<input required value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
+              <label className="text-sm font-medium">Email<input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
               <button type="submit" className="btn btn-primary mt-2">Show me my level <ArrowRight size={16} /></button>
               <button type="button" onClick={() => setStage("result")} className="text-xs text-ink-muted hover:text-ink underline mt-2">Skip for now</button>
             </form>

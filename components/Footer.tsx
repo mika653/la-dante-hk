@@ -15,7 +15,7 @@ export default function Footer() {
         <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-azzurro-deep" aria-hidden />
       </div>
 
-      <div className="bg-azzurro-deep text-cream">
+      <div className="bg-ink text-cream">
         <div className="container-xl pt-14 pb-10">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
             <div className="md:col-span-4">

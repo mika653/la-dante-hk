@@ -27,7 +27,7 @@ export default function MembershipPage() {
           <div className="grid md:grid-cols-2 gap-8">
             {memberPerks.map((group) => (
               <div key={group.category} className="frame p-8 bg-cream-2/50">
-                <h3 className="text-xl font-heading font-bold uppercase tracking-wider text-azzurro">{group.category}</h3>
+                <h3 className="text-xl font-heading font-bold uppercase tracking-wider text-azzurro-deep">{group.category}</h3>
                 <ul className="mt-5 divide-y divide-line">
                   {group.items.map((i) => (
                     <li key={i.name} className="py-3 flex items-start justify-between gap-4">

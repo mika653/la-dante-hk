@@ -9,12 +9,12 @@ export default function WorkshopsGrid() {
         <div className="flex items-end justify-between gap-4 mb-10">
           <div>
             <p className="eyebrow">Beyond the classroom</p>
-            <h2 className="mt-3 text-3xl md:text-5xl">Our workshops.</h2>
+            <h2 className="mt-3 text-3xl md:text-5xl"><span className="circle-accent-sm circle-accent">Our</span> workshops.</h2>
             <p className="mt-4 text-ink-muted max-w-xl">
               Planned sessions you can book — plus ideas we&apos;re gauging interest for. Tap <em>I&apos;m interested</em> and we&apos;ll open the class when enough of you want it.
             </p>
           </div>
-          <Link href="/culture" className="hidden md:inline text-sm font-medium text-azzurro hover:underline">All workshops →</Link>
+          <Link href="/culture" className="hidden md:inline text-sm font-medium text-azzurro-deep hover:underline">All workshops →</Link>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -25,7 +25,7 @@ export default function WorkshopsGrid() {
               </div>
               <div className="mt-5 flex items-center gap-2 text-xs">
                 {w.status === "planned" ? (
-                  <span className="px-2.5 py-1 rounded-full bg-azzurro/10 text-azzurro font-medium uppercase tracking-wider">Planned · {w.dateLabel}</span>
+                  <span className="px-2.5 py-1 rounded-full bg-azzurro/10 text-azzurro-deep font-medium uppercase tracking-wider">Planned · {w.dateLabel}</span>
                 ) : (
                   <span className="px-2.5 py-1 rounded-full bg-sole text-ink font-medium uppercase tracking-wider inline-flex items-center gap-1">
                     <Users size={12} /> {w.interested} interested

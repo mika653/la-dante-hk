@@ -25,7 +25,7 @@ export default function PLIDA() {
               { icon: Calendar, title: "Two sessions a year",     body: "June and November. Registration closes five weeks before each exam." },
             ].map(({ icon: Icon, title, body }) => (
               <div key={title} className="frame p-6 md:p-8 bg-white">
-                <Icon size={22} className="text-azzurro" aria-hidden />
+                <Icon size={22} className="text-azzurro-deep" aria-hidden />
                 <h3 className="mt-4 font-semibold text-lg">{title}</h3>
                 <p className="mt-2 text-sm text-ink-muted" dangerouslySetInnerHTML={{ __html: body }} />
               </div>
@@ -64,8 +64,9 @@ export default function PLIDA() {
             </div>
           </div>
 
-          <div id="prepare" className="mt-16 frame p-8 md:p-10 bg-azzurro text-cream">
-            <p className="eyebrow !text-sole">Prepare</p>
+          <div id="prepare" className="mt-16 frame p-8 md:p-10 bg-ink text-cream relative overflow-hidden">
+            <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-azzurro opacity-25 blur-[2px]" aria-hidden />
+            <p className="eyebrow !text-sole relative">Prepare</p>
             <h2 className="mt-3 text-3xl max-w-xl">PLIDA preparation workshops.</h2>
             <p className="mt-3 max-w-xl text-cream/85">Six weeks of focused prep with past papers, timed practice, and feedback from certified PLIDA examiners. Open to members and non-members.</p>
             <Link href="/contact" className="btn btn-yellow mt-5">Register interest <ArrowRight size={16} /></Link>

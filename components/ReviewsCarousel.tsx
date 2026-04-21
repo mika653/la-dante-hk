@@ -12,8 +12,9 @@ export default function ReviewsCarousel() {
   const t = testimonials[i];
 
   return (
-    <section className="bg-azzurro text-cream py-20 md:py-28 relative overflow-hidden">
-      <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-azzurro-deep opacity-60" aria-hidden />
+    <section className="bg-ink text-cream py-20 md:py-28 relative overflow-hidden">
+      <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-azzurro opacity-25 blur-[2px]" aria-hidden />
+      <div className="absolute -bottom-20 -left-10 w-64 h-64 rounded-full bg-azzurro opacity-15" aria-hidden />
       <div className="container-xl relative z-10">
         <div className="text-center max-w-3xl mx-auto">
           <Quote size={32} className="mx-auto text-sole" aria-hidden />
@@ -25,7 +26,7 @@ export default function ReviewsCarousel() {
           </p>
 
           <div className="mt-10 flex items-center justify-center gap-3">
-            <button type="button" onClick={() => setI((v) => (v - 1 + testimonials.length) % testimonials.length)} className="w-10 h-10 rounded-full border border-cream/30 hover:bg-cream hover:text-azzurro inline-flex items-center justify-center" aria-label="Previous">
+            <button type="button" onClick={() => setI((v) => (v - 1 + testimonials.length) % testimonials.length)} className="w-10 h-10 rounded-full border border-cream/30 hover:bg-cream hover:text-azzurro-deep inline-flex items-center justify-center" aria-label="Previous">
               <ChevronLeft size={16} />
             </button>
             <div className="flex gap-1.5">
@@ -33,7 +34,7 @@ export default function ReviewsCarousel() {
                 <button key={idx} type="button" onClick={() => setI(idx)} aria-label={`Go to slide ${idx + 1}`} className={`w-2 h-2 rounded-full transition-all ${idx === i ? "bg-sole w-6" : "bg-cream/40"}`} />
               ))}
             </div>
-            <button type="button" onClick={() => setI((v) => (v + 1) % testimonials.length)} className="w-10 h-10 rounded-full border border-cream/30 hover:bg-cream hover:text-azzurro inline-flex items-center justify-center" aria-label="Next">
+            <button type="button" onClick={() => setI((v) => (v + 1) % testimonials.length)} className="w-10 h-10 rounded-full border border-cream/30 hover:bg-cream hover:text-azzurro-deep inline-flex items-center justify-center" aria-label="Next">
               <ChevronRight size={16} />
             </button>
           </div>

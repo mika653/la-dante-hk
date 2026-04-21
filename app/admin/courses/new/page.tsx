@@ -75,7 +75,7 @@ export default function NewCoursePage() {
 
   return (
     <div className="max-w-3xl">
-      <Link href="/admin/courses" className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-azzurro mb-6"><ArrowLeft size={14} /> Back to courses</Link>
+      <Link href="/admin/courses" className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-azzurro-deep mb-6"><ArrowLeft size={14} /> Back to courses</Link>
 
       <p className="eyebrow">Admin · New course</p>
       <h1 className="mt-2 text-3xl md:text-4xl">Create a new course.</h1>
@@ -89,7 +89,7 @@ export default function NewCoursePage() {
           const past = n < step;
           return (
             <li key={label} className="flex items-center gap-2 md:gap-3 flex-1">
-              <span className={`w-8 h-8 rounded-full inline-flex items-center justify-center font-heading font-bold shrink-0 ${active ? "bg-azzurro text-cream" : past ? "bg-sole text-ink" : "border border-line text-ink-muted"}`}>{past ? <Check size={14} /> : n}</span>
+              <span className={`w-8 h-8 rounded-full inline-flex items-center justify-center font-heading font-bold shrink-0 ${active ? "bg-ink text-cream" : past ? "bg-sole text-ink" : "border border-line text-ink-muted"}`}>{past ? <Check size={14} /> : n}</span>
               <span className={`font-medium hidden md:inline ${active ? "text-ink" : "text-ink-muted"}`}>{label}</span>
               {i < 3 && <span className="flex-1 h-px bg-line" aria-hidden />}
             </li>
@@ -104,7 +104,7 @@ export default function NewCoursePage() {
               <label className="block text-sm font-medium mb-2">Language</label>
               <div className="flex gap-2">
                 {(["italian", "latin"] as Language[]).map((l) => (
-                  <button key={l} type="button" onClick={() => setLang(l)} className={`px-5 py-2.5 rounded-full border ${lang === l ? "bg-azzurro text-cream border-azzurro" : "border-line hover:border-ink-muted"}`}>{l === "italian" ? "Italian" : "Latin"}</button>
+                  <button key={l} type="button" onClick={() => setLang(l)} className={`px-5 py-2.5 rounded-full border ${lang === l ? "bg-ink text-cream border-ink" : "border-line hover:border-ink-muted"}`}>{l === "italian" ? "Italian" : "Latin"}</button>
                 ))}
               </div>
             </div>
@@ -119,7 +119,7 @@ export default function NewCoursePage() {
                   { v: "online", l: "Online" },
                   { v: "latin-group", l: "Latin group" },
                 ] as Array<{ v: CourseType; l: string }>).map((t) => (
-                  <button key={t.v} type="button" onClick={() => setType(t.v)} className={`px-5 py-2.5 rounded-full border ${type === t.v ? "bg-azzurro text-cream border-azzurro" : "border-line hover:border-ink-muted"}`}>{t.l}</button>
+                  <button key={t.v} type="button" onClick={() => setType(t.v)} className={`px-5 py-2.5 rounded-full border ${type === t.v ? "bg-ink text-cream border-ink" : "border-line hover:border-ink-muted"}`}>{t.l}</button>
                 ))}
               </div>
             </div>
@@ -148,7 +148,7 @@ export default function NewCoursePage() {
               <div className="flex flex-wrap gap-2">
                 {DAYS.map((d) => {
                   const on = days.includes(d);
-                  return <button key={d} type="button" onClick={() => toggleDay(d)} className={`px-4 py-2 rounded-full border ${on ? "bg-azzurro text-cream border-azzurro" : "border-line hover:border-ink-muted"}`}>{d}</button>;
+                  return <button key={d} type="button" onClick={() => toggleDay(d)} className={`px-4 py-2 rounded-full border ${on ? "bg-ink text-cream border-ink" : "border-line hover:border-ink-muted"}`}>{d}</button>;
                 })}
               </div>
             </div>
@@ -182,7 +182,7 @@ export default function NewCoursePage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-sm font-medium">Course description</label>
-                <button type="button" onClick={applySuggestedDescription} className="text-xs text-azzurro underline">Auto-fill from level</button>
+                <button type="button" onClick={applySuggestedDescription} className="text-xs text-azzurro-deep underline">Auto-fill from level</button>
               </div>
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} className="w-full p-4 rounded-xl border border-line bg-white font-body" placeholder="Learning outcomes, who it&apos;s for, what to bring..." />
             </div>
@@ -197,7 +197,7 @@ export default function NewCoursePage() {
           <div className="space-y-6">
             <p className="eyebrow">This is how it will appear on the site</p>
             <div className="frame p-5 md:p-6 bg-cream-2/50">
-              <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro">{level}</p>
+              <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro-deep">{level}</p>
               <h3 className="mt-1 text-lg md:text-xl font-semibold">{title || autoTitle()}</h3>
               <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 text-[13px] text-ink-muted">
                 <span className="inline-flex items-center gap-1.5"><Calendar size={13} aria-hidden />{startDate || "—"} → {endDate || "—"}</span>

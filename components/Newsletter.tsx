@@ -12,7 +12,7 @@ export default function Newsletter() {
       <div className="container-xl">
         <div className="max-w-3xl mx-auto text-center">
           <p className="eyebrow">Stay in touch</p>
-          <h2 className="mt-3 text-3xl md:text-4xl">Join us for news & updates.</h2>
+          <h2 className="mt-3 text-3xl md:text-4xl"><span className="circle-accent-center">Join</span> us for news &amp; updates.</h2>
           <p className="mt-3 text-ink-muted">New terms, workshops, cultural events, and the occasional Italian joke.</p>
 
           {done ? (
@@ -31,7 +31,7 @@ export default function Newsletter() {
                 placeholder="First name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="flex-1 h-12 px-5 rounded-full border border-line bg-white focus:outline-none focus:border-azzurro"
+                className="flex-1 h-12 px-5 rounded-full border border-line bg-white focus:outline-none focus:border-ink"
                 aria-label="First name"
               />
               <div className="flex-[2] relative">
@@ -42,7 +42,7 @@ export default function Newsletter() {
                   placeholder="you@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-12 pl-11 pr-5 rounded-full border border-line bg-white focus:outline-none focus:border-azzurro"
+                  className="w-full h-12 pl-11 pr-5 rounded-full border border-line bg-white focus:outline-none focus:border-ink"
                   aria-label="Email"
                 />
               </div>
