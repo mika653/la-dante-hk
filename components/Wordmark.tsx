@@ -21,7 +21,8 @@ export default function Wordmark({
           fill
           priority
           sizes="240px"
-          className={`object-contain object-left ${color === "cream" ? "invert brightness-0 [filter:invert(98%)_sepia(5%)_saturate(300%)_hue-rotate(2deg)_brightness(105%)]" : ""}`}
+          className="object-contain object-left"
+          style={color === "cream" ? { filter: "brightness(0) invert(1)" } : undefined}
         />
       </span>
     </Link>
