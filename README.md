@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# La Dante HK — demo redesign
 
-## Getting Started
+A premium, mobile-responsive redesign of ladante.cc, the Dante Alighieri Society of Hong Kong (Italian & Latin language school since 1935).
 
-First, run the development server:
+Built for **demo presentation** to convince the client to move off WordPress.
+
+## What's in the box
+
+- **Homepage** — mural-led hero, trust band, featured carousel, 4 course circles, membership band, workshops, bookclub/library/membership trio, Instagram strip, sponsors, reviews carousel, newsletter
+- **Courses** — index + Italian Adult Groups (CEFR accordion template) + Private, Kids, Corporate, Online, Latin, Study in Italy, Teacher Training
+- **Interactive Placement Test** — 30-question adaptive CEFR-aligned test with recommendation + email capture
+- **Membership form** — 4-step wizard (Plan → You → Review → Confirm), 4 plans, interests chips
+- **Admin dashboard** — password-gated (`dante2026`), course CRUD wizard, workshops, overview, settings
+- **Chatbot "Dantina"** — floating rule-based FAQ bot on all public pages
+- **Entry pop-up** — session-dismissible new-term promo
+- **SEO** — sitemap + robots + rich metadata
+- **PLIDA, Culture (events + workshops), About (with mural story), Contact, Typhoon policy, Legal, Gift, Merch, Services (Translation, Sponsorship)**
+
+## Stack
+
+- Next.js 16 + React 19 (App Router, static generation)
+- TypeScript
+- Tailwind CSS v4
+- League Spartan + Poppins (Google Fonts)
+- lucide-react icons
+- Local-storage-backed demo CMS (Phase 2 → Supabase/Neon)
+
+## Local dev
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Admin
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Visit `/admin`
+- Password: `dante2026`
+- Courses you create persist in your browser's localStorage
+- "Reset demo data" button on the overview page wipes it
 
-## Learn More
+## Deploy
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+vercel deploy --prod
+```
