@@ -6,7 +6,7 @@ import AnnouncementBar from "./AnnouncementBar";
 
 export function ConditionalNav() {
   const pathname = usePathname() || "";
-  if (pathname.startsWith("/admin")) return null;
+  if (pathname.startsWith("/admin") || pathname.startsWith("/student")) return null;
   return (
     <>
       <AnnouncementBar />
@@ -17,6 +17,6 @@ export function ConditionalNav() {
 
 export function ConditionalFooter() {
   const pathname = usePathname() || "";
-  if (pathname.startsWith("/admin")) return null;
+  if (pathname.startsWith("/admin") || pathname.startsWith("/student")) return null;
   return <Footer />;
 }

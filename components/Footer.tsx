@@ -55,6 +55,7 @@ export default function Footer() {
                 <li><Link className="hover:text-sole" href="/culture">Culture</Link></li>
                 <li><Link className="hover:text-sole" href="/plida">PLIDA</Link></li>
                 <li><Link className="hover:text-sole" href="/about">About us</Link></li>
+                <li><Link className="hover:text-sole" href="/student">Student portal</Link></li>
                 <li><Link className="hover:text-sole" href="/gift">Gift a year</Link></li>
               </ul>
             </div>

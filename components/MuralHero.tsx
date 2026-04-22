@@ -1,8 +1,12 @@
+"use client";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Star } from "lucide-react";
 import HeroCarousel from "./HeroCarousel";
+import { useSiteContent } from "@/lib/site-content";
 
 export default function MuralHero() {
+  const { hero } = useSiteContent();
+
   return (
     <section className="relative bg-ink overflow-hidden min-h-[540px] md:min-h-[720px] lg:min-h-[760px] -mt-16 md:-mt-20">
       {/* Full-bleed photo carousel */}
@@ -10,7 +14,7 @@ export default function MuralHero() {
         <HeroCarousel />
       </div>
 
-      {/* Readability overlays — strong cream on left (for text), subtle cream band at top (for nav) */}
+      {/* Readability overlays */}
       <div
         className="absolute inset-0 z-[5]"
         aria-hidden
@@ -19,7 +23,6 @@ export default function MuralHero() {
             "linear-gradient(180deg, rgba(255,251,240,0.55) 0%, rgba(255,251,240,0.12) 140px, rgba(255,251,240,0) 200px), linear-gradient(90deg, rgba(255,251,240,0.98) 0%, rgba(255,251,240,0.92) 32%, rgba(255,251,240,0.55) 52%, rgba(255,251,240,0) 72%)",
         }}
       />
-      {/* Subtle vertical darken at bottom for caption legibility */}
       <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-ink/40 z-[5]" aria-hidden />
 
       {/* Floating brand dots */}
@@ -30,45 +33,48 @@ export default function MuralHero() {
       {/* Brand-yellow accent bar at the very top */}
       <div className="absolute top-0 inset-x-0 h-1 bg-sole z-[6]" aria-hidden />
 
-      {/* Content — overlaid, left-aligned; top padding accounts for the transparent nav above */}
+      {/* Content */}
       <div className="container-xl relative z-10 pt-24 md:pt-44 pb-16 md:pb-28 min-h-[540px] md:min-h-[720px] lg:min-h-[760px] flex items-center">
         <div className="max-w-[600px]">
           <p className="eyebrow flex items-center gap-2">
             <Sparkles size={14} className="text-ink" aria-hidden />
-            Italiano · Latino · Hong Kong · 1935
+            {hero.eyebrow}
           </p>
 
           <div className="circle-accent mt-4">
             <h1 className="text-[2.25rem] xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl uppercase text-ink leading-[0.95]">
-              Impara
+              {hero.line1}
               <br />
-              <span className="italian normal-case" style={{ letterSpacing: "-0.02em" }}>l&apos;italiano</span>
+              <span className="italian normal-case" style={{ letterSpacing: "-0.02em" }}>{hero.line2}</span>
               <br />
-              a Hong Kong<span className="ring-dot" aria-hidden></span>
+              {hero.line3}
+              <span className="ring-dot" aria-hidden></span>
             </h1>
           </div>
 
-          <p className="mt-5 max-w-[520px] text-base md:text-xl text-ink-muted">
-            Certified native teachers, CEFR-aligned courses, and a 90-year tradition of Italian culture in the heart of Wanchai.
-          </p>
+          <p className="mt-5 max-w-[520px] text-base md:text-xl text-ink-muted">{hero.subhead}</p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/placement-test" className="btn btn-primary">
-              Take the placement test <ArrowRight size={16} />
-            </Link>
-            <Link href="/courses/italian/adult-groups" className="btn btn-yellow">
-              See May–July courses
-            </Link>
+            {hero.cta1.label && (
+              <Link href={hero.cta1.href || "#"} className="btn btn-primary">
+                {hero.cta1.label} <ArrowRight size={16} />
+              </Link>
+            )}
+            {hero.cta2.label && (
+              <Link href={hero.cta2.href || "#"} className="btn btn-yellow">
+                {hero.cta2.label}
+              </Link>
+            )}
           </div>
 
           <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-[14px] text-ink-muted">
-            <span className="inline-flex items-center gap-1.5"><Star size={15} className="fill-sole text-sole" aria-hidden />4.9 rating</span>
-            <span className="text-ink-soft">·</span>
-            <span>1,500+ students</span>
-            <span className="text-ink-soft">·</span>
-            <span>Wanchai &amp; online</span>
-            <span className="text-ink-soft">·</span>
-            <span>PLIDA certified</span>
+            {hero.trust.map((t, i) => (
+              <span key={`${t}-${i}`} className="inline-flex items-center gap-1.5">
+                {i === 0 && <Star size={15} className="fill-sole text-sole" aria-hidden />}
+                {t}
+                {i < hero.trust.length - 1 && <span className="text-ink-soft ml-3">·</span>}
+              </span>
+            ))}
           </div>
         </div>
       </div>

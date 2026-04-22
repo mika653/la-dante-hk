@@ -126,7 +126,8 @@ export default function Nav() {
           ))}
         </nav>
 
-        <div className="hidden lg:flex items-center gap-2">
+        <div className="hidden lg:flex items-center gap-3">
+          <Link href="/student" className="text-[14px] font-medium text-ink-muted hover:text-ink">Student log-in</Link>
           <Link href="/placement-test" className="text-[14px] font-medium text-ink hover:text-azzurro-deep">Placement test</Link>
           <Link href="/courses/italian/adult-groups" className="btn btn-primary text-[14px]">Enrol →</Link>
         </div>
