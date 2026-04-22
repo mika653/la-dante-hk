@@ -20,7 +20,7 @@ export default function SiteChrome() {
     }
   }, []);
 
-  if (pathname.startsWith("/admin") || pathname.startsWith("/student")) return null;
+  if (pathname.startsWith("/admin") || pathname.startsWith("/student") || pathname.startsWith("/onboarding")) return null;
   if (isPreview) return null;
 
   return (
