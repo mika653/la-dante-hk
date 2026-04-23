@@ -98,7 +98,14 @@ export default function Nav() {
   }, [mobileOpen]);
 
   return (
-    <header className={`sticky top-0 z-40 transition-all duration-300 ${scrolled ? "bg-cream/95 backdrop-blur-md shadow-[0_1px_4px_rgb(0_0_0_/_0.06)]" : "bg-cream/80 backdrop-blur-sm"}`}>
+    <header
+      className={`sticky top-0 z-40 transition-all duration-300 border-b ${
+        scrolled
+          ? "bg-cream/70 border-ink/10 shadow-[0_4px_24px_-8px_rgb(0_0_0_/_0.08)]"
+          : "bg-cream/50 border-ink/5"
+      }`}
+      style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
+    >
       <div className="container-xl flex items-center justify-between h-16 md:h-20 gap-6">
         <Wordmark />
 
