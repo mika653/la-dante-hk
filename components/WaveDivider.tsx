@@ -1,13 +1,15 @@
 // A soft SVG wave divider between two section colours.
 // `from` is the section ABOVE the wave, `to` is the section BELOW.
-type Tone = "cream" | "white" | "sole-soft" | "azzurro" | "azzurro-deep";
+type Tone = "cream" | "white" | "sole-soft" | "azzurro" | "azzurro-deep" | "paper" | "ink";
 
 const toneHex: Record<Tone, string> = {
   "cream": "#FFFBF0",
   "white": "#FFFFFF",
-  "sole-soft": "#FEF3C7",
-  "azzurro": "#1E40AF",
-  "azzurro-deep": "#1E3A8A",
+  "sole-soft": "#FFF6A8",
+  "azzurro": "#A6E4F8",
+  "azzurro-deep": "#075985",
+  "paper": "#F1F1F1",
+  "ink": "#191919",
 };
 
 export default function WaveDivider({ from, to, flip = false }: { from: Tone; to: Tone; flip?: boolean }) {

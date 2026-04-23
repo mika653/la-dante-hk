@@ -1,13 +1,12 @@
+"use client";
 import { Award, Shield, BookOpen, Users } from "lucide-react";
+import { useT } from "@/lib/locale";
 
-const items = [
-  { icon: Award,    label: "Official PLIDA centre", detail: "For A1–C2 certification" },
-  { icon: Shield,   label: "Italian Consulate",     detail: "Recognised cultural society" },
-  { icon: BookOpen, label: "CEFR-aligned",          detail: "All adult group courses" },
-  { icon: Users,    label: "1,500+ students",       detail: "Hong Kong's largest" },
-];
+const icons = [Award, Shield, BookOpen, Users];
 
 export default function TrustBand() {
+  const { t } = useT();
+  const items = t.trustBand.map((x, i) => ({ ...x, icon: icons[i] }));
   return (
     <section className="bg-white py-8 md:py-10 border-b border-line">
       <div className="container-xl">

@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { ArrowRight, BookMarked, Library, Users } from "lucide-react";
 
@@ -13,13 +14,16 @@ const toneClass: Record<"yellow" | "white" | "blue", string> = {
   blue:   "bg-ink text-cream",
 };
 
+import { useT } from "@/lib/locale";
+
 export default function LibraryTrio() {
+  const { t } = useT();
   return (
     <section className="bg-white py-16 md:py-24">
       <div className="container-xl">
         <div className="text-center mb-12">
-          <p className="eyebrow">Italy, every day</p>
-          <h2 className="mt-3 text-3xl md:text-5xl">Community, books, and bottles of wine.</h2>
+          <p className="eyebrow">{t.library.eyebrow}</p>
+          <h2 className="mt-3 text-3xl md:text-5xl">{t.library.title}</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

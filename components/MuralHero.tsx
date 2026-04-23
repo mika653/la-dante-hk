@@ -3,9 +3,23 @@ import Link from "next/link";
 import { ArrowRight, Sparkles, Star } from "lucide-react";
 import HeroCarousel from "./HeroCarousel";
 import { useSiteContent } from "@/lib/site-content";
+import { useT, localizePath } from "@/lib/locale";
 
 export default function MuralHero() {
-  const { hero } = useSiteContent();
+  const { hero: heroSite } = useSiteContent();
+  const { t, locale } = useT();
+  const isZh = locale === "zh";
+  // Pull text from the right source — translated dict for zh, admin-editable site content for en
+  const hero = {
+    eyebrow: isZh ? t.hero.eyebrow : heroSite.eyebrow,
+    line1:   isZh ? t.hero.line1   : heroSite.line1,
+    line2:   isZh ? t.hero.line2   : heroSite.line2,
+    line3:   isZh ? t.hero.line3   : heroSite.line3,
+    subhead: isZh ? t.hero.subhead : heroSite.subhead,
+    cta1:    isZh ? t.hero.cta1    : heroSite.cta1.label,
+    cta2:    isZh ? t.hero.cta2    : heroSite.cta2.label,
+    trust:   isZh ? t.hero.trust   : heroSite.trust,
+  };
 
   return (
     <section className="relative bg-ink overflow-hidden min-h-[540px] md:min-h-[720px] lg:min-h-[760px] -mt-16 md:-mt-20">
@@ -55,24 +69,20 @@ export default function MuralHero() {
           <p className="mt-5 max-w-[520px] text-base md:text-xl text-ink-muted">{hero.subhead}</p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            {hero.cta1.label && (
-              <Link href={hero.cta1.href || "#"} className="btn btn-primary">
-                {hero.cta1.label} <ArrowRight size={16} />
-              </Link>
-            )}
-            {hero.cta2.label && (
-              <Link href={hero.cta2.href || "#"} className="btn btn-yellow">
-                {hero.cta2.label}
-              </Link>
-            )}
+            <Link href={localizePath("/placement-test", locale)} className="btn btn-primary">
+              {hero.cta1} <ArrowRight size={16} />
+            </Link>
+            <Link href={localizePath("/courses/italian/adult-groups", locale)} className="btn btn-yellow">
+              {hero.cta2}
+            </Link>
           </div>
 
           <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-[14px] text-ink-muted">
-            {hero.trust.map((t, i) => (
-              <span key={`${t}-${i}`} className="inline-flex items-center gap-1.5">
+            {hero.trust.map((item, i, arr) => (
+              <span key={`${item}-${i}`} className="inline-flex items-center gap-1.5">
                 {i === 0 && <Star size={15} className="fill-sole text-sole" aria-hidden />}
-                {t}
-                {i < hero.trust.length - 1 && <span className="text-ink-soft ml-3">·</span>}
+                {item}
+                {i < arr.length - 1 && <span className="text-ink-soft ml-3">·</span>}
               </span>
             ))}
           </div>

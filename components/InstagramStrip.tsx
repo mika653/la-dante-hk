@@ -1,5 +1,7 @@
+"use client";
 import Link from "next/link";
 import { IconInstagram } from "./SocialIcons";
+import { useT } from "@/lib/locale";
 
 // Placeholder "posts" for the demo — swap with real IG Graph API feed in Phase 2.
 const demoPosts = [
@@ -12,15 +14,16 @@ const demoPosts = [
 ];
 
 export default function InstagramStrip() {
+  const { t } = useT();
   return (
     <section className="bg-sole-soft py-16 md:py-24">
       <div className="container-xl">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
           <div>
-            <p className="eyebrow inline-flex items-center gap-2"><IconInstagram size={14} /> @ladantehk</p>
-            <h2 className="mt-3 text-3xl md:text-5xl"><span className="circle-accent-sm circle-accent">Italy,</span> this week in HK.</h2>
+            <p className="eyebrow inline-flex items-center gap-2"><IconInstagram size={14} /> {t.instagram.eyebrow}</p>
+            <h2 className="mt-3 text-3xl md:text-5xl"><span className="circle-accent-sm circle-accent">{t.instagram.titleHighlight}</span>{t.instagram.titleTail}</h2>
           </div>
-          <Link href="https://instagram.com/ladantehk" target="_blank" rel="noopener" className="btn btn-ghost self-start md:self-auto">Follow on Instagram</Link>
+          <Link href="https://instagram.com/ladantehk" target="_blank" rel="noopener" className="btn btn-ghost self-start md:self-auto">{t.instagram.follow}</Link>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">

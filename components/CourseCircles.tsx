@@ -1,4 +1,6 @@
+"use client";
 import CourseCircle from "./CourseCircle";
+import { useT, localizePath } from "@/lib/locale";
 
 // Inline SVG "mini-scenes" evocative of each course type — no raster assets needed.
 const iconGroup = (
@@ -32,22 +34,21 @@ const iconCorporate = (
 );
 
 export default function CourseCircles() {
+  const { t, locale } = useT();
   return (
     <section className="bg-white py-16 md:py-24">
       <div className="container-xl text-center">
-        <p className="eyebrow">Four ways to learn</p>
+        <p className="eyebrow">{t.courses.eyebrow}</p>
         <h2 className="mt-3 text-3xl md:text-5xl max-w-xl mx-auto">
-          <span className="circle-accent-center">Find</span> your course.
+          {t.courses.titleLead}<span className="circle-accent-center">{t.courses.titleHighlight}</span>{t.courses.titleTail}
         </h2>
-        <p className="mt-4 text-ink-muted max-w-xl mx-auto">
-          Whether you&apos;re starting from scratch or reading Dante in the original, there&apos;s a seat for you.
-        </p>
+        <p className="mt-4 text-ink-muted max-w-xl mx-auto">{t.courses.subtitle}</p>
 
         <div className="mt-12 md:mt-16 grid grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 max-w-5xl mx-auto">
-          <CourseCircle tag="Most popular" label="Groups"   href="/courses/italian/adult-groups" tone="blue"   icon={iconGroup} />
-          <CourseCircle tag="Flexible"     label="Private"  href="/courses/italian/private"      tone="cream"  icon={iconPrivate} />
-          <CourseCircle tag="Classical"    label="Latin"    href="/courses/latin"                tone="yellow" icon={iconLatin} />
-          <CourseCircle tag="For teams"    label="Corporate"href="/courses/italian/corporate"    tone="white"  icon={iconCorporate} />
+          <CourseCircle tag={t.courses.circles.groups.tag}    label={t.courses.circles.groups.label}    href={localizePath("/courses/italian/adult-groups", locale)} tone="blue"   icon={iconGroup} />
+          <CourseCircle tag={t.courses.circles.private.tag}   label={t.courses.circles.private.label}   href={localizePath("/courses/italian/private", locale)}      tone="cream"  icon={iconPrivate} />
+          <CourseCircle tag={t.courses.circles.latin.tag}     label={t.courses.circles.latin.label}     href={localizePath("/courses/latin", locale)}                tone="yellow" icon={iconLatin} />
+          <CourseCircle tag={t.courses.circles.corporate.tag} label={t.courses.circles.corporate.label} href={localizePath("/courses/italian/corporate", locale)}    tone="white"  icon={iconCorporate} />
         </div>
       </div>
     </section>

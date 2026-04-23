@@ -2,17 +2,19 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { featuredCards } from "@/lib/data";
+import { useT, localizePath } from "@/lib/locale";
 
 export default function FeaturedCarousel() {
+  const { t, locale } = useT();
   return (
     <section className="bg-sole-soft py-14 md:py-20">
       <div className="container-xl">
         <div className="flex items-end justify-between gap-4 mb-8">
           <div>
-            <p className="eyebrow">Happening at Dante</p>
-            <h2 className="mt-2 text-3xl md:text-4xl">What&apos;s on</h2>
+            <p className="eyebrow">{t.featured.eyebrow}</p>
+            <h2 className="mt-2 text-3xl md:text-4xl">{t.featured.title}</h2>
           </div>
-          <Link href="/culture" className="hidden md:inline text-sm font-medium text-azzurro-deep hover:underline">See everything →</Link>
+          <Link href={localizePath("/culture", locale)} className="hidden md:inline text-sm font-medium text-azzurro-deep hover:underline">{t.featured.seeAll}</Link>
         </div>
       </div>
 

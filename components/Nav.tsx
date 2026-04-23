@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X, ChevronDown } from "lucide-react";
 import Wordmark from "./Wordmark";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useT, localizePath } from "@/lib/locale";
 
 const navGroups = [
   {
@@ -72,9 +74,17 @@ const navGroups = [
 ];
 
 export default function Nav() {
+  const { t, locale } = useT();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+
+  const labelFor = (key: string): string => {
+    const map: Record<string, string> = {
+      Courses: t.nav.courses, Culture: t.nav.culture, PLIDA: t.nav.plida, Membership: t.nav.membership, More: t.nav.more,
+    };
+    return map[key] ?? key;
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80);
@@ -96,10 +106,10 @@ export default function Nav() {
           {navGroups.map((g) => (
             <div key={g.label} className="relative" onMouseEnter={() => g.columns && setOpenGroup(g.label)}>
               <Link
-                href={g.href}
+                href={localizePath(g.href, locale)}
                 className="inline-flex items-center gap-1 px-3 py-2 text-[15px] font-medium text-ink hover:text-azzurro-deep rounded-full"
               >
-                {g.label}
+                {labelFor(g.label)}
                 {g.columns && <ChevronDown size={14} className="opacity-60" aria-hidden />}
               </Link>
               {g.columns && openGroup === g.label && (
@@ -127,14 +137,18 @@ export default function Nav() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-3">
-          <Link href="/student" className="text-[14px] font-medium text-ink-muted hover:text-ink">Student log-in</Link>
-          <Link href="/placement-test" className="text-[14px] font-medium text-ink hover:text-azzurro-deep">Placement test</Link>
-          <Link href="/courses/italian/adult-groups" className="btn btn-primary text-[14px]">Enrol →</Link>
+          <LanguageSwitcher />
+          <Link href="/student" className="text-[14px] font-medium text-ink-muted hover:text-ink">{t.nav.studentLogin}</Link>
+          <Link href={localizePath("/placement-test", locale)} className="text-[14px] font-medium text-ink hover:text-azzurro-deep">{t.nav.placementTest}</Link>
+          <Link href={localizePath("/courses/italian/adult-groups", locale)} className="btn btn-primary text-[14px]">{t.nav.enrol}</Link>
         </div>
 
-        <button type="button" onClick={() => setMobileOpen((v) => !v)} className="lg:hidden p-2 -mr-2" aria-label="Toggle menu" aria-expanded={mobileOpen}>
-          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        <div className="lg:hidden flex items-center gap-2">
+          <LanguageSwitcher />
+          <button type="button" onClick={() => setMobileOpen((v) => !v)} className="p-2 -mr-2" aria-label="Toggle menu" aria-expanded={mobileOpen}>
+            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile drawer */}
@@ -144,8 +158,8 @@ export default function Nav() {
             <ul className="divide-y divide-line">
               {navGroups.map((g) => (
                 <li key={g.label} className="py-3">
-                  <Link href={g.href} onClick={() => setMobileOpen(false)} className="flex items-center justify-between text-lg font-medium">
-                    <span>{g.label}</span>
+                  <Link href={localizePath(g.href, locale)} onClick={() => setMobileOpen(false)} className="flex items-center justify-between text-lg font-medium">
+                    <span>{labelFor(g.label)}</span>
                     <ChevronDown size={18} className="opacity-40" aria-hidden />
                   </Link>
                   {g.columns && (
@@ -161,8 +175,8 @@ export default function Nav() {
               ))}
             </ul>
             <div className="mt-6 space-y-3">
-              <Link href="/placement-test" onClick={() => setMobileOpen(false)} className="btn btn-ghost w-full">Take placement test</Link>
-              <Link href="/courses/italian/adult-groups" onClick={() => setMobileOpen(false)} className="btn btn-primary w-full">Enrol →</Link>
+              <Link href={localizePath("/placement-test", locale)} onClick={() => setMobileOpen(false)} className="btn btn-ghost w-full">{t.nav.placementTest}</Link>
+              <Link href={localizePath("/courses/italian/adult-groups", locale)} onClick={() => setMobileOpen(false)} className="btn btn-primary w-full">{t.nav.enrol}</Link>
             </div>
           </div>
         </div>
