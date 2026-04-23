@@ -72,12 +72,12 @@ export default function FeaturedCarousel() {
         ))}
       </div>
 
-      {/* Desktop + tablet: horizontal snap-scroll carousel with visible arrows + edge fades */}
+      {/* Desktop + tablet: horizontal snap-scroll carousel. Arrows are the primary
+          affordance — we only add a subtle, narrow right-edge tint (32px, the
+          width of the container padding) to signal more content without ever
+          sitting on top of card content. */}
       <div className="hidden md:block relative">
-        {/* Right fade — signals more content */}
-        <div className={`pointer-events-none absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-sole-soft to-transparent z-10 transition-opacity ${canRight ? "opacity-100" : "opacity-0"}`} aria-hidden />
-        {/* Left fade when scrolled */}
-        <div className={`pointer-events-none absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-sole-soft to-transparent z-10 transition-opacity ${canLeft ? "opacity-100" : "opacity-0"}`} aria-hidden />
+        <div className={`pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-sole-soft to-transparent z-10 transition-opacity ${canRight ? "opacity-100" : "opacity-0"}`} aria-hidden />
 
         <div ref={scrollRef} className="overflow-x-auto no-scrollbar scroll-smooth" style={{ scrollSnapType: "x mandatory" }}>
           <div className="flex gap-5 px-8 py-1">
