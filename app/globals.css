@@ -50,9 +50,8 @@ body {
   line-height: 1.6;
   color: var(--color-ink);
   background: var(--color-cream);
-  overflow-x: hidden;
-  max-width: 100vw;
-  min-width: 0;
+  /* html has overflow-x: hidden as a safety net; body must NOT set max-width
+     because 100vw includes the scrollbar and confuses layout widths. */
 }
 
 /* Ensure long unbreakable words never force horizontal scroll */

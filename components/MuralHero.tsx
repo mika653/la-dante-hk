@@ -56,7 +56,7 @@ export default function MuralHero() {
           </p>
 
           <div className="circle-accent mt-4">
-            <h1 className="text-[2.25rem] xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl uppercase text-ink leading-[0.95]">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl uppercase text-ink leading-[0.95] break-words">
               {hero.line1}
               <br />
               <span className="italian normal-case" style={{ letterSpacing: "-0.02em" }}>{hero.line2}</span>

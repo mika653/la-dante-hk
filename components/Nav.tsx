@@ -98,7 +98,7 @@ export default function Nav() {
   }, [mobileOpen]);
 
   return (
-    <header className={`sticky top-0 z-40 transition-all duration-300 ${scrolled ? "bg-cream/90 backdrop-blur-md shadow-[0_1px_0_rgb(0_0_0_/_0.06)]" : "bg-transparent"}`}>
+    <header className={`sticky top-0 z-40 transition-all duration-300 ${scrolled ? "bg-cream/95 backdrop-blur-md shadow-[0_1px_4px_rgb(0_0_0_/_0.06)]" : "bg-cream/80 backdrop-blur-sm"}`}>
       <div className="container-xl flex items-center justify-between h-16 md:h-20 gap-6">
         <Wordmark />
 

@@ -2,19 +2,20 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, BookOpen, PaintBucket, Calendar, Users, Star, ShieldAlert, LogOut, Menu, X, Layout, UserPlus } from "lucide-react";
+import { LayoutDashboard, BookOpen, PaintBucket, Calendar, Users, Star, ShieldAlert, LogOut, Menu, X, Layout, UserPlus, LifeBuoy } from "lucide-react";
 import Wordmark from "@/components/Wordmark";
 
 const navItems = [
-  { href: "/admin",           label: "Overview",     icon: LayoutDashboard },
-  { href: "/admin/content",   label: "Site content", icon: Layout },
-  { href: "/admin/courses",   label: "Courses",      icon: BookOpen },
-  { href: "/admin/workshops", label: "Workshops",    icon: PaintBucket },
-  { href: "/admin/events",    label: "Events",       icon: Calendar },
-  { href: "/admin/people",    label: "People",       icon: UserPlus },
-  { href: "/admin/members",   label: "Members",      icon: Users },
-  { href: "/admin/reviews",   label: "Reviews",      icon: Star },
-  { href: "/admin/settings",  label: "Settings",     icon: ShieldAlert },
+  { href: "/admin",              label: "Overview",         icon: LayoutDashboard },
+  { href: "/admin/content",      label: "Site content",     icon: Layout },
+  { href: "/admin/courses",      label: "Courses",          icon: BookOpen },
+  { href: "/admin/sub-lessons",  label: "Sub-teacher plans", icon: LifeBuoy },
+  { href: "/admin/workshops",    label: "Workshops",        icon: PaintBucket },
+  { href: "/admin/events",       label: "Events",           icon: Calendar },
+  { href: "/admin/people",       label: "People",           icon: UserPlus },
+  { href: "/admin/members",      label: "Members",          icon: Users },
+  { href: "/admin/reviews",      label: "Reviews",          icon: Star },
+  { href: "/admin/settings",     label: "Settings",         icon: ShieldAlert },
 ];
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
