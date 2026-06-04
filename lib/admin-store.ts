@@ -41,7 +41,19 @@ export function resetDemo() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(COURSES_KEY);
   localStorage.removeItem(WORKSHOPS_KEY);
+  localStorage.removeItem(SETTINGS_KEY);
 }
 
 export function getWorkshops(): Workshop[] { return read<Workshop[]>(WORKSHOPS_KEY, seedWorkshops); }
 export function setWorkshops(list: Workshop[]) { write(WORKSHOPS_KEY, list); }
+export function addWorkshop(w: Workshop) { write(WORKSHOPS_KEY, [w, ...getWorkshops()]); }
+
+// -------------- Site settings (banner + pop-up) --------------
+const SETTINGS_KEY = "ladante-settings";
+export type SiteSettings = { banner: string; popup: string };
+export const defaultSettings: SiteSettings = {
+  banner: "Early-bird 10% off May–July term · University students −20% year-round",
+  popup: "Introducing our new ScuolaSemplice student portal.",
+};
+export function getSettings(): SiteSettings { return read<SiteSettings>(SETTINGS_KEY, defaultSettings); }
+export function setSettings(s: SiteSettings) { write(SETTINGS_KEY, s); }

@@ -40,7 +40,7 @@ export default function SubLessonsList() {
           <h1 className="mt-2 text-3xl md:text-4xl">Emergency lesson plans.</h1>
           <p className="mt-2 text-ink-muted max-w-2xl">Ready-to-teach lessons for when a regular teacher is absent. Every plan is self-contained — a sub can walk into class with just the print-out, no context needed.</p>
         </div>
-        <button type="button" className="btn btn-primary"><Plus size={16} /> New lesson plan</button>
+        <button type="button" disabled title="Creating new lesson plans arrives in Phase 2 — the library below is ready to use now." className="btn btn-ghost opacity-60 cursor-not-allowed gap-2"><Plus size={16} /> New lesson plan <span className="ml-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-cream-2 border border-line text-ink-muted">Phase 2</span></button>
       </div>
 
       {/* Filters */}
