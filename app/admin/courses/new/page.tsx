@@ -51,8 +51,8 @@ export default function NewCoursePage() {
     }
   }
 
-  function publish() {
-    const course: Course = {
+  function buildCourse(status: Course["status"]): Course {
+    return {
       id: `new-${Date.now()}`,
       language: lang,
       type,
@@ -67,8 +67,12 @@ export default function NewCoursePage() {
       priceHKD,
       seats: maxStudents,
       enrolled: 0,
-      status: "Published",
+      status,
     };
+  }
+
+  function publish() {
+    const course = buildCourse("Published");
     addCourse(course);
     // Where this course will appear on the public site
     const publicPath =
@@ -81,6 +85,13 @@ export default function NewCoursePage() {
       "/courses";
     try { sessionStorage.setItem("ladante-admin-flash", `Published "${course.title}". It's now live at ${publicPath}.`); } catch {}
     router.push(`/admin/courses?view=${encodeURIComponent(publicPath)}`);
+  }
+
+  function saveDraft() {
+    const course = buildCourse("Draft");
+    addCourse(course);
+    try { sessionStorage.setItem("ladante-admin-flash", `Saved "${course.title}" as a draft. It's not live yet — open it any time to finish and publish.`); } catch {}
+    router.push("/admin/courses");
   }
 
   return (
@@ -222,7 +233,7 @@ export default function NewCoursePage() {
             <div className="flex items-center justify-between">
               <button type="button" onClick={() => setStep(3)} className="btn btn-ghost"><ArrowLeft size={16} /> Edit</button>
               <div className="flex gap-2">
-                <button type="button" className="btn btn-ghost">Save as draft</button>
+                <button type="button" onClick={saveDraft} className="btn btn-ghost">Save as draft</button>
                 <button type="button" onClick={publish} className="btn btn-primary">Publish now</button>
               </div>
             </div>

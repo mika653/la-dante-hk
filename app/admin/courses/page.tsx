@@ -108,7 +108,12 @@ export default function AdminCoursesList() {
               )}
               {filtered.map((c) => (
                 <tr key={c.id} className="border-t border-line hover:bg-cream-2/30">
-                  <td className="px-5 py-4 font-medium">{c.title}</td>
+                  <td className="px-5 py-4 font-medium">
+                    {c.title}
+                    {c.status === "Draft" && (
+                      <span className="ml-2 align-middle px-2 py-0.5 rounded-full text-[11px] font-medium bg-cream-2 border border-line text-ink-muted">Draft</span>
+                    )}
+                  </td>
                   <td className="px-5 py-4 font-mono text-xs uppercase tracking-widest text-azzurro-deep">{c.level}</td>
                   <td className="px-5 py-4 text-ink-muted">{c.dayLabel}</td>
                   <td className="px-5 py-4 text-ink-muted">{c.teacher}</td>
