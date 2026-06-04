@@ -125,7 +125,7 @@ export default function AdminCoursesList() {
                   </td>
                   <td className="px-5 py-4 text-right">
                     <div className="inline-flex items-center gap-1">
-                      <button type="button" title="Edit (demo: not wired)" className="w-8 h-8 rounded-lg hover:bg-cream-2 inline-flex items-center justify-center text-ink-muted"><Pencil size={14} /></button>
+                      <Link href={`/admin/courses/${c.id}/edit`} title="Edit course" className="w-8 h-8 rounded-lg hover:bg-cream-2 inline-flex items-center justify-center text-ink-muted"><Pencil size={14} /></Link>
                       <button type="button" onClick={() => del(c.id)} title="Delete" className="w-8 h-8 rounded-lg hover:bg-rosso/10 hover:text-rosso inline-flex items-center justify-center text-ink-muted"><Trash2 size={14} /></button>
                     </div>
                   </td>
