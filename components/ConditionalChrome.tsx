@@ -4,9 +4,12 @@ import Nav from "./Nav";
 import Footer from "./Footer";
 import AnnouncementBar from "./AnnouncementBar";
 
+const STAFF_ROUTES = ["/admin", "/student", "/onboarding", "/leave", "/login"];
+const isStaffRoute = (p: string) => STAFF_ROUTES.some((r) => p === r || p.startsWith(r + "/"));
+
 export function ConditionalNav() {
   const pathname = usePathname() || "";
-  if (pathname.startsWith("/admin") || pathname.startsWith("/student") || pathname.startsWith("/onboarding")) return null;
+  if (isStaffRoute(pathname)) return null;
   return (
     <>
       <AnnouncementBar />
@@ -17,6 +20,6 @@ export function ConditionalNav() {
 
 export function ConditionalFooter() {
   const pathname = usePathname() || "";
-  if (pathname.startsWith("/admin") || pathname.startsWith("/student") || pathname.startsWith("/onboarding")) return null;
+  if (isStaffRoute(pathname)) return null;
   return <Footer />;
 }

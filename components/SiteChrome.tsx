@@ -20,7 +20,8 @@ export default function SiteChrome() {
     }
   }, []);
 
-  if (pathname.startsWith("/admin") || pathname.startsWith("/student") || pathname.startsWith("/onboarding")) return null;
+  const staff = ["/admin", "/student", "/onboarding", "/leave", "/login"];
+  if (staff.some((r) => pathname === r || pathname.startsWith(r + "/"))) return null;
   if (isPreview) return null;
 
   return (
