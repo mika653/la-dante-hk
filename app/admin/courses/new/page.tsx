@@ -6,7 +6,9 @@ import { ArrowLeft, ArrowRight, Check, Calendar, Users, MapPin, User } from "luc
 import { addCourse } from "@/lib/admin-store";
 import { levelOutcomes } from "@/lib/data";
 import type { Course, Language, CourseType, CEFRLevel } from "@/lib/data";
-import { generateContinuation, nextLevel, daysBetween } from "@/lib/course-schedule";
+import { generateContinuation, nextLevel, daysBetween, computeEndDate } from "@/lib/course-schedule";
+import { holidaySet } from "@/lib/holidays";
+import CourseSchedulePreview from "@/components/CourseSchedulePreview";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -35,8 +37,19 @@ export default function NewCoursePage() {
   const [description, setDescription] = useState("");
   const [createNext, setCreateNext] = useState(false);
   const [gapWeeks, setGapWeeks] = useState(1);
+  const [weeks, setWeeks] = useState<number | "">("");
 
-  function toggleDay(d: string) { setDays((l) => (l.includes(d) ? l.filter((x) => x !== d) : [...l, d])); }
+  // Auto-fill the end date from start + duration (weeks) on the class day, skipping holidays.
+  function autoEndFor(start: string, wk: number | "", dys: string[]) {
+    if (!start || wk === "" || dys[0] === undefined) return;
+    setEndDate(computeEndDate(start, DOW_IDX[dys[0]], Number(wk), holidaySet()));
+  }
+
+  function toggleDay(d: string) {
+    const nl = days.includes(d) ? days.filter((x) => x !== d) : [...days, d];
+    setDays(nl);
+    autoEndFor(startDate, weeks, nl);
+  }
 
   function autoTitle() {
     const levelLabel = LEVELS.includes(level as CEFRLevel) ? level : "Beginner";
@@ -75,7 +88,7 @@ export default function NewCoursePage() {
       weekday: days[0] !== undefined ? DOW_IDX[days[0]] : undefined,
       startTime,
       endTime,
-      lessons: startDate && endDate ? Math.max(1, Math.floor(daysBetween(startDate, endDate) / 7) + 1) : undefined,
+      lessons: weeks !== "" ? Number(weeks) : (startDate && endDate ? Math.max(1, Math.floor(daysBetween(startDate, endDate) / 7) + 1) : undefined),
     };
   }
 
@@ -180,9 +193,12 @@ export default function NewCoursePage() {
         {step === 2 && (
           <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-4">
-              <label className="text-sm font-medium">Starts on<input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" /></label>
-              <label className="text-sm font-medium">Ends on<input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" /></label>
+              <label className="text-sm font-medium">Starts on<input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); autoEndFor(e.target.value, weeks, days); }} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" /></label>
+              <label className="text-sm font-medium">Course duration (weeks)<input type="number" min={1} value={weeks} onChange={(e) => { const w = e.target.value === "" ? "" : Number(e.target.value); setWeeks(w); autoEndFor(startDate, w, days); }} placeholder="e.g. 11" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" /></label>
             </div>
+            <label className="block text-sm font-medium">Ends on <span className="text-ink-muted font-normal">— auto-calculated from the duration; you can still move it for holidays</span>
+              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" />
+            </label>
             <div>
               <label className="block text-sm font-medium mb-2">Which days</label>
               <div className="flex flex-wrap gap-2">
@@ -248,6 +264,17 @@ export default function NewCoursePage() {
               <p className="mt-3 text-sm font-heading font-bold">HK${priceHKD.toLocaleString()}</p>
               {description && <p className="mt-3 text-[14px] text-ink-muted whitespace-pre-line">{description}</p>}
             </div>
+
+            {startDate && days[0] !== undefined && (weeks !== "" || endDate) && (
+              <div className="frame p-4 md:p-5 bg-cream-2/40">
+                <p className="text-sm font-medium mb-3">Schedule preview</p>
+                <CourseSchedulePreview
+                  startISO={startDate}
+                  weekday={DOW_IDX[days[0]]}
+                  lessons={weeks !== "" ? Number(weeks) : Math.max(1, Math.floor(daysBetween(startDate, endDate) / 7) + 1)}
+                />
+              </div>
+            )}
 
             {nextLevel(level) && (
               <div className="frame p-4 md:p-5 bg-azzurro-soft/60 border border-azzurro-deep/20">

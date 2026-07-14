@@ -77,6 +77,13 @@ export default function EditCourseClient({ id }: { id: string }) {
     setEndISO(computeEndDate(startISO, weekday, n, holidaySet()));
   }
 
+  // Auto-fill the end date when the start date or duration (weeks) changes.
+  function autoEnd(startVal: string, weeksVal: number | "") {
+    if (!startVal || weeksVal === "") return;
+    const weekday = parseDayLabel(dayLabel).weekday ?? weekdayOf(startVal);
+    setEndISO(computeEndDate(startVal, weekday, Number(weeksVal), holidaySet()));
+  }
+
   function save() {
     updateCourse(id, {
       title: title.trim() || course?.title || "Untitled course",
@@ -162,8 +169,8 @@ export default function EditCourseClient({ id }: { id: string }) {
           <label className="block text-sm font-medium">Course code <span className="text-ink-muted font-normal">(optional)</span>
             <input value={courseCode} onChange={(e) => setCourseCode(e.target.value)} placeholder="e.g. ITA-A1.1-WED" className={field} />
           </label>
-          <label className="block text-sm font-medium">Weeks <span className="text-ink-muted font-normal">(number of lessons)</span>
-            <input type="number" min={1} value={lessons} onChange={(e) => setLessons(e.target.value === "" ? "" : Number(e.target.value))} placeholder="e.g. 15" className={field} />
+          <label className="block text-sm font-medium">Course duration <span className="text-ink-muted font-normal">(weeks — auto-fills the end date)</span>
+            <input type="number" min={1} value={lessons} onChange={(e) => { const w = e.target.value === "" ? "" : Number(e.target.value); setLessons(w); autoEnd(startISO, w); }} placeholder="e.g. 11" className={field} />
           </label>
         </div>
 
@@ -212,9 +219,9 @@ export default function EditCourseClient({ id }: { id: string }) {
         <div>
           <div className="grid md:grid-cols-2 gap-4">
             <label className="block text-sm font-medium">Starts on
-              <input type="date" value={startISO} onChange={(e) => setStartISO(e.target.value)} className={field} />
+              <input type="date" value={startISO} onChange={(e) => { setStartISO(e.target.value); autoEnd(e.target.value, lessons); }} className={field} />
             </label>
-            <label className="block text-sm font-medium">Ends on
+            <label className="block text-sm font-medium">Ends on <span className="text-ink-muted font-normal">(auto — movable)</span>
               <input type="date" value={endISO} onChange={(e) => setEndISO(e.target.value)} className={field} />
             </label>
           </div>
