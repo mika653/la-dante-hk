@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Save, Sparkles, RefreshCw } from "lucide-react";
 import { getCourses, updateCourse } from "@/lib/admin-store";
 import type { Course, Language, CourseType } from "@/lib/data";
-import { computeEndDate, parseDayLabel, weekdayOf } from "@/lib/course-schedule";
+import { computeEndDate, parseDayLabel, weekdayOf, daysBetween } from "@/lib/course-schedule";
 import { holidaySet } from "@/lib/holidays";
+import CourseSchedulePreview from "@/components/CourseSchedulePreview";
 
 const TYPES: Array<{ v: CourseType; l: string }> = [
   { v: "adult-group", l: "Adult group" },
@@ -220,6 +221,16 @@ export default function EditCourseClient({ id }: { id: string }) {
           <button type="button" onClick={recomputeEnd} className="mt-2 inline-flex items-center gap-1.5 text-xs text-azzurro-deep hover:underline">
             <RefreshCw size={12} /> Recalculate end date from weeks (skips public holidays)
           </button>
+        </div>
+
+        {/* Schedule preview */}
+        <div className="rounded-2xl border border-line bg-cream-2/40 p-4 md:p-5">
+          <label className="block text-sm font-medium mb-3">Schedule preview</label>
+          <CourseSchedulePreview
+            startISO={startISO}
+            weekday={parseDayLabel(dayLabel).weekday ?? (startISO ? weekdayOf(startISO) : null)}
+            lessons={lessons !== "" ? Number(lessons) : (startISO && endISO ? Math.max(1, Math.floor(daysBetween(startISO, endISO) / 7) + 1) : 0)}
+          />
         </div>
 
         {/* Early bird */}

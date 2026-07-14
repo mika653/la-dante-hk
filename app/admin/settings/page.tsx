@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Check } from "lucide-react";
+import Link from "next/link";
+import { Check, CalendarDays, ArrowRight } from "lucide-react";
 import { getSettings, setSettings } from "@/lib/admin-store";
 
 export default function AdminSettings() {
@@ -48,6 +49,16 @@ export default function AdminSettings() {
         </div>
         <p className="text-xs text-ink-muted italic">Saved in this browser. Phase 2 connects this to a database so it updates for everyone.</p>
       </div>
+
+      {/* Public holidays link */}
+      <Link href="/admin/holidays" className="mt-6 frame p-5 md:p-6 bg-white flex items-center gap-4 hover:border-ink-muted transition-colors">
+        <span className="w-11 h-11 rounded-xl bg-azzurro/15 text-azzurro-deep inline-flex items-center justify-center shrink-0"><CalendarDays size={20} /></span>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium">Public holidays</p>
+          <p className="text-sm text-ink-muted">Manage the closure dates the course scheduler skips when generating lessons and continuations.</p>
+        </div>
+        <ArrowRight size={18} className="text-ink-muted shrink-0" />
+      </Link>
     </div>
   );
 }

@@ -6,10 +6,12 @@ import { ArrowLeft, ArrowRight, Check, Calendar, Users, MapPin, User } from "luc
 import { addCourse } from "@/lib/admin-store";
 import { levelOutcomes } from "@/lib/data";
 import type { Course, Language, CourseType, CEFRLevel } from "@/lib/data";
+import { generateContinuation, nextLevel, daysBetween } from "@/lib/course-schedule";
 
 type Step = 1 | 2 | 3 | 4;
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DOW_IDX: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 const LOCATIONS = ["Wanchai", "Online", "Corporate"] as const;
 const TEACHERS = ["Giulia Marchetti", "Marco Rossi", "Sofia Bianchi", "Elena Conti", "Anna De Luca", "Dr. Paolo Venturi"];
 const LEVELS: CEFRLevel[] = ["A1.1", "A1.2", "A1.3", "A2.1", "A2.2", "A2.3", "B1.1", "B1.2", "B1.3", "B2", "C1"];
@@ -31,6 +33,8 @@ export default function NewCoursePage() {
   const [maxStudents, setMaxStudents] = useState(8);
   const [priceHKD, setPriceHKD] = useState(4800);
   const [description, setDescription] = useState("");
+  const [createNext, setCreateNext] = useState(false);
+  const [gapWeeks, setGapWeeks] = useState(1);
 
   function toggleDay(d: string) { setDays((l) => (l.includes(d) ? l.filter((x) => x !== d) : [...l, d])); }
 
@@ -68,12 +72,26 @@ export default function NewCoursePage() {
       seats: maxStudents,
       enrolled: 0,
       status,
+      weekday: days[0] !== undefined ? DOW_IDX[days[0]] : undefined,
+      startTime,
+      endTime,
+      lessons: startDate && endDate ? Math.max(1, Math.floor(daysBetween(startDate, endDate) / 7) + 1) : undefined,
     };
+  }
+
+  // Optionally generate the next-level course as a draft (returns a message fragment).
+  function maybeCreateNext(course: Course): string {
+    if (!createNext || !nextLevel(course.level)) return "";
+    const cont = generateContinuation(course, { gapWeeks });
+    if (!cont) return "";
+    addCourse(cont);
+    return ` The ${cont.level} continuation was created as a draft — review and publish it when ready.`;
   }
 
   function publish() {
     const course = buildCourse("Published");
     addCourse(course);
+    const nextMsg = maybeCreateNext(course);
     // Where this course will appear on the public site
     const publicPath =
       course.type === "adult-group" ? "/courses/italian/adult-groups" :
@@ -83,14 +101,15 @@ export default function NewCoursePage() {
       course.type === "online"      ? "/courses/italian/online" :
       course.type === "latin-group" ? "/courses/latin" :
       "/courses";
-    try { sessionStorage.setItem("ladante-admin-flash", `Published "${course.title}". It's now live at ${publicPath}.`); } catch {}
+    try { sessionStorage.setItem("ladante-admin-flash", `Published "${course.title}". It's now live at ${publicPath}.${nextMsg}`); } catch {}
     router.push(`/admin/courses?view=${encodeURIComponent(publicPath)}`);
   }
 
   function saveDraft() {
     const course = buildCourse("Draft");
     addCourse(course);
-    try { sessionStorage.setItem("ladante-admin-flash", `Saved "${course.title}" as a draft. It's not live yet — open it any time to finish and publish.`); } catch {}
+    const nextMsg = maybeCreateNext(course);
+    try { sessionStorage.setItem("ladante-admin-flash", `Saved "${course.title}" as a draft. It's not live yet — open it any time to finish and publish.${nextMsg}`); } catch {}
     router.push("/admin/courses");
   }
 
@@ -229,6 +248,25 @@ export default function NewCoursePage() {
               <p className="mt-3 text-sm font-heading font-bold">HK${priceHKD.toLocaleString()}</p>
               {description && <p className="mt-3 text-[14px] text-ink-muted whitespace-pre-line">{description}</p>}
             </div>
+
+            {nextLevel(level) && (
+              <div className="frame p-4 md:p-5 bg-azzurro-soft/60 border border-azzurro-deep/20">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input type="checkbox" checked={createNext} onChange={(e) => setCreateNext(e.target.checked)} className="mt-1 accent-azzurro-deep w-4 h-4" />
+                  <span className="text-sm">
+                    <b>Also create the next-level course ({nextLevel(level)}) as a draft.</b>
+                    <span className="block text-ink-muted mt-0.5">Generated automatically — same day &amp; time, next level, dates computed weekly and skipping public holidays.</span>
+                  </span>
+                </label>
+                {createNext && (
+                  <div className="mt-3 pl-7 flex items-center gap-2 text-sm flex-wrap">
+                    <span className="text-ink-muted">Start it</span>
+                    <input type="number" min={0} value={gapWeeks} onChange={(e) => setGapWeeks(Math.max(0, Number(e.target.value)))} className="w-16 h-9 px-2 rounded-lg border border-line bg-white text-center" />
+                    <span className="text-ink-muted">week(s) after this course ends.</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="flex items-center justify-between">
               <button type="button" onClick={() => setStep(3)} className="btn btn-ghost"><ArrowLeft size={16} /> Edit</button>
