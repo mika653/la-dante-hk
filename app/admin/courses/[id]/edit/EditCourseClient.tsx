@@ -2,9 +2,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Sparkles, RefreshCw } from "lucide-react";
 import { getCourses, updateCourse } from "@/lib/admin-store";
 import type { Course, Language, CourseType } from "@/lib/data";
+import { computeEndDate, parseDayLabel, weekdayOf } from "@/lib/course-schedule";
+import { holidaySet } from "@/lib/holidays";
 
 const TYPES: Array<{ v: CourseType; l: string }> = [
   { v: "adult-group", l: "Adult group" },
@@ -37,6 +39,10 @@ export default function EditCourseClient({ id }: { id: string }) {
   const [priceHKD, setPriceHKD] = useState(0);
   const [seats, setSeats] = useState(0);
   const [enrolled, setEnrolled] = useState(0);
+  const [courseCode, setCourseCode] = useState("");
+  const [lessons, setLessons] = useState<number | "">("");
+  const [earlyBirdDueISO, setEarlyBirdDueISO] = useState("");
+  const [earlyBirdFeeHKD, setEarlyBirdFeeHKD] = useState<number | "">("");
 
   useEffect(() => {
     const c = getCourses().find((x) => x.id === id);
@@ -56,7 +62,19 @@ export default function EditCourseClient({ id }: { id: string }) {
     setPriceHKD(c.priceHKD);
     setSeats(c.seats);
     setEnrolled(c.enrolled);
+    setCourseCode(c.courseCode ?? "");
+    setLessons(typeof c.lessons === "number" ? c.lessons : "");
+    setEarlyBirdDueISO((c.earlyBirdDueISO || "").slice(0, 10));
+    setEarlyBirdFeeHKD(typeof c.earlyBirdFeeHKD === "number" ? c.earlyBirdFeeHKD : "");
   }, [id]);
+
+  // Recompute the end date weekly from the start, weeks, and weekday — skipping public holidays.
+  function recomputeEnd() {
+    if (!startISO) return;
+    const weekday = parseDayLabel(dayLabel).weekday ?? weekdayOf(startISO);
+    const n = lessons === "" ? 10 : Number(lessons);
+    setEndISO(computeEndDate(startISO, weekday, n, holidaySet()));
+  }
 
   function save() {
     updateCourse(id, {
@@ -74,6 +92,10 @@ export default function EditCourseClient({ id }: { id: string }) {
       priceHKD,
       seats,
       enrolled,
+      courseCode: courseCode.trim() || undefined,
+      lessons: lessons === "" ? undefined : Number(lessons),
+      earlyBirdDueISO: earlyBirdDueISO || undefined,
+      earlyBirdFeeHKD: earlyBirdFeeHKD === "" ? undefined : Number(earlyBirdFeeHKD),
     });
     const msg = status === "Draft"
       ? `Saved changes to "${title}". It's a draft — not live yet.`
@@ -105,8 +127,17 @@ export default function EditCourseClient({ id }: { id: string }) {
       <Link href="/admin/courses" className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-azzurro-deep mb-6"><ArrowLeft size={14} /> Back to courses</Link>
 
       <p className="eyebrow">Admin · Edit course</p>
-      <h1 className="mt-2 text-3xl md:text-4xl">Edit course.</h1>
+      <h1 className="mt-2 text-3xl md:text-4xl">{course.continuationOf ? "Review continuation." : "Edit course."}</h1>
       <p className="mt-2 text-ink-muted">Change any field, then save. Updates appear on the site immediately.</p>
+
+      {course.continuationOf && (
+        <div className="mt-5 frame p-4 bg-azzurro-soft border border-azzurro-deep/20 flex items-start gap-3">
+          <Sparkles size={18} className="text-azzurro-deep shrink-0 mt-0.5" aria-hidden />
+          <p className="text-sm text-azzurro-deep">
+            <b>Auto-generated continuation.</b> The level, dates and early-bird deadline were calculated for you (weekly, skipping public holidays). Review below, adjust anything, then set <b>Published</b> to post it.
+          </p>
+        </div>
+      )}
 
       <div className="mt-8 frame p-6 md:p-8 bg-white space-y-6">
         {/* Status */}
@@ -124,6 +155,16 @@ export default function EditCourseClient({ id }: { id: string }) {
         <label className="block text-sm font-medium">Title
           <input value={title} onChange={(e) => setTitle(e.target.value)} className={field} />
         </label>
+
+        {/* Course code + Weeks */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <label className="block text-sm font-medium">Course code <span className="text-ink-muted font-normal">(optional)</span>
+            <input value={courseCode} onChange={(e) => setCourseCode(e.target.value)} placeholder="e.g. ITA-A1.1-WED" className={field} />
+          </label>
+          <label className="block text-sm font-medium">Weeks <span className="text-ink-muted font-normal">(number of lessons)</span>
+            <input type="number" min={1} value={lessons} onChange={(e) => setLessons(e.target.value === "" ? "" : Number(e.target.value))} placeholder="e.g. 15" className={field} />
+          </label>
+        </div>
 
         {/* Language + Type */}
         <div className="grid md:grid-cols-2 gap-4">
@@ -167,12 +208,27 @@ export default function EditCourseClient({ id }: { id: string }) {
         </div>
 
         {/* Dates */}
+        <div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <label className="block text-sm font-medium">Starts on
+              <input type="date" value={startISO} onChange={(e) => setStartISO(e.target.value)} className={field} />
+            </label>
+            <label className="block text-sm font-medium">Ends on
+              <input type="date" value={endISO} onChange={(e) => setEndISO(e.target.value)} className={field} />
+            </label>
+          </div>
+          <button type="button" onClick={recomputeEnd} className="mt-2 inline-flex items-center gap-1.5 text-xs text-azzurro-deep hover:underline">
+            <RefreshCw size={12} /> Recalculate end date from weeks (skips public holidays)
+          </button>
+        </div>
+
+        {/* Early bird */}
         <div className="grid md:grid-cols-2 gap-4">
-          <label className="block text-sm font-medium">Starts on
-            <input type="date" value={startISO} onChange={(e) => setStartISO(e.target.value)} className={field} />
+          <label className="block text-sm font-medium">Early-bird deadline <span className="text-ink-muted font-normal">(optional)</span>
+            <input type="date" value={earlyBirdDueISO} onChange={(e) => setEarlyBirdDueISO(e.target.value)} className={field} />
           </label>
-          <label className="block text-sm font-medium">Ends on
-            <input type="date" value={endISO} onChange={(e) => setEndISO(e.target.value)} className={field} />
+          <label className="block text-sm font-medium">Early-bird fee (HKD)
+            <input type="number" value={earlyBirdFeeHKD} onChange={(e) => setEarlyBirdFeeHKD(e.target.value === "" ? "" : Number(e.target.value))} placeholder="e.g. 4300" className={field} />
           </label>
         </div>
 
@@ -194,7 +250,7 @@ export default function EditCourseClient({ id }: { id: string }) {
 
         <div className="flex items-center justify-between pt-2 border-t border-line">
           <Link href="/admin/courses" className="btn btn-ghost">Cancel</Link>
-          <button type="button" onClick={save} className="btn btn-primary"><Save size={16} /> Save changes</button>
+          <button type="button" onClick={save} className="btn btn-primary"><Save size={16} /> {course.continuationOf ? "Confirm & save" : "Save changes"}</button>
         </div>
       </div>
     </div>

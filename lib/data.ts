@@ -18,6 +18,16 @@ export type Course = {
   seats: number;
   enrolled: number;
   status: "Published" | "Draft";
+  // --- course-schedule / continuation fields (all optional; legacy courses derive from dayLabel/dates) ---
+  courseCode?: string;        // e.g. "ITA-A1.1-WED"
+  weekday?: number;           // 0=Sun … 6=Sat (the weekly class day)
+  startTime?: string;         // "18:30"
+  endTime?: string;           // "21:30"
+  lessons?: number;           // number of weekly lessons (the course "duration" in weeks)
+  earlyBirdDueISO?: string;   // early-bird deadline
+  earlyBirdFeeHKD?: number;   // discounted early-bird fee
+  archived?: boolean;         // hidden from the public site (auto once it has started)
+  continuationOf?: string;    // id of the course this one continues from
 };
 
 export const courses: Course[] = [

@@ -1,6 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { courses as seedCourses, type Course } from "@/lib/data";
+import { publicUpcoming } from "@/lib/course-schedule";
 
 const COURSES_KEY = "ladante-courses";
 
@@ -26,5 +27,7 @@ export function useCourses(): Course[] {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  return list;
+  // The public site shows only published, upcoming courses — a course drops off
+  // automatically the day after it starts (and drafts / archived never show).
+  return useMemo(() => publicUpcoming(list), [list]);
 }
