@@ -126,21 +126,22 @@ export const testimonials: Testimonial[] = [
   { quote: "As an Italian businessman, I was surprised by the quality. This is a serious institution with a warm heart.", name: "Alessandro G.", level: "Corporate client", year: 2024 },
 ];
 
-export const sponsors = {
-  gold: [{ name: "OMLOG", logo: "OMLOG" }],
+export type Sponsor = { name: string; logo: string };
+
+// Logos live in /public/sponsors, trimmed of transparent padding so they
+// render at a consistent optical size. `name` doubles as the image alt text.
+export const sponsors: { gold: Sponsor[]; silver: Sponsor[] } = {
+  gold: [{ name: "OM LOG (ASIA) LTD", logo: "/sponsors/om-log-asia.png" }],
   silver: [
-    { name: "db group", logo: "DB GROUP" },
-    { name: "Delvis", logo: "DELVIS" },
-    { name: "Eligio Oggioni", logo: "ELIGIO OGGIONI" },
-    { name: "Generali", logo: "GENERALI" },
-    { name: "Giorgio Armani", logo: "ARMANI" },
-    { name: "Harmony", logo: "HARMONY" },
-    { name: "illy", logo: "illy" },
-    { name: "Intesa Sanpaolo", logo: "INTESA" },
-    { name: "NRT", logo: "NRT" },
-    { name: "Sugi", logo: "SUGI" },
-    { name: "JJ", logo: "JJ" },
-    { name: "Zegna", logo: "ZEGNA" },
+    { name: "Cheese Meets Wine Limited", logo: "/sponsors/cheese-meets-wine.png" },
+    { name: "DB Group China Ltd", logo: "/sponsors/db-group-china.png" },
+    { name: "Eligio Oggionni", logo: "/sponsors/eligio-oggionni.png" },
+    { name: "Generali (Life) Hong Kong Limited", logo: "/sponsors/generali-life-hk.png" },
+    { name: "International Atelier Ltd", logo: "/sponsors/international-atelier.png" },
+    { name: "Intesa Sanpaolo SpA Hong Kong Branch", logo: "/sponsors/intesa-sanpaolo-hk.png" },
+    { name: "Nirotech Limited", logo: "/sponsors/nirotech.png" },
+    { name: "Sugi International Limited", logo: "/sponsors/sugi-international.png" },
+    { name: "Venchi HK Limited", logo: "/sponsors/venchi-hk.png" },
   ],
 };
 
