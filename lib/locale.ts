@@ -93,9 +93,9 @@ const en = {
     silver: "Silver sponsors",
   },
   daily: {
-    word: "Word of the day",
-    phrase: "Phrase of the day",
-    footer: "A new one every morning.",
+    word: "Word of the week",
+    phrase: "Phrase of the week",
+    footer: "A new one every week.",
   },
   featured: {
     eyebrow: "Happening at Dante",
@@ -230,9 +230,9 @@ const zh: typeof en = {
     silver: "銀級贊助",
   },
   daily: {
-    word: "每日一字",
-    phrase: "每日一句",
-    footer: "每天早上更新。",
+    word: "每週一字",
+    phrase: "每週一句",
+    footer: "每週更新。",
   },
   featured: {
     eyebrow: "但丁的新動態",

@@ -2,6 +2,7 @@ import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import LevelAccordions from "./LevelAccordions";
+import EnquiryForm from "@/components/EnquiryForm";
 
 export default function AdultGroupsPage() {
   return (
@@ -24,6 +25,13 @@ export default function AdultGroupsPage() {
             <h2 className="mt-2 text-3xl md:text-4xl max-w-xl">Take our free placement test. Five minutes, CEFR-aligned.</h2>
           </div>
           <Link href="/placement-test" className="btn btn-primary">Start the test <ArrowRight size={16} /></Link>
+        </div>
+      </section>
+
+      {/* Can't find a matching class → capture the request */}
+      <section className="bg-cream py-14 md:py-20">
+        <div className="container-xl max-w-2xl">
+          <EnquiryForm type="course" />
         </div>
       </section>
     </>

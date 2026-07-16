@@ -1,6 +1,7 @@
 import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
 import { Award, Calendar, FileText, ArrowRight } from "lucide-react";
+import EnquiryForm from "@/components/EnquiryForm";
 
 export default function PLIDA() {
   const sessions = [
@@ -70,7 +71,11 @@ export default function PLIDA() {
             <p className="eyebrow !text-azzurro-deep relative">Prepare</p>
             <h2 className="mt-3 text-3xl max-w-xl">PLIDA preparation workshops.</h2>
             <p className="mt-3 max-w-xl text-ink-muted">Six weeks of focused prep with past papers, timed practice, and feedback from certified PLIDA examiners. Open to members and non-members.</p>
-            <Link href="/contact" className="btn btn-primary mt-5">Register interest <ArrowRight size={16} /></Link>
+            <a href="#plida-enquiry" className="btn btn-primary mt-5">Register interest <ArrowRight size={16} /></a>
+          </div>
+
+          <div id="plida-enquiry" className="mt-14 max-w-2xl mx-auto scroll-mt-24">
+            <EnquiryForm type="plida" />
           </div>
         </div>
       </section>

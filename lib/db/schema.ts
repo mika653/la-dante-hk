@@ -75,3 +75,25 @@ export const courses = pgTable("courses", {
 
 export type CourseRow = typeof courses.$inferSelect;
 export type NewCourseRow = typeof courses.$inferInsert;
+
+// -------------------- Enquiries --------------------
+// One inbox for every "I'm interested" form on the site — course, private, PLIDA,
+// workshop, trial class. `type` is plain text so a new form never needs a
+// migration; the app validates it. This is what lets the office see and sort
+// requests instead of them scattering across inboxes and Excel sheets.
+export const enquiries = pgTable("enquiries", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  type: text("type").notNull(),              // course | private | plida | workshop | trial | general
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  level: text("level"),                      // CEFR level they're after, if given
+  timing: text("timing"),                    // preferred days/times, if given
+  message: text("message"),
+  sourcePath: text("source_path"),           // the page the form was on
+  status: text("status").notNull().default("new"),  // new | contacted | closed
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type EnquiryRow = typeof enquiries.$inferSelect;
+export type NewEnquiryRow = typeof enquiries.$inferInsert;

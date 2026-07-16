@@ -1,7 +1,7 @@
 import PageHeader from "@/components/PageHeader";
 import CourseListClient from "@/components/CourseListClient";
-import Link from "next/link";
-import { ArrowRight, Clock, CheckCircle, Calendar } from "lucide-react";
+import EnquiryForm from "@/components/EnquiryForm";
+import { Clock, CheckCircle, Calendar } from "lucide-react";
 
 export default function PrivatePage() {
   return (
@@ -32,9 +32,11 @@ export default function PrivatePage() {
         <div className="container-xl">
           <h2 className="text-2xl md:text-3xl mb-6">Private packages available now</h2>
           <CourseListClient type="private" />
-          <div className="mt-10 text-center">
-            <Link href="/contact" className="btn btn-yellow">Request a private lesson <ArrowRight size={16} /></Link>
-          </div>
+        </div>
+      </section>
+      <section className="bg-white py-14 md:py-20 border-t border-line">
+        <div className="container-xl max-w-2xl">
+          <EnquiryForm type="private" />
         </div>
       </section>
     </>

@@ -15,7 +15,7 @@ export default function WorkshopsGrid() {
             <h2 className="mt-3 text-3xl md:text-5xl"><span className="circle-accent-sm circle-accent">{t.workshops.titleHighlight}</span>{t.workshops.titleTail}</h2>
             <p className="mt-4 text-ink-muted max-w-xl">{t.workshops.subtitle}</p>
           </div>
-          <Link href={localizePath("/culture", locale)} className="hidden md:inline text-sm font-medium text-azzurro-deep hover:underline">{t.workshops.seeAll}</Link>
+          <Link href={localizePath("/workshops", locale)} className="hidden md:inline text-sm font-medium text-azzurro-deep hover:underline">{t.workshops.seeAll}</Link>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -35,9 +35,9 @@ export default function WorkshopsGrid() {
               </div>
               <h3 className="mt-3 text-lg font-semibold leading-snug">{w.title}</h3>
               <p className="mt-2 text-[14px] text-ink-muted leading-relaxed flex-1">{w.description}</p>
-              <button type="button" className={`mt-5 btn ${w.status === "planned" ? "btn-primary" : "btn-yellow"} w-full`}>
+              <Link href={localizePath("/workshops#enquire", locale)} className={`mt-5 btn ${w.status === "planned" ? "btn-primary" : "btn-yellow"} w-full`}>
                 {w.status === "planned" ? (<>{t.workshops.book} <ArrowRight size={14} /></>) : (<>{t.workshops.imInterested}</>)}
-              </button>
+              </Link>
             </article>
           ))}
         </div>

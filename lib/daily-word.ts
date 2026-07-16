@@ -121,11 +121,19 @@ export function dayOfYear(iso: string): number {
   return Math.floor((Date.UTC(y, m - 1, d) - Date.UTC(y, 0, 0)) / 86_400_000);
 }
 
-/** The item for a given date. Same date in, same item out — always. */
+/**
+ * The item for the week a given date falls in — a "word of the week". It only
+ * changes when the week turns over (every Monday), and the count runs
+ * continuously across year boundaries, so there's no hiccup each January. With N
+ * entries the list lasts N weeks before repeating.
+ */
 export function pickForDate(iso: string, items: DailyItem[] = DAILY_ITEMS): DailyItem {
   if (!items.length) throw new Error("DAILY_ITEMS is empty");
-  const [y] = iso.split("-").map(Number);
-  // Offset by the year so the cycle doesn't line up identically every January.
-  const i = (dayOfYear(iso) + (y || 0)) % items.length;
-  return items[i];
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y || !m || !d) return items[0];
+  // Days since the Unix epoch (1970-01-01, a Thursday); +3 shifts the bucket
+  // boundary to Monday, so the word changes every Monday.
+  const days = Math.floor(Date.UTC(y, m - 1, d) / 86_400_000);
+  const week = Math.floor((days + 3) / 7);
+  return items[((week % items.length) + items.length) % items.length];
 }

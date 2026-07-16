@@ -75,6 +75,9 @@ export default function MuralHero() {
             <Link href={localizePath("/courses/italian/adult-groups", locale)} className="btn btn-yellow">
               {hero.cta2}
             </Link>
+            <Link href={localizePath("/book-trial", locale)} className="btn btn-ghost">
+              {isZh ? "預約試堂" : "Book a trial class"} <ArrowRight size={16} />
+            </Link>
           </div>
 
           <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-[14px] text-ink-muted">
