@@ -97,3 +97,25 @@ export const enquiries = pgTable("enquiries", {
 
 export type EnquiryRow = typeof enquiries.$inferSelect;
 export type NewEnquiryRow = typeof enquiries.$inferInsert;
+
+// -------------------- Event registrations --------------------
+// Replaces the Google Form for event sign-ups. Keeps a snapshot of the event
+// (title + date) alongside the registrant, so an answer sheet stays readable
+// even though events themselves live elsewhere. Age group and student status are
+// captured because the office wants yearly stats from them; repeat attendance is
+// derived from the email across events.
+export const eventRegistrations = pgTable("event_registrations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  eventId: text("event_id").notNull(),
+  eventTitle: text("event_title").notNull(),
+  eventDate: text("event_date"),             // "YYYY-MM-DD" snapshot
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  ageGroup: text("age_group"),               // "Under 18" | "18-24" | ...
+  isStudent: boolean("is_student").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type EventRegistrationRow = typeof eventRegistrations.$inferSelect;
+export type NewEventRegistrationRow = typeof eventRegistrations.$inferInsert;

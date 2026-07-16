@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, BookOpen, PaintBucket, Calendar, Users, Star, ShieldAlert, LogOut, Menu, X, Layout, UserPlus, CalendarDays, Inbox } from "lucide-react";
+import { LayoutDashboard, BookOpen, PaintBucket, Calendar, Users, Star, ShieldAlert, LogOut, Menu, X, Layout, UserPlus, CalendarDays, Inbox, Ticket } from "lucide-react";
 import Wordmark from "@/components/Wordmark";
 
 const navItems = [
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/admin/enquiries",    label: "Enquiries",        icon: Inbox },
   { href: "/admin/workshops",    label: "Workshops",        icon: PaintBucket },
   { href: "/admin/events",       label: "Events",           icon: Calendar },
+  { href: "/admin/registrations",label: "Registrations",    icon: Ticket },
   { href: "/admin/people",       label: "People",           icon: UserPlus },
   { href: "/admin/members",      label: "Members",          icon: Users },
   { href: "/admin/reviews",      label: "Reviews",          icon: Star },

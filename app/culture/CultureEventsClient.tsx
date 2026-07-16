@@ -1,7 +1,7 @@
 "use client";
-import Link from "next/link";
-import { Calendar, MapPin, ExternalLink } from "lucide-react";
+import { Calendar, MapPin } from "lucide-react";
 import { useEvents } from "@/lib/use-events";
+import EventRegisterButton from "@/components/EventRegisterButton";
 
 export default function CultureEventsClient() {
   const events = useEvents(true);
@@ -35,11 +35,7 @@ export default function CultureEventsClient() {
                       <span className="inline-flex items-center gap-1"><MapPin size={12} />{e.location}</span>
                     </div>
                   </div>
-                  {e.bookingUrl ? (
-                    <a href={e.bookingUrl} target="_blank" rel="noopener" className="btn btn-primary text-sm h-10 px-4 shrink-0">Book <ExternalLink size={13} /></a>
-                  ) : (
-                    <Link href="/contact" className="btn btn-ghost text-sm h-10 px-4 shrink-0">Book</Link>
-                  )}
+                  <EventRegisterButton eventId={e.id} eventTitle={e.title} eventDate={e.date} />
                 </div>
               );
             })}

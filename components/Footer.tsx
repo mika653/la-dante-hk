@@ -57,7 +57,6 @@ export default function Footer() {
                 <li><Link className="hover:text-sole" href={lp("/culture")}>{t.footer.culture}</Link></li>
                 <li><Link className="hover:text-sole" href={lp("/plida")}>{t.footer.plida}</Link></li>
                 <li><Link className="hover:text-sole" href={lp("/about")}>{t.footer.aboutUs}</Link></li>
-                <li><Link className="hover:text-sole" href="/student">{t.footer.studentPortal}</Link></li>
                 <li><Link className="hover:text-sole" href={lp("/gift")}>{t.footer.gift}</Link></li>
               </ul>
             </div>
