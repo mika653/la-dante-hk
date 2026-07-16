@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { sponsors } from "@/lib/data";
+import { sponsors, classroomSponsors } from "@/lib/data";
 import { useT } from "@/lib/locale";
 
 export default function SponsorsStrip() {
@@ -11,7 +11,22 @@ export default function SponsorsStrip() {
         <p className="eyebrow">{t.sponsors.eyebrow}</p>
         <h2 className="mt-3 text-3xl md:text-4xl text-balance">{t.sponsors.title}</h2>
 
+        {/* Classroom sponsors — one per room, in room order A–G. */}
         <div className="mt-10">
+          <p className="eyebrow">{t.sponsors.classroom}</p>
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+            {classroomSponsors.map((s) => (
+              <div key={s.room} className="frame bg-white px-3 py-3 flex flex-col items-center justify-center gap-2">
+                <div className="relative h-10 w-full">
+                  <Image src={s.logo} alt={s.name} fill sizes="(max-width: 640px) 40vw, 150px" className="object-contain" />
+                </div>
+                <span className="text-[11px] font-heading font-bold tracking-widest text-ink-muted">{s.room}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-12">
           <p className="eyebrow text-sole">{t.sponsors.gold}</p>
           <div className="mt-4 flex justify-center">
             {sponsors.gold.map((s) => (

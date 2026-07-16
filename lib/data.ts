@@ -127,6 +127,19 @@ export const testimonials: Testimonial[] = [
 ];
 
 export type Sponsor = { name: string; logo: string };
+export type ClassroomSponsor = Sponsor & { room: string };
+
+// One sponsor per classroom, A–G. Order comes from the client's "Sponsor logos/
+// Classroom" folder, where each file is named for the room it belongs to.
+export const classroomSponsors: ClassroomSponsor[] = [
+  { room: "A", name: "Eligio Oggionni", logo: "/sponsors/eligio-oggionni.png" },
+  { room: "B", name: "Generali (Life) Hong Kong Limited", logo: "/sponsors/generali-life-hk.png" },
+  { room: "C", name: "OM LOG (ASIA) LTD", logo: "/sponsors/om-log-asia.png" },
+  { room: "D", name: "International Atelier Ltd", logo: "/sponsors/international-atelier.png" },
+  { room: "E", name: "Sugi International Limited", logo: "/sponsors/sugi-international.png" },
+  { room: "F", name: "Nirotech Limited", logo: "/sponsors/nirotech.png" },
+  { room: "G", name: "Prof. Alice T. H. W. Chiu", logo: "/sponsors/prof-alice-chiu.png" },
+];
 
 // Logos live in /public/sponsors, trimmed of transparent padding so they
 // render at a consistent optical size. `name` doubles as the image alt text.

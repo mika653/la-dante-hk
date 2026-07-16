@@ -86,8 +86,9 @@ const en = {
     follow: "Follow on Instagram",
   },
   sponsors: {
-    eyebrow: "Classroom sponsors · A–G",
+    eyebrow: "Our sponsors",
     title: "Proudly supported by.",
+    classroom: "Classroom sponsors · A–G",
     gold: "Gold sponsor",
     silver: "Silver sponsors",
   },
@@ -217,8 +218,9 @@ const zh: typeof en = {
     follow: "追蹤 Instagram",
   },
   sponsors: {
-    eyebrow: "教室贊助 · A–G",
+    eyebrow: "贊助夥伴",
     title: "感謝我們的贊助夥伴。",
+    classroom: "教室贊助 · A–G",
     gold: "金級贊助",
     silver: "銀級贊助",
   },
