@@ -28,8 +28,8 @@ export default function AdultGroupsPage() {
         </div>
       </section>
 
-      {/* Can't find a matching class → capture the request */}
-      <section className="bg-cream py-14 md:py-20">
+      {/* Enrol / can't-find-a-class → capture the request */}
+      <section id="enquire" className="bg-cream py-14 md:py-20 scroll-mt-24">
         <div className="container-xl max-w-2xl">
           <EnquiryForm type="course" />
         </div>

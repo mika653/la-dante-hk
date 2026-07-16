@@ -8,6 +8,7 @@ export default function Newsletter() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [done, setDone] = useState(false);
+  // Note: newsletter capture is on hold — the signup isn't stored yet.
 
   return (
     <section className="bg-cream py-16 md:py-24 border-t border-line">

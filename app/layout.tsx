@@ -19,11 +19,19 @@ const poppins = Poppins({
   display: "swap",
 });
 
+// Base URL and search indexing are env-driven so staging stays out of Google.
+// At go-live on the real domain, set NEXT_PUBLIC_SITE_URL=https://ladante.cc and
+// NEXT_PUBLIC_SITE_LIVE=true in Vercel — nothing else needs to change.
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://la-dante-hk.vercel.app";
+export const SITE_LIVE = process.env.NEXT_PUBLIC_SITE_LIVE === "true";
+
 export const metadata: Metadata = {
   title: "La Dante HK — Italian & Latin in Hong Kong since 1935",
   description:
     "Dante Alighieri Society of Hong Kong. Italian and Latin language courses, cultural events, PLIDA certification, and membership in the heart of Wanchai.",
-  metadataBase: new URL("https://ladante.cc"),
+  metadataBase: new URL(SITE_URL),
+  // Until the site is flagged live, tell search engines not to index it.
+  robots: SITE_LIVE ? undefined : { index: false, follow: false },
   openGraph: {
     title: "La Dante HK",
     description: "Italian & Latin in Hong Kong since 1935.",

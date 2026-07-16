@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState, useTransition } from "react";
-import { Download, Inbox, Mail, Phone } from "lucide-react";
-import { setEnquiryStatus, type EnquiryType, type EnquiryStatus } from "@/lib/enquiry-actions";
+import { Download, Inbox, Mail, Phone, Trash2 } from "lucide-react";
+import { setEnquiryStatus, deleteEnquiry, type EnquiryType, type EnquiryStatus } from "@/lib/enquiry-actions";
 
 type Row = {
   id: string; type: string; name: string; email: string; phone: string | null;
@@ -32,18 +32,25 @@ function toCSV(rows: Row[]) {
   return [head.join(","), ...lines].join("\n");
 }
 
-export default function EnquiriesClient({ rows, error }: { rows: Row[]; error: string | null }) {
+export default function EnquiriesClient({ rows, error, isOwner = false }: { rows: Row[]; error: string | null; isOwner?: boolean }) {
   const [filter, setFilter] = useState<"all" | EnquiryType>("all");
   const [hideClosed, setHideClosed] = useState(true);
   const [busy, startTransition] = useTransition();
   const [localStatus, setLocalStatus] = useState<Record<string, string>>({});
+  const [deleted, setDeleted] = useState<Set<string>>(new Set());
 
   const statusOf = (r: Row) => localStatus[r.id] ?? r.status;
 
   const filtered = useMemo(
-    () => rows.filter((r) => (filter === "all" || r.type === filter) && (!hideClosed || statusOf(r) !== "closed")),
-    [rows, filter, hideClosed, localStatus],
+    () => rows.filter((r) => !deleted.has(r.id) && (filter === "all" || r.type === filter) && (!hideClosed || statusOf(r) !== "closed")),
+    [rows, filter, hideClosed, localStatus, deleted],
   );
+
+  function remove(id: string) {
+    if (!confirm("Permanently delete this enquiry? This cannot be undone (use it to honour a data-erasure request).")) return;
+    setDeleted((s) => new Set(s).add(id));
+    startTransition(() => { deleteEnquiry(id); });
+  }
 
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
@@ -132,6 +139,11 @@ export default function EnquiriesClient({ rows, error }: { rows: Row[]; error: s
                         {s}
                       </button>
                     ))}
+                    {isOwner && (
+                      <button type="button" disabled={busy} onClick={() => remove(r.id)} title="Delete permanently" className="ml-1 w-7 h-7 rounded-full inline-flex items-center justify-center text-ink-muted hover:bg-rosso/10 hover:text-rosso disabled:opacity-50">
+                        <Trash2 size={14} />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

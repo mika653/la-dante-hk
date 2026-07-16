@@ -45,6 +45,20 @@ const COPY: Record<EnquiryType, Copy> = {
     showLevel: false,
     timingLabel: "Preferred timing", messageLabel: "Message",
   },
+  // placement and newsletter enquiries are filed programmatically, not via this
+  // form — these entries exist only to satisfy the type.
+  placement: {
+    title: "Placement test",
+    blurb: "Your placement result.",
+    showLevel: true, levelLabel: "Level",
+    timingLabel: "Preferred timing", messageLabel: "Message",
+  },
+  newsletter: {
+    title: "Newsletter",
+    blurb: "Newsletter sign-up.",
+    showLevel: false,
+    timingLabel: "Preferred timing", messageLabel: "Message",
+  },
 };
 
 export default function EnquiryForm({ type = "general", compact = false }: { type?: EnquiryType; compact?: boolean }) {

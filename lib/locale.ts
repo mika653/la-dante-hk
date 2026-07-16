@@ -26,7 +26,7 @@ const en = {
     line1: "Impara",
     line2: "l'italiano",
     line3: "a Hong Kong",
-    subhead: "Certified native teachers, CEFR-aligned courses, and a 90-year tradition of Italian culture in the heart of Wanchai.",
+    subhead: "Certified native teachers, CEFR-aligned courses, and a 90-year tradition of Italian culture in the heart of Wanchai.",
     cta1: "Take the placement test",
     cta2: "See September courses",
     trust: ["4.9 rating", "1,500+ students", "Wanchai & online", "PLIDA certified"],

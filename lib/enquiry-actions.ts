@@ -11,8 +11,8 @@ import { db } from "@/lib/db";
 import { enquiries, type EnquiryRow } from "@/lib/db/schema";
 import { getSession, isAdmin } from "@/lib/auth";
 
-export type EnquiryType = "course" | "private" | "plida" | "workshop" | "trial" | "general";
-const TYPES: EnquiryType[] = ["course", "private", "plida", "workshop", "trial", "general"];
+export type EnquiryType = "course" | "private" | "plida" | "workshop" | "trial" | "placement" | "newsletter" | "general";
+const TYPES: EnquiryType[] = ["course", "private", "plida", "workshop", "trial", "placement", "newsletter", "general"];
 const STATUSES = ["new", "contacted", "closed"] as const;
 export type EnquiryStatus = (typeof STATUSES)[number];
 
@@ -69,6 +69,16 @@ export async function setEnquiryStatus(id: string, status: EnquiryStatus): Promi
   if (!s || !isAdmin(s.role)) return { ok: false, error: "Not authorised" };
   if (!STATUSES.includes(status)) return { ok: false, error: "Unknown status" };
   await db.update(enquiries).set({ status }).where(eq(enquiries.id, id));
+  revalidatePath("/admin/enquiries");
+  return { ok: true };
+}
+
+// Permanent deletion — for honouring a data-erasure request (PDPO). Owner only,
+// since it destroys a record rather than just closing it.
+export async function deleteEnquiry(id: string): Promise<{ ok: boolean; error?: string }> {
+  const s = await getSession();
+  if (!s || s.role !== "owner") return { ok: false, error: "Only the owner can delete an enquiry." };
+  await db.delete(enquiries).where(eq(enquiries.id, id));
   revalidatePath("/admin/enquiries");
   return { ok: true };
 }

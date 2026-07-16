@@ -3,7 +3,7 @@
 // registerForEvent is public (anyone can sign up); listRegistrations is admin.
 
 import { revalidatePath } from "next/cache";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { eventRegistrations, type EventRegistrationRow } from "@/lib/db/schema";
 import { getSession, isAdmin } from "@/lib/auth";
@@ -51,4 +51,13 @@ export async function listRegistrations(): Promise<EventRegistrationRow[]> {
   const s = await getSession();
   if (!s || !isAdmin(s.role)) throw new Error("Not authorised");
   return db.select().from(eventRegistrations).orderBy(desc(eventRegistrations.createdAt));
+}
+
+// Permanent deletion — for a data-erasure request (PDPO). Owner only.
+export async function deleteRegistration(id: string): Promise<{ ok: boolean; error?: string }> {
+  const s = await getSession();
+  if (!s || s.role !== "owner") return { ok: false, error: "Only the owner can delete a registration." };
+  await db.delete(eventRegistrations).where(eq(eventRegistrations.id, id));
+  revalidatePath("/admin/registrations");
+  return { ok: true };
 }
