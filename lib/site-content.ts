@@ -34,7 +34,7 @@ export const defaultHero: HeroContent = {
   subhead:
     "Certified native teachers, CEFR-aligned courses, and a 90-year tradition of Italian culture in the heart of Wanchai.",
   cta1: { label: "Take the placement test", href: "/placement-test" },
-  cta2: { label: "See May–July courses", href: "/courses/italian/adult-groups" },
+  cta2: { label: "See September courses", href: "/courses/italian/adult-groups" },
   trust: ["4.9 rating", "1,500+ students", "Wanchai & online", "PLIDA certified"],
 };
 

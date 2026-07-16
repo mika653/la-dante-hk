@@ -52,7 +52,7 @@ export function addWorkshop(w: Workshop) { write(WORKSHOPS_KEY, [w, ...getWorksh
 const SETTINGS_KEY = "ladante-settings";
 export type SiteSettings = { banner: string; popup: string };
 export const defaultSettings: SiteSettings = {
-  banner: "Early-bird 10% off May–July term · University students −20% year-round",
+  banner: "Early-bird 10% off September term · University students −20% year-round",
   popup: "Introducing our new ScuolaSemplice student portal.",
 };
 export function getSettings(): SiteSettings { return read<SiteSettings>(SETTINGS_KEY, defaultSettings); }

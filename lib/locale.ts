@@ -6,7 +6,7 @@ export type Locale = "en" | "zh";
 const en = {
   announce: {
     parts: [
-      "Early-bird 10% off May–July term",
+      "Early-bird 10% off September term",
       "University students −20% year-round",
     ],
     cta: "See courses →",
@@ -28,7 +28,7 @@ const en = {
     line3: "a Hong Kong",
     subhead: "Certified native teachers, CEFR-aligned courses, and a 90-year tradition of Italian culture in the heart of Wanchai.",
     cta1: "Take the placement test",
-    cta2: "See May–July courses",
+    cta2: "See September courses",
     trust: ["4.9 rating", "1,500+ students", "Wanchai & online", "PLIDA certified"],
   },
   trustBand: [
@@ -143,7 +143,7 @@ const en = {
 const zh: typeof en = {
   announce: {
     parts: [
-      "5–7 月課程早鳥 9 折優惠",
+      "9–12 月課程早鳥 9 折優惠",
       "大學生全年 8 折",
     ],
     cta: "查看課程 →",
@@ -165,7 +165,7 @@ const zh: typeof en = {
     line3: "於香港",
     subhead: "認證意大利籍導師、CEFR 標準課程,以及紮根灣仔、傳承九十年的意大利文化。",
     cta1: "做分班測試",
-    cta2: "查看 5–7 月課程",
+    cta2: "查看 9–12 月課程",
     trust: ["4.9 評分", "1,500+ 學員", "灣仔及網上授課", "PLIDA 認證中心"],
   },
   trustBand: [

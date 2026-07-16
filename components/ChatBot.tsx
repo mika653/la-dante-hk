@@ -24,7 +24,7 @@ function respond(input: string): Msg {
     return { role: "bot", text: "Ordinary membership is HK$600/year — includes course discounts, library access, and 50+ partner perks across HK.", cta: [{ label: "Become a member", href: "/membership" }] };
   }
   if (/schedule|when|time|start|term/.test(q)) {
-    return { role: "bot", text: "Our May–July term starts 5 May 2026. We also have January and September intakes. See available slots on the courses page.", cta: [{ label: "See schedule", href: "/courses/italian/adult-groups" }] };
+    return { role: "bot", text: "Our September–December term starts 7 September 2026. We also have January and May intakes. See available slots on the courses page.", cta: [{ label: "See schedule", href: "/courses/italian/adult-groups" }] };
   }
   if (/kid|child|teen|young/.test(q)) {
     return { role: "bot", text: "Piccoli Dante (7–10 yrs) and Ragazzi Dante (11–15 yrs) run Saturdays in Wanchai.", cta: [{ label: "Kids & teens", href: "/courses/italian/kids" }] };

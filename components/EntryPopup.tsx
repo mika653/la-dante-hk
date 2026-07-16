@@ -32,12 +32,12 @@ export default function EntryPopup() {
           <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-azzurro/15" aria-hidden />
           <div className="absolute bottom-2 left-4 w-3 h-3 rounded-full bg-azzurro" aria-hidden />
           <p className="eyebrow">New this term</p>
-          <h2 id="popup-title" className="mt-2 text-2xl font-heading font-extrabold">May–July 2026 enrolment is open.</h2>
+          <h2 id="popup-title" className="mt-2 text-2xl font-heading font-extrabold">September–December 2026 enrolment is open.</h2>
         </div>
 
         <div className="p-6">
           <ul className="space-y-2.5 text-[15px]">
-            <li className="flex gap-2"><Sparkles size={16} className="text-azzurro-deep mt-1 shrink-0" aria-hidden /><span>Early-bird <strong>10% off</strong> until 10 April</span></li>
+            <li className="flex gap-2"><Sparkles size={16} className="text-azzurro-deep mt-1 shrink-0" aria-hidden /><span>Early-bird <strong>10% off</strong> until 14 August</span></li>
             <li className="flex gap-2"><Sparkles size={16} className="text-azzurro-deep mt-1 shrink-0" aria-hidden /><span>University students <strong>−20%</strong> year-round</span></li>
             <li className="flex gap-2"><Sparkles size={16} className="text-azzurro-deep mt-1 shrink-0" aria-hidden /><span>Gift cards now available for friends & family</span></li>
           </ul>
