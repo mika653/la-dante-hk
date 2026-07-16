@@ -20,7 +20,7 @@ export default function SiteChrome() {
     }
   }, []);
 
-  const staff = ["/admin", "/student", "/onboarding", "/leave", "/login"];
+  const staff = ["/admin", "/student", "/onboarding", "/leave", "/login", "/account"];
   if (staff.some((r) => pathname === r || pathname.startsWith(r + "/"))) return null;
   if (isPreview) return null;
 

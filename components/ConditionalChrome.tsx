@@ -4,7 +4,7 @@ import Nav from "./Nav";
 import Footer from "./Footer";
 import AnnouncementBar from "./AnnouncementBar";
 
-const STAFF_ROUTES = ["/admin", "/student", "/onboarding", "/leave", "/login"];
+const STAFF_ROUTES = ["/admin", "/student", "/onboarding", "/leave", "/login", "/account"];
 const isStaffRoute = (p: string) => STAFF_ROUTES.some((r) => p === r || p.startsWith(r + "/"));
 
 export function ConditionalNav() {
