@@ -3,7 +3,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { questionBank, type Question, type CEFR, levelInfo } from "@/lib/placement-questions";
 import { useCourses } from "@/lib/use-courses";
-import { ArrowLeft, ArrowRight, Check, Mail, Sparkles, Clock } from "lucide-react";
+import { suggestFor, seatsLeft, formatStart } from "@/lib/placement-suggest";
+import { ArrowLeft, ArrowRight, Check, Mail, Sparkles, Clock, CalendarDays, MapPin, User, Phone } from "lucide-react";
 
 type Stage = "intro" | "testing" | "email" | "result";
 
@@ -229,9 +230,7 @@ export default function TestClient() {
   // stage === "result"
   const r = result!;
   const info = levelInfo[r.level];
-  const recommendedLevel = r.level === "C1" ? "C1" : `${r.level}.1`;
-  const recommended = courses.find((c) => c.language === "italian" && c.type === "adult-group" && c.level === recommendedLevel)
-                   ?? courses.find((c) => c.language === "italian" && c.type === "adult-group" && typeof c.level === "string" && c.level.startsWith(r.level));
+  const suggestion = suggestFor(courses, r.level);
 
   return (
     <section className="bg-cream py-16 md:py-20">
@@ -253,12 +252,57 @@ export default function TestClient() {
             ))}
           </div>
 
-          {recommended && (
-            <div className="mt-10 text-left p-6 rounded-2xl bg-sole text-ink">
-              <p className="eyebrow !text-azzurro-deep">We recommend</p>
-              <h3 className="mt-2 text-xl md:text-2xl font-semibold">{recommended.title}</h3>
-              <p className="mt-1 text-sm">{recommended.dayLabel} · {recommended.location} · {recommended.teacher}</p>
-              <Link href="/courses/italian/adult-groups" className="btn btn-primary mt-4">Enrol in {recommended.level} <ArrowRight size={16} /></Link>
+          {suggestion.kind === "group" ? (
+            <div className="mt-10 text-left">
+              <p className="eyebrow text-center">
+                {suggestion.courses.length === 1 ? "Your next class" : "Classes starting at your level"}
+              </p>
+              <div className="mt-4 grid gap-3">
+                {suggestion.courses.slice(0, 3).map((c) => {
+                  const left = seatsLeft(c);
+                  return (
+                    <div key={c.id} className="p-5 rounded-2xl bg-sole text-ink">
+                      <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div>
+                          <h3 className="text-xl font-heading font-semibold">{c.title}</h3>
+                          <p className="mt-1 text-sm font-medium">Level {c.level}</p>
+                        </div>
+                        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${left > 0 ? "bg-white/70" : "bg-ink text-cream"}`}>
+                          {left > 0 ? `${left} seat${left === 1 ? "" : "s"} left` : "Waiting list"}
+                        </span>
+                      </div>
+                      <ul className="mt-3 grid sm:grid-cols-2 gap-y-1.5 gap-x-4 text-sm">
+                        <li className="flex items-center gap-2"><CalendarDays size={15} aria-hidden /> Starts {formatStart(c.startISO)}</li>
+                        <li className="flex items-center gap-2"><Clock size={15} aria-hidden /> {c.dayLabel}</li>
+                        <li className="flex items-center gap-2"><MapPin size={15} aria-hidden /> {c.location}</li>
+                        <li className="flex items-center gap-2"><User size={15} aria-hidden /> {c.teacher}</li>
+                      </ul>
+                      <Link href="/courses/italian/adult-groups" className="btn btn-primary mt-4">
+                        {left > 0 ? "Enrol" : "Join the waiting list"} <ArrowRight size={16} />
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            /* Giulia's rule: no group class at this level → private or the office. */
+            <div className="mt-10 text-left p-6 rounded-2xl bg-azzurro-soft border border-azzurro-deep/20">
+              <p className="eyebrow !text-azzurro-deep">What&apos;s next</p>
+              {/* Built as one expression: this SWC drops the leading space of a text
+                  chunk that follows an expression when the chunk also holds an entity.
+                    keeps "just now" from breaking across lines. */}
+              <h3 className="mt-2 text-xl font-heading font-semibold">
+                {`No ${r.level} group class is on the calendar just now.`}
+              </h3>
+              <p className="mt-2 text-[15px] text-ink-muted">
+                That happens between terms. Private lessons start whenever suits you and move at your pace — or the
+                office can tell you when the next {r.level} group opens and hold a place for you.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link href="/courses/italian/private" className="btn btn-primary">Explore private lessons <ArrowRight size={16} /></Link>
+                <Link href="/contact" className="btn btn-ghost"><Phone size={16} /> Contact the office</Link>
+              </div>
             </div>
           )}
 
