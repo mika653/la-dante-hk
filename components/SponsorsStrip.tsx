@@ -43,11 +43,12 @@ export default function SponsorsStrip() {
           <p className="eyebrow">{t.sponsors.silver}</p>
           {/* Logos arrive with their own baked-in backgrounds (some dark, some white),
               so each sits in its own white card to keep the wall visually even. */}
-          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
+          {/* Five across on desktop so the nine fit on two rows. */}
+          <div className="mt-6 grid grid-cols-3 sm:grid-cols-5 gap-3 max-w-4xl mx-auto">
             {sponsors.silver.map((s) => (
-              <div key={s.name} className="frame bg-white px-6 py-5 flex items-center justify-center">
-                <div className="relative h-14 md:h-16 w-full">
-                  <Image src={s.logo} alt={s.name} fill sizes="(max-width: 640px) 45vw, 280px" className="object-contain" />
+              <div key={s.name} className="frame bg-white px-4 py-3 flex items-center justify-center">
+                <div className="relative h-9 md:h-11 w-full">
+                  <Image src={s.logo} alt={s.name} fill sizes="(max-width: 640px) 28vw, 170px" className="object-contain" />
                 </div>
               </div>
             ))}
