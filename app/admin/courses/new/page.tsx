@@ -10,6 +10,11 @@ import { generateContinuation, nextLevel, daysBetween, computeEndDate } from "@/
 import { holidaySet } from "@/lib/holidays";
 import CourseSchedulePreview from "@/components/CourseSchedulePreview";
 
+function errText(e: unknown) {
+  const m = e instanceof Error ? e.message : String(e);
+  return /Not authorised/i.test(m) ? "You need to be signed in as an owner or manager to save courses. Please sign in first." : m;
+}
+
 type Step = 1 | 2 | 3 | 4;
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -21,6 +26,7 @@ const LEVELS: CEFRLevel[] = ["A1.1", "A1.2", "A1.3", "A2.1", "A2.2", "A2.3", "B1
 export default function NewCoursePage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
+  const [err, setErr] = useState<string | null>(null);
   const [lang, setLang] = useState<Language>("italian");
   const [type, setType] = useState<CourseType>("adult-group");
   const [level, setLevel] = useState<CEFRLevel>("A1.1");
@@ -93,18 +99,18 @@ export default function NewCoursePage() {
   }
 
   // Optionally generate the next-level course as a draft (returns a message fragment).
-  function maybeCreateNext(course: Course): string {
+  async function maybeCreateNext(course: Course): Promise<string> {
     if (!createNext || !nextLevel(course.level)) return "";
     const cont = generateContinuation(course, { gapWeeks });
     if (!cont) return "";
-    addCourse(cont);
+    await addCourse(cont);
     return ` The ${cont.level} continuation was created as a draft — review and publish it when ready.`;
   }
 
-  function publish() {
+  async function publish() {
     const course = buildCourse("Published");
-    addCourse(course);
-    const nextMsg = maybeCreateNext(course);
+    try { await addCourse(course); } catch (e) { setErr(errText(e)); return; }
+    const nextMsg = await maybeCreateNext(course);
     // Where this course will appear on the public site
     const publicPath =
       course.type === "adult-group" ? "/courses/italian/adult-groups" :
@@ -118,10 +124,10 @@ export default function NewCoursePage() {
     router.push(`/admin/courses?view=${encodeURIComponent(publicPath)}`);
   }
 
-  function saveDraft() {
+  async function saveDraft() {
     const course = buildCourse("Draft");
-    addCourse(course);
-    const nextMsg = maybeCreateNext(course);
+    try { await addCourse(course); } catch (e) { setErr(errText(e)); return; }
+    const nextMsg = await maybeCreateNext(course);
     try { sessionStorage.setItem("ladante-admin-flash", `Saved "${course.title}" as a draft. It's not live yet — open it any time to finish and publish.${nextMsg}`); } catch {}
     router.push("/admin/courses");
   }
@@ -295,6 +301,7 @@ export default function NewCoursePage() {
               </div>
             )}
 
+            {err && <p className="mb-3 text-sm bg-rosso/10 text-rosso rounded-lg px-3 py-2">{err}</p>}
             <div className="flex items-center justify-between">
               <button type="button" onClick={() => setStep(3)} className="btn btn-ghost"><ArrowLeft size={16} /> Edit</button>
               <div className="flex gap-2">

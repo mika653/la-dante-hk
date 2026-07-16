@@ -7,7 +7,7 @@ import type { Course } from "@/lib/data";
 
 export default function AdminOverview() {
   const [courses, setCoursesState] = useState<Course[]>([]);
-  useEffect(() => { setCoursesState(getCourses()); }, []);
+  useEffect(() => { getCourses().then(setCoursesState).catch(() => setCoursesState([])); }, []);
 
   const published = courses.filter((c) => c.status === "Published");
   const enrolled = published.reduce((sum, c) => sum + c.enrolled, 0);

@@ -1,10 +1,11 @@
 "use client";
-// LocalStorage-backed course store for the demo.
-// In Phase 2 this becomes Supabase / Neon Postgres + API routes.
+// Admin data store. Courses now live in Neon (shared with every visitor) and go
+// through role-gated server actions; workshops and site settings are still
+// localStorage-only for the demo.
 
-import { courses as seedCourses, workshops as seedWorkshops, type Course, type Workshop } from "@/lib/data";
+import { workshops as seedWorkshops, type Course, type Workshop } from "@/lib/data";
+import { listAllCourses, createCourse, patchCourse, deleteCourse } from "@/lib/course-actions";
 
-const COURSES_KEY = "ladante-courses";
 const WORKSHOPS_KEY = "ladante-workshops";
 
 function read<T>(key: string, fallback: T): T {
@@ -21,25 +22,16 @@ function write<T>(key: string, value: T) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-export function getCourses(): Course[] {
-  return read<Course[]>(COURSES_KEY, seedCourses);
-}
-export function setCourses(list: Course[]) { write(COURSES_KEY, list); }
+// Courses — database-backed via server actions. All async now; the admin pages
+// await them. Every write is re-checked against the caller's session server-side.
+export async function getCourses(): Promise<Course[]> { return listAllCourses(); }
+export async function addCourse(c: Course): Promise<void> { await createCourse(c); }
+export async function updateCourse(id: string, patch: Partial<Course>): Promise<void> { await patchCourse(id, patch); }
+export async function removeCourse(id: string): Promise<void> { await deleteCourse(id); }
 
-export function addCourse(c: Course) {
-  const list = getCourses();
-  write(COURSES_KEY, [c, ...list]);
-}
-export function updateCourse(id: string, patch: Partial<Course>) {
-  const list = getCourses().map((c) => (c.id === id ? { ...c, ...patch } : c));
-  write(COURSES_KEY, list);
-}
-export function removeCourse(id: string) {
-  write(COURSES_KEY, getCourses().filter((c) => c.id !== id));
-}
 export function resetDemo() {
+  // Only clears the still-local demo bits; DB courses persist and aren't wiped.
   if (typeof window === "undefined") return;
-  localStorage.removeItem(COURSES_KEY);
   localStorage.removeItem(WORKSHOPS_KEY);
   localStorage.removeItem(SETTINGS_KEY);
 }

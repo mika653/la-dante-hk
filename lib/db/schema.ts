@@ -38,3 +38,40 @@ export type LeaveStatus = (typeof leaveStatusEnum.enumValues)[number];
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type LeaveRequest = typeof leaveRequests.$inferSelect;
+
+// -------------------- Courses --------------------
+// The public catalogue. Mirrors the Course shape the site already uses; enum-ish
+// fields are plain text so adding a level or course type never needs a migration.
+// `seats` is capacity and `enrolled` is taken — "seats left" is the difference,
+// which is what staff edit and what students see.
+export const courses = pgTable("courses", {
+  id: text("id").primaryKey(),
+  language: text("language").notNull(),          // "italian" | "latin"
+  type: text("type").notNull(),                  // "adult-group" | "kids" | ...
+  level: text("level").notNull(),
+  title: text("title").notNull(),
+  dayLabel: text("day_label").notNull(),
+  startISO: text("start_iso").notNull(),         // "YYYY-MM-DD"
+  endISO: text("end_iso").notNull(),
+  hours: integer("hours").notNull().default(0),
+  location: text("location").notNull(),
+  teacher: text("teacher").notNull(),
+  priceHKD: integer("price_hkd").notNull().default(0),
+  seats: integer("seats").notNull().default(0),
+  enrolled: integer("enrolled").notNull().default(0),
+  status: text("status").notNull().default("Published"),  // "Published" | "Draft"
+  // optional scheduling / continuation fields
+  courseCode: text("course_code"),
+  weekday: integer("weekday"),
+  startTime: text("start_time"),
+  endTime: text("end_time"),
+  lessons: integer("lessons"),
+  earlyBirdDueISO: text("early_bird_due_iso"),
+  earlyBirdFeeHKD: integer("early_bird_fee_hkd"),
+  archived: boolean("archived").notNull().default(false),
+  continuationOf: text("continuation_of"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type CourseRow = typeof courses.$inferSelect;
+export type NewCourseRow = typeof courses.$inferInsert;

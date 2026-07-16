@@ -24,6 +24,7 @@ export default function EditCourseClient({ id }: { id: string }) {
   const router = useRouter();
   const [course, setCourse] = useState<Course | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [saveErr, setSaveErr] = useState<string | null>(null);
 
   // editable fields
   const [title, setTitle] = useState("");
@@ -46,27 +47,32 @@ export default function EditCourseClient({ id }: { id: string }) {
   const [earlyBirdFeeHKD, setEarlyBirdFeeHKD] = useState<number | "">("");
 
   useEffect(() => {
-    const c = getCourses().find((x) => x.id === id);
-    if (!c) { setNotFound(true); return; }
-    setCourse(c);
-    setTitle(c.title);
-    setStatus(c.status);
-    setLang(c.language);
-    setType(c.type);
-    setLevel(c.level);
-    setTeacher(c.teacher);
-    setLocation(c.location);
-    setDayLabel(c.dayLabel);
-    setStartISO((c.startISO || "").slice(0, 10));
-    setEndISO((c.endISO || "").slice(0, 10));
-    setHours(c.hours);
-    setPriceHKD(c.priceHKD);
-    setSeats(c.seats);
-    setEnrolled(c.enrolled);
-    setCourseCode(c.courseCode ?? "");
-    setLessons(typeof c.lessons === "number" ? c.lessons : "");
-    setEarlyBirdDueISO((c.earlyBirdDueISO || "").slice(0, 10));
-    setEarlyBirdFeeHKD(typeof c.earlyBirdFeeHKD === "number" ? c.earlyBirdFeeHKD : "");
+    let alive = true;
+    getCourses().then((all) => {
+      if (!alive) return;
+      const c = all.find((x) => x.id === id);
+      if (!c) { setNotFound(true); return; }
+      setCourse(c);
+      setTitle(c.title);
+      setStatus(c.status);
+      setLang(c.language);
+      setType(c.type);
+      setLevel(c.level);
+      setTeacher(c.teacher);
+      setLocation(c.location);
+      setDayLabel(c.dayLabel);
+      setStartISO((c.startISO || "").slice(0, 10));
+      setEndISO((c.endISO || "").slice(0, 10));
+      setHours(c.hours);
+      setPriceHKD(c.priceHKD);
+      setSeats(c.seats);
+      setEnrolled(c.enrolled);
+      setCourseCode(c.courseCode ?? "");
+      setLessons(typeof c.lessons === "number" ? c.lessons : "");
+      setEarlyBirdDueISO((c.earlyBirdDueISO || "").slice(0, 10));
+      setEarlyBirdFeeHKD(typeof c.earlyBirdFeeHKD === "number" ? c.earlyBirdFeeHKD : "");
+    }).catch(() => { if (alive) setNotFound(true); });
+    return () => { alive = false; };
   }, [id]);
 
   // Recompute the end date weekly from the start, weeks, and weekday — skipping public holidays.
@@ -84,8 +90,10 @@ export default function EditCourseClient({ id }: { id: string }) {
     setEndISO(computeEndDate(startVal, weekday, Number(weeksVal), holidaySet()));
   }
 
-  function save() {
-    updateCourse(id, {
+  async function save() {
+    setSaveErr(null);
+    try {
+    await updateCourse(id, {
       title: title.trim() || course?.title || "Untitled course",
       status,
       language: lang,
@@ -110,6 +118,10 @@ export default function EditCourseClient({ id }: { id: string }) {
       : `Saved changes to "${title}". It's live on the site.`;
     try { sessionStorage.setItem("ladante-admin-flash", msg); } catch {}
     router.push("/admin/courses");
+    } catch (e) {
+      const m = e instanceof Error ? e.message : String(e);
+      setSaveErr(/Not authorised/i.test(m) ? "You need to be signed in as an owner or manager to save. Please sign in first." : m);
+    }
   }
 
   if (notFound) {
@@ -266,6 +278,7 @@ export default function EditCourseClient({ id }: { id: string }) {
           </label>
         </div>
 
+        {saveErr && <p className="text-sm bg-rosso/10 text-rosso rounded-lg px-3 py-2">{saveErr}</p>}
         <div className="flex items-center justify-between pt-2 border-t border-line">
           <Link href="/admin/courses" className="btn btn-ghost">Cancel</Link>
           <button type="button" onClick={save} className="btn btn-primary"><Save size={16} /> {course.continuationOf ? "Confirm & save" : "Save changes"}</button>

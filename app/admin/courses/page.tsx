@@ -1,12 +1,18 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Search, Trash2, Pencil, CheckCircle2, ExternalLink, X, CalendarPlus, Archive } from "lucide-react";
 import { getCourses, removeCourse, addCourse, updateCourse } from "@/lib/admin-store";
+import { setSeatsLeft } from "@/lib/course-actions";
 import type { Course, Language, CourseType } from "@/lib/data";
 import { formatHKD } from "@/lib/utils";
 import { nextLevel, generateContinuation, hasStarted, isUpcoming, todayISO } from "@/lib/course-schedule";
+
+function errText(e: unknown) {
+  const m = e instanceof Error ? e.message : String(e);
+  return /Not authorised/i.test(m) ? "You need to be signed in as an owner or manager to change courses. Please sign in first." : m;
+}
 
 export default function AdminCoursesList() {
   const router = useRouter();
@@ -18,15 +24,20 @@ export default function AdminCoursesList() {
   const [q, setQ] = useState("");
   const [flash, setFlash] = useState<string | null>(null);
   const [flashUrl, setFlashUrl] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const [saving, startSaving] = useTransition();
+
+  const reload = () => getCourses().then(setCoursesState).catch((e) => setErr(String(e?.message ?? e)));
 
   useEffect(() => {
-    setCoursesState(getCourses());
+    reload();
     try {
       const msg = sessionStorage.getItem("ladante-admin-flash");
       if (msg) { setFlash(msg); sessionStorage.removeItem("ladante-admin-flash"); }
       const url = new URLSearchParams(window.location.search).get("view");
       if (url) setFlashUrl(url);
     } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const hasContinuation = (id: string) => courses.some((c) => c.continuationOf === id);
@@ -46,41 +57,59 @@ export default function AdminCoursesList() {
     [courses, today]
   );
 
-  function del(id: string) {
-    if (!confirm("Remove this course from the site? This is reversible by resetting demo data.")) return;
-    removeCourse(id);
-    setCoursesState(getCourses());
+  async function del(id: string) {
+    if (!confirm("Remove this course from the site? You can re-seed the demo courses to restore them.")) return;
+    setErr(null);
+    try { await removeCourse(id); await reload(); } catch (e) { setErr(errText(e)); }
   }
 
   // Generate the next-level continuation of a course as a draft, then open it for review.
-  function createNext(c: Course) {
+  async function createNext(c: Course) {
     const cont = generateContinuation(c);
     if (!cont) return;
-    addCourse(cont);
+    setErr(null);
     try {
+      await addCourse(cont);
       sessionStorage.setItem("ladante-admin-flash",
         `Generated the ${cont.level} continuation of “${c.title}” as a draft — review the dates, then confirm and publish.`);
-    } catch {}
-    router.push(`/admin/courses/${cont.id}/edit`);
+      router.push(`/admin/courses/${cont.id}/edit`);
+    } catch (e) { setErr(errText(e)); }
   }
 
   // Archive every started course and generate its continuation draft (Giulia's roll-over).
-  function rollOverStarted() {
+  async function rollOverStarted() {
+    setErr(null);
     let gen = 0;
-    needRollover.forEach((c) => {
-      updateCourse(c.id, { archived: true });
-      if (nextLevel(c.level) && !hasContinuation(c.id)) {
-        const cont = generateContinuation(c);
-        if (cont) { addCourse(cont); gen++; }
+    try {
+      for (const c of needRollover) {
+        await updateCourse(c.id, { archived: true });
+        if (nextLevel(c.level) && !hasContinuation(c.id)) {
+          const cont = generateContinuation(c);
+          if (cont) { await addCourse(cont); gen++; }
+        }
       }
+      await reload();
+      setFlash(`Archived ${needRollover.length} started course${needRollover.length === 1 ? "" : "s"} and generated ${gen} continuation draft${gen === 1 ? "" : "s"} — find them below and publish when ready.`);
+      setFlashUrl(null);
+    } catch (e) { setErr(errText(e)); }
+  }
+
+  // Availability: set how many seats a class still has open. Students see it live.
+  function saveSeatsLeft(id: string, value: number) {
+    setErr(null);
+    startSaving(async () => {
+      try { await setSeatsLeft(id, value); await reload(); } catch (e) { setErr(errText(e)); }
     });
-    setCoursesState(getCourses());
-    setFlash(`Archived ${needRollover.length} started course${needRollover.length === 1 ? "" : "s"} and generated ${gen} continuation draft${gen === 1 ? "" : "s"} — find them below and publish when ready.`);
-    setFlashUrl(null);
   }
 
   return (
     <div className="max-w-6xl">
+      {err && (
+        <div className="mb-6 frame p-4 bg-rosso/10 text-rosso text-sm flex items-start gap-3">
+          <span className="flex-1">{err}</span>
+          <button type="button" onClick={() => setErr(null)} aria-label="Dismiss"><X size={16} /></button>
+        </div>
+      )}
       {flash && (
         <div className="mb-6 frame p-4 bg-sole flex items-start gap-3">
           <CheckCircle2 size={20} className="text-ink shrink-0 mt-0.5" aria-hidden />
@@ -154,13 +183,14 @@ export default function AdminCoursesList() {
                 <th className="px-5 py-3 text-left font-medium">Schedule</th>
                 <th className="px-5 py-3 text-left font-medium">Teacher</th>
                 <th className="px-5 py-3 text-left font-medium">Price</th>
+                <th className="px-5 py-3 text-left font-medium">Availability</th>
                 <th className="px-5 py-3 text-left font-medium">Status</th>
                 <th className="px-5 py-3 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={7} className="p-10 text-center text-ink-muted">No courses match your filters.</td></tr>
+                <tr><td colSpan={8} className="p-10 text-center text-ink-muted">No courses match your filters.</td></tr>
               )}
               {filtered.map((c) => {
                 const started = hasStarted(c, today);
@@ -179,6 +209,29 @@ export default function AdminCoursesList() {
                     <td className="px-5 py-4 text-ink-muted">{c.dayLabel}</td>
                     <td className="px-5 py-4 text-ink-muted">{c.teacher}</td>
                     <td className="px-5 py-4">{formatHKD(c.priceHKD)}</td>
+                    <td className="px-5 py-4">
+                      {(() => {
+                        const left = Math.max(0, c.seats - c.enrolled);
+                        const open = left > 0;
+                        return (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              min={0}
+                              defaultValue={left}
+                              disabled={saving}
+                              onBlur={(e) => { const v = Math.max(0, Math.trunc(Number(e.target.value))); if (v !== left) saveSeatsLeft(c.id, v); }}
+                              onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+                              title="Seats still open — students see this. Set to 0 for a waitlist."
+                              className="w-14 h-8 px-2 rounded-lg border border-line text-sm disabled:opacity-50"
+                            />
+                            <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${open ? "bg-green-100 text-green-800" : "bg-rosso/10 text-rosso"}`}>
+                              {open ? "Open" : "Full"}
+                            </span>
+                          </div>
+                        );
+                      })()}
+                    </td>
                     <td className="px-5 py-4">
                       {c.archived ? (
                         <span className="px-2.5 py-1 rounded-full text-xs bg-ink/5 text-ink-muted">Archived</span>

@@ -3,31 +3,27 @@ import { useEffect, useMemo, useState } from "react";
 import { courses as seedCourses, type Course } from "@/lib/data";
 import { publicUpcoming } from "@/lib/course-schedule";
 
-const COURSES_KEY = "ladante-courses";
-
-// Reads courses from localStorage (admin-edited) with fallback to seed data.
-// Updates live when the admin adds/removes a course in another tab via the
-// `storage` event. Same-tab updates are picked up on mount / navigation.
+// Reads the published catalogue from the database (via /api/courses), so a
+// change an admin makes is seen by every visitor — not just the browser that
+// made it. Starts from the bundled seed data for an instant first paint, then
+// swaps in the live list once it loads. If the fetch fails, the seed stays up.
 export function useCourses(): Course[] {
   const [list, setList] = useState<Course[]>(seedCourses);
 
   useEffect(() => {
-    const load = () => {
-      try {
-        const stored = localStorage.getItem(COURSES_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) setList(parsed);
+    let alive = true;
+    fetch("/api/courses", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (alive && data && Array.isArray(data.courses) && data.courses.length > 0) {
+          setList(data.courses as Course[]);
         }
-      } catch { /* fall back to seed */ }
-    };
-    load();
-    const onStorage = (e: StorageEvent) => { if (e.key === COURSES_KEY) load(); };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+      })
+      .catch(() => { /* keep the seed */ });
+    return () => { alive = false; };
   }, []);
 
-  // The public site shows only published, upcoming courses — a course drops off
-  // automatically the day after it starts (and drafts / archived never show).
+  // Public site: only published, upcoming, non-archived courses. A course drops
+  // off automatically the day after it starts.
   return useMemo(() => publicUpcoming(list), [list]);
 }
