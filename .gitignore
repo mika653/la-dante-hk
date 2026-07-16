@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# staff sign-in passwords written by scripts/seed.mjs — never commit
+.seed-credentials.txt
+
 # vercel
 .vercel
 
