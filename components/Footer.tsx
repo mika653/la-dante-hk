@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import Wordmark from "./Wordmark";
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail, MessageCircle } from "lucide-react";
 import { IconInstagram, IconFacebook, IconYoutube, IconLinkedin } from "./SocialIcons";
 import { useT, localizePath } from "@/lib/locale";
 
@@ -65,8 +65,9 @@ export default function Footer() {
               <p className="eyebrow !text-sole mb-4">{t.footer.visit}</p>
               <ul className="space-y-3 text-[14px]">
                 <li className="flex gap-3"><MapPin size={16} className="shrink-0 mt-0.5 text-sole" aria-hidden /><span>{t.footer.address}</span></li>
-                <li className="flex gap-3"><Phone size={16} className="shrink-0 mt-0.5 text-sole" aria-hidden /><a href="tel:+85228529788" className="hover:text-sole">+852 2852 9788</a></li>
-                <li className="flex gap-3"><Mail size={16} className="shrink-0 mt-0.5 text-sole" aria-hidden /><a href="mailto:info@ladante.cc" className="hover:text-sole">info@ladante.cc</a></li>
+                <li className="flex gap-3"><Phone size={16} className="shrink-0 mt-0.5 text-sole" aria-hidden /><a href="tel:+85228329799" className="hover:text-sole">+852 2832 9799</a></li>
+                <li className="flex gap-3"><MessageCircle size={16} className="shrink-0 mt-0.5 text-sole" aria-hidden /><a href="https://wa.me/85255128084" target="_blank" rel="noopener" className="hover:text-sole">WhatsApp +852 5512 8084</a></li>
+                <li className="flex gap-3"><Mail size={16} className="shrink-0 mt-0.5 text-sole" aria-hidden /><a href="mailto:dantealighieri@ladante.cc" className="hover:text-sole">dantealighieri@ladante.cc</a></li>
               </ul>
               <p className="mt-5 text-[13px] text-cream/60">{t.footer.hours}</p>
             </div>
@@ -76,6 +77,7 @@ export default function Footer() {
             <p>© {new Date().getFullYear()} Dante Alighieri Society of Hong Kong · {t.footer.allRights}</p>
             <div className="flex gap-5">
               <Link href={lp("/privacy")} className="hover:text-sole">{t.footer.privacy}</Link>
+              <Link href="/cookie-policy" className="hover:text-sole">Cookies</Link>
               <Link href={lp("/terms")}   className="hover:text-sole">{t.footer.terms}</Link>
               <Link href={lp("/bad-weather")} className="hover:text-sole">{t.footer.typhoon}</Link>
             </div>

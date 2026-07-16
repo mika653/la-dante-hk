@@ -42,14 +42,14 @@ function respond(input: string): Msg {
     return { role: "bot", text: "T8 or Red rain = online or cancelled. You&apos;ll get an email + WhatsApp before class.", cta: [{ label: "Typhoon policy", href: "/bad-weather" }] };
   }
   if (/contact|email|phone|visit/.test(q)) {
-    return { role: "bot", text: "We&apos;re at TC2, TCF, HK Arts Centre, 2 Harbour Road, Wan Chai. +852 2852 9788 · info@ladante.cc", cta: [{ label: "Contact us", href: "/contact" }] };
+    return { role: "bot", text: "We&apos;re at Room 702, 7/F, HK Arts Centre, 2 Harbour Road, Wan Chai. +852 2832 9799 · dantealighieri@ladante.cc", cta: [{ label: "Contact us", href: "/contact" }] };
   }
   if (/ciao|hi|hello|hey/.test(q)) {
     return { role: "bot", text: "Ciao! How can I help — courses, prices, PLIDA, or membership?" };
   }
   return {
     role: "bot",
-    text: "I&apos;m still learning. For the fastest answer, email info@ladante.cc or send a message from the contact page — a real human replies in under 24 hours.",
+    text: "I&apos;m still learning. For the fastest answer, email dantealighieri@ladante.cc or send a message from the contact page — a real human replies in under 24 hours.",
     cta: [{ label: "Contact us", href: "/contact" }, { label: "See courses", href: "/courses" }],
   };
 }

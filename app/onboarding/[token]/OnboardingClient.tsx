@@ -65,7 +65,7 @@ export default function OnboardingClient({ token }: { token: string }) {
       <div className="min-h-screen bg-cream flex items-center justify-center px-4">
         <div className="frame p-10 bg-white max-w-md text-center">
           <h1 className="text-2xl font-semibold">Invite not found</h1>
-          <p className="mt-3 text-ink-muted text-sm">This link may have expired or been revoked. Please contact La Dante HK at <a href="mailto:info@ladante.cc" className="underline">info@ladante.cc</a>.</p>
+          <p className="mt-3 text-ink-muted text-sm">This link may have expired or been revoked. Please contact La Dante HK at <a href="mailto:dantealighieri@ladante.cc" className="underline">dantealighieri@ladante.cc</a>.</p>
         </div>
       </div>
     );
@@ -78,7 +78,7 @@ export default function OnboardingClient({ token }: { token: string }) {
           <div className="w-16 h-16 rounded-full bg-sole mx-auto inline-flex items-center justify-center"><Check size={26} /></div>
           <h1 className="mt-6 text-3xl">You&apos;re all set, {person.firstName}.</h1>
           <p className="mt-3 text-ink-muted">Your onboarding is approved. Welcome to La Dante HK.</p>
-          <p className="mt-1 text-ink-muted text-sm">If you need to update anything, email <a href="mailto:info@ladante.cc" className="underline">info@ladante.cc</a>.</p>
+          <p className="mt-1 text-ink-muted text-sm">If you need to update anything, email <a href="mailto:dantealighieri@ladante.cc" className="underline">dantealighieri@ladante.cc</a>.</p>
         </div>
       </Shell>
     );

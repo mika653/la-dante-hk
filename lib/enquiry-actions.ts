@@ -49,7 +49,7 @@ export async function submitEnquiry(_prev: SubmitState, formData: FormData): Pro
       sourcePath: sourcePath || null,
     });
   } catch {
-    return { error: "Something went wrong sending that — please try again, or email info@ladante.cc." };
+    return { error: "Something went wrong sending that — please try again, or email dantealighieri@ladante.cc." };
   }
 
   revalidatePath("/admin/enquiries");

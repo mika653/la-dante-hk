@@ -16,11 +16,10 @@ export default function SponsorsStrip() {
           <p className="eyebrow">{t.sponsors.classroom}</p>
           <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
             {classroomSponsors.map((s) => (
-              <div key={s.room} className="frame bg-white px-3 py-3 flex flex-col items-center justify-center gap-2">
-                <div className="relative h-10 w-full">
+              <div key={s.room} className="frame bg-white px-3 py-4 flex items-center justify-center">
+                <div className="relative h-11 w-full">
                   <Image src={s.logo} alt={s.name} fill sizes="(max-width: 640px) 40vw, 150px" className="object-contain" />
                 </div>
-                <span className="text-[11px] font-heading font-bold tracking-widest text-ink-muted">{s.room}</span>
               </div>
             ))}
           </div>

@@ -60,7 +60,7 @@ export default function EnquiryForm({ type = "general", compact = false }: { typ
       <div className="frame bg-white p-6 md:p-8 text-center">
         <div className="w-12 h-12 rounded-full bg-green-100 text-green-800 mx-auto inline-flex items-center justify-center"><Check size={22} /></div>
         <h3 className="mt-4 text-xl font-heading font-bold">Thank you — we&apos;ve got it.</h3>
-        <p className="mt-2 text-ink-muted text-sm">The office will be in touch soon. For anything urgent, email <a href="mailto:info@ladante.cc" className="underline">info@ladante.cc</a>.</p>
+        <p className="mt-2 text-ink-muted text-sm">The office will be in touch soon. For anything urgent, email <a href="mailto:dantealighieri@ladante.cc" className="underline">dantealighieri@ladante.cc</a>.</p>
       </div>
     );
   }

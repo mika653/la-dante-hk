@@ -40,7 +40,7 @@ export async function registerForEvent(_prev: RegisterState, formData: FormData)
       isStudent,
     });
   } catch {
-    return { error: "We couldn't save that — please try again, or email info@ladante.cc." };
+    return { error: "We couldn't save that — please try again, or email dantealighieri@ladante.cc." };
   }
 
   revalidatePath("/admin/registrations");
