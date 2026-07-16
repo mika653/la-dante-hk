@@ -92,6 +92,11 @@ const en = {
     gold: "Gold sponsor",
     silver: "Silver sponsors",
   },
+  daily: {
+    word: "Word of the day",
+    phrase: "Phrase of the day",
+    footer: "A new one every morning.",
+  },
   featured: {
     eyebrow: "Happening at Dante",
     title: "What's on",
@@ -223,6 +228,11 @@ const zh: typeof en = {
     classroom: "教室贊助 · A–G",
     gold: "金級贊助",
     silver: "銀級贊助",
+  },
+  daily: {
+    word: "每日一字",
+    phrase: "每日一句",
+    footer: "每天早上更新。",
   },
   featured: {
     eyebrow: "但丁的新動態",

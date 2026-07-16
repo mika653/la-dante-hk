@@ -5,6 +5,7 @@ import CourseCircles from "@/components/CourseCircles";
 import MembershipBand from "@/components/MembershipBand";
 import WorkshopsGrid from "@/components/WorkshopsGrid";
 import LibraryTrio from "@/components/LibraryTrio";
+import WordOfTheDay from "@/components/WordOfTheDay";
 import InstagramStrip from "@/components/InstagramStrip";
 import SponsorsStrip from "@/components/SponsorsStrip";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
@@ -25,6 +26,7 @@ export default function HomeZh() {
       <WaveDivider from="paper" to="cream" />
       <WorkshopsGrid />
       <LibraryTrio />
+      <WordOfTheDay />
       <WaveDivider from="white" to="sole-soft" />
       <InstagramStrip />
       <WaveDivider from="sole-soft" to="cream" />
