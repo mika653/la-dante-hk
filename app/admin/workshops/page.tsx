@@ -1,8 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Plus, Check } from "lucide-react";
-import { getWorkshops, addWorkshop } from "@/lib/admin-store";
+import { getWorkshops, addWorkshop } from "@/lib/use-workshops";
 import type { Workshop } from "@/lib/data";
+
+function errText(e: unknown) {
+  const m = e instanceof Error ? e.message : String(e);
+  return /Not authorised/i.test(m) ? "You need to be signed in as an owner or manager to change workshops. Please sign in first." : m;
+}
 
 const EMOJI = ["🎭", "🍝", "🎨", "🎬", "🎶", "📚", "✍️", "🏛️", "☕", "🍷"];
 
@@ -17,25 +22,28 @@ export default function AdminWorkshops() {
   const [dateLabel, setDateLabel] = useState("");
   const [image, setImage] = useState(EMOJI[0]);
 
-  useEffect(() => { setList(getWorkshops()); }, []);
-  const refresh = () => setList(getWorkshops());
+  const [err, setErr] = useState<string | null>(null);
+  const refresh = () => getWorkshops().then(setList).catch((e) => setErr(errText(e)));
+  useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const w: Workshop = {
-      id: `w-${Date.now()}`,
+    setErr(null);
+    const w: Omit<Workshop, "id"> = {
       title: title.trim() || "Untitled workshop",
       description,
       status,
       image,
       ...(status === "planned" ? { dateLabel: dateLabel || "Date TBC" } : { interested: 0 }),
     };
-    addWorkshop(w);
-    setTitle(""); setDescription(""); setStatus("planned"); setDateLabel(""); setImage(EMOJI[0]);
-    setShowForm(false);
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 4000);
-    refresh();
+    try {
+      await addWorkshop(w);
+      setTitle(""); setDescription(""); setStatus("planned"); setDateLabel(""); setImage(EMOJI[0]);
+      setShowForm(false);
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 4000);
+      await refresh();
+    } catch (e) { setErr(errText(e)); }
   }
 
   return (
@@ -47,6 +55,8 @@ export default function AdminWorkshops() {
         </div>
         {!showForm && <button type="button" onClick={() => setShowForm(true)} className="btn btn-primary"><Plus size={16} /> New workshop</button>}
       </div>
+
+      {err && <div className="frame p-4 bg-rosso/10 text-rosso text-sm mb-6">{err}</div>}
 
       {justAdded && (
         <div className="frame p-4 bg-sole mb-6 flex items-start gap-3">

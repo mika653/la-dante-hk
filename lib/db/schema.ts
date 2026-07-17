@@ -150,3 +150,28 @@ export const siteConfig = pgTable("site_config", {
 });
 
 export type SiteConfigRow = typeof siteConfig.$inferSelect;
+
+// -------------------- Reviews & Workshops (public content) --------------------
+export const reviews = pgTable("reviews", {
+  id: text("id").primaryKey(),
+  quote: text("quote").notNull(),
+  name: text("name").notNull(),
+  level: text("level").notNull().default(""),
+  year: integer("year").notNull(),
+  published: boolean("published").notNull().default(true),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+export type ReviewRow = typeof reviews.$inferSelect;
+
+export const workshopsTable = pgTable("workshops", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull().default(""),
+  status: text("status").notNull().default("interest"),  // "planned" | "interest"
+  dateLabel: text("date_label"),
+  interested: integer("interested"),
+  image: text("image").notNull().default(""),
+  published: boolean("published").notNull().default(true),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+export type WorkshopRow = typeof workshopsTable.$inferSelect;

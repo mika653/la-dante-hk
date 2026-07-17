@@ -3,10 +3,8 @@
 // through role-gated server actions; workshops and site settings are still
 // localStorage-only for the demo.
 
-import { workshops as seedWorkshops, type Course, type Workshop } from "@/lib/data";
+import { type Course } from "@/lib/data";
 import { listAllCourses, createCourse, patchCourse, deleteCourse } from "@/lib/course-actions";
-
-const WORKSHOPS_KEY = "ladante-workshops";
 
 function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -30,15 +28,10 @@ export async function updateCourse(id: string, patch: Partial<Course>): Promise<
 export async function removeCourse(id: string): Promise<void> { await deleteCourse(id); }
 
 export function resetDemo() {
-  // Only clears the still-local demo bits; DB courses persist and aren't wiped.
+  // Only clears the still-local demo bits (site settings); DB data isn't wiped.
   if (typeof window === "undefined") return;
-  localStorage.removeItem(WORKSHOPS_KEY);
   localStorage.removeItem(SETTINGS_KEY);
 }
-
-export function getWorkshops(): Workshop[] { return read<Workshop[]>(WORKSHOPS_KEY, seedWorkshops); }
-export function setWorkshops(list: Workshop[]) { write(WORKSHOPS_KEY, list); }
-export function addWorkshop(w: Workshop) { write(WORKSHOPS_KEY, [w, ...getWorkshops()]); }
 
 // -------------- Site settings (banner + pop-up) --------------
 const SETTINGS_KEY = "ladante-settings";

@@ -4,6 +4,11 @@ import Link from "next/link";
 import { Plus, Trash2, Eye, EyeOff, Star, Check, ExternalLink } from "lucide-react";
 import { getReviews, addReview, updateReview, removeReview, type Review } from "@/lib/use-reviews";
 
+function errText(e: unknown) {
+  const m = e instanceof Error ? e.message : String(e);
+  return /Not authorised/i.test(m) ? "You need to be signed in as an owner or manager to change reviews. Please sign in first." : m;
+}
+
 export default function AdminReviewsPage() {
   const [list, setList] = useState<Review[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -15,24 +20,32 @@ export default function AdminReviewsPage() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [published, setPublished] = useState(true);
 
-  useEffect(() => { setList(getReviews()); }, []);
-  const refresh = () => setList(getReviews());
+  const [err, setErr] = useState<string | null>(null);
+  const refresh = () => getReviews().then(setList).catch((e) => setErr(errText(e)));
+  useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
-    addReview({ quote, name, level, year, published });
-    setQuote(""); setName(""); setLevel("B1 student"); setYear(new Date().getFullYear()); setPublished(true);
-    setShowForm(false);
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 4000);
-    refresh();
+    setErr(null);
+    try {
+      await addReview({ quote, name, level, year, published });
+      setQuote(""); setName(""); setLevel("B1 student"); setYear(new Date().getFullYear()); setPublished(true);
+      setShowForm(false);
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 4000);
+      await refresh();
+    } catch (e) { setErr(errText(e)); }
   }
 
-  function del(id: string) {
-    if (!confirm("Remove this review? You can restore by resetting demo data.")) return;
-    removeReview(id); refresh();
+  async function del(id: string) {
+    if (!confirm("Remove this review from the site? You can re-seed the demo reviews to restore them.")) return;
+    setErr(null);
+    try { await removeReview(id); await refresh(); } catch (e) { setErr(errText(e)); }
   }
-  function togglePublish(r: Review) { updateReview(r.id, { published: !r.published }); refresh(); }
+  async function togglePublish(r: Review) {
+    setErr(null);
+    try { await updateReview(r.id, { published: !r.published }); await refresh(); } catch (e) { setErr(errText(e)); }
+  }
 
   return (
     <div className="max-w-5xl">
@@ -44,6 +57,8 @@ export default function AdminReviewsPage() {
         </div>
         {!showForm && <button type="button" onClick={() => setShowForm(true)} className="btn btn-primary"><Plus size={16} /> New review</button>}
       </div>
+
+      {err && <div className="frame p-4 bg-rosso/10 text-rosso text-sm mb-6">{err}</div>}
 
       {justAdded && (
         <div className="frame p-4 bg-sole mb-6 flex items-start gap-3">

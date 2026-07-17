@@ -11,7 +11,9 @@
     "db:studio": "node --env-file=.env.local node_modules/drizzle-kit/bin.cjs studio",
     "db:seed": "node --env-file=.env.local scripts/seed.mjs",
     "db:seed-courses": "node --env-file=.env.local scripts/seed-courses.mjs",
-    "db:seed-events": "node --env-file=.env.local scripts/seed-events.mjs"
+    "db:seed-events": "node --env-file=.env.local scripts/seed-events.mjs",
+    "db:seed-reviews": "node --env-file=.env.local scripts/seed-reviews.mjs",
+    "db:seed-workshops": "node --env-file=.env.local scripts/seed-workshops.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

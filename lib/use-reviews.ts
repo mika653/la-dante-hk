@@ -1,57 +1,27 @@
 "use client";
 import { useEffect, useState } from "react";
-import { testimonials as seedReviews } from "@/lib/data";
+import { seedReviews, type Review } from "@/lib/reviews-shared";
+import { listAllReviews, createReview, patchReview, deleteReview } from "@/lib/review-actions";
 
-export type Review = {
-  id: string;
-  quote: string;
-  name: string;
-  level: string;
-  year: number;
-  published: boolean;
-};
+export type { Review };
 
-const KEY = "ladante-reviews";
+// -------- admin store (database-backed via role-gated server actions) --------
+export async function getReviews(): Promise<Review[]> { return listAllReviews(); }
+export async function addReview(r: Omit<Review, "id">): Promise<Review> { return createReview(r); }
+export async function updateReview(id: string, patch: Partial<Review>): Promise<void> { return patchReview(id, patch); }
+export async function removeReview(id: string): Promise<void> { return deleteReview(id); }
 
-function withIds(list: { quote: string; name: string; level: string; year: number }[]): Review[] {
-  return list.map((r, i) => ({ ...r, id: `seed-r-${i}`, published: true }));
-}
-
-function readAll(): Review[] {
-  if (typeof window === "undefined") return withIds(seedReviews);
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return withIds(seedReviews);
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : withIds(seedReviews);
-  } catch { return withIds(seedReviews); }
-}
-function writeAll(list: Review[]) {
-  if (typeof window !== "undefined") { try { localStorage.setItem(KEY, JSON.stringify(list)); } catch {} }
-}
-
-export function getReviews(): Review[] { return readAll(); }
-export function addReview(r: Omit<Review, "id">): Review {
-  const review: Review = { ...r, id: `r-${Date.now()}` };
-  writeAll([review, ...readAll()]);
-  return review;
-}
-export function updateReview(id: string, patch: Partial<Review>) {
-  writeAll(readAll().map((r) => (r.id === id ? { ...r, ...patch } : r)));
-}
-export function removeReview(id: string) {
-  writeAll(readAll().filter((r) => r.id !== id));
-}
-export function resetReviews() { if (typeof window !== "undefined") localStorage.removeItem(KEY); }
-
+// -------- public read hook --------
+// Reads published reviews from /api/reviews so an admin's edits show to everyone.
 export function useReviews(publishedOnly = false): Review[] {
-  const [list, setList] = useState<Review[]>(withIds(seedReviews));
+  const [list, setList] = useState<Review[]>(publishedOnly ? seedReviews.filter((r) => r.published) : seedReviews);
   useEffect(() => {
-    const load = () => setList(readAll());
-    load();
-    const onStorage = (e: StorageEvent) => { if (e.key === KEY) load(); };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    let alive = true;
+    fetch("/api/reviews", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => { if (alive && data && Array.isArray(data.reviews) && data.reviews.length > 0) setList(data.reviews as Review[]); })
+      .catch(() => { /* keep the seed */ });
+    return () => { alive = false; };
   }, []);
   return publishedOnly ? list.filter((r) => r.published) : list;
 }

@@ -1,11 +1,12 @@
 "use client";
-import { workshops } from "@/lib/data";
+import { useWorkshops } from "@/lib/use-workshops";
 import { ArrowRight, Users } from "lucide-react";
 import Link from "next/link";
 import { useT, localizePath } from "@/lib/locale";
 
 export default function WorkshopsGrid() {
   const { t, locale } = useT();
+  const workshops = useWorkshops();
   return (
     <section className="bg-cream py-16 md:py-24">
       <div className="container-xl">
