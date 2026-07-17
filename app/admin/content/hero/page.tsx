@@ -2,13 +2,16 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Check, RotateCcw, ExternalLink, Plus, Trash2 } from "lucide-react";
-import { readSiteContent, writeSiteContent, defaultHero, type HeroContent } from "@/lib/site-content";
+import { defaultHero, type HeroContent } from "@/lib/site-content";
+import { getSiteContent, saveSiteContent } from "@/lib/site-content-actions";
 
 export default function HeroEditor() {
   const [hero, setHero] = useState<HeroContent>(defaultHero);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => { setHero(readSiteContent().hero); }, []);
+  useEffect(() => { getSiteContent().then((c) => setHero(c.hero)).catch(() => {}); }, []);
 
   function update<K extends keyof HeroContent>(key: K, value: HeroContent[K]) {
     setHero((h) => ({ ...h, [key]: value }));
@@ -22,11 +25,15 @@ export default function HeroEditor() {
   function addTrust() { setHero((h) => ({ ...h, trust: [...h.trust, "New item"] })); }
   function removeTrust(idx: number) { setHero((h) => ({ ...h, trust: h.trust.filter((_, i) => i !== idx) })); }
 
-  function save() {
-    const current = readSiteContent();
-    writeSiteContent({ ...current, hero });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  async function save() {
+    setErr(null); setSaving(true);
+    try {
+      const current = await getSiteContent();
+      const res = await saveSiteContent({ ...current, hero });
+      if (!res.ok) { setErr(res.error === "Not authorised" ? "You need to be signed in as an owner or manager to save." : (res.error ?? "Couldn't save.")); return; }
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } finally { setSaving(false); }
   }
   function reset() {
     if (!confirm("Reset all hero fields to defaults?")) return;
@@ -92,11 +99,12 @@ export default function HeroEditor() {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-line flex items-center justify-between">
+          <div className="pt-4 border-t border-line flex items-center justify-between gap-3 flex-wrap">
             <span className={`text-sm transition-opacity ${saved ? "opacity-100 text-azzurro-deep" : "opacity-0"}`}>
-              <Check size={14} className="inline -mt-1 mr-1" /> Saved. Reload the homepage to see changes.
+              <Check size={14} className="inline -mt-1 mr-1" /> Saved. It&apos;s live on the homepage.
             </span>
-            <button type="button" onClick={save} className="btn btn-primary">Save changes</button>
+            {err && <span className="text-sm text-rosso">{err}</span>}
+            <button type="button" onClick={save} disabled={saving} className="btn btn-primary disabled:opacity-50">{saving ? "Saving…" : "Save changes"}</button>
           </div>
         </div>
 

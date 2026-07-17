@@ -1,5 +1,5 @@
 // Database schema (Drizzle / Postgres) for authentication + staff leave.
-import { pgTable, pgEnum, uuid, text, integer, date, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, uuid, text, integer, date, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["owner", "manager", "teacher"]);
 export const leaveTypeEnum = pgEnum("leave_type", ["annual", "sick"]);
@@ -138,3 +138,15 @@ export const events = pgTable("events", {
 
 export type EventRow = typeof events.$inferSelect;
 export type NewEventRow = typeof events.$inferInsert;
+
+// -------------------- Site config (singletons) --------------------
+// Editable homepage content that used to live in localStorage (so edits were
+// invisible to real visitors). One row per config key ('content' = hero +
+// carousel), holding the whole object as JSON so the shape can evolve freely.
+export const siteConfig = pgTable("site_config", {
+  key: text("key").primaryKey(),
+  data: jsonb("data").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type SiteConfigRow = typeof siteConfig.$inferSelect;
