@@ -1,7 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import ChatBot from "./ChatBot";
+import WhatsAppButton from "./WhatsAppButton";
 import EntryPopup from "./EntryPopup";
 import ViewSwitcher from "./ViewSwitcher";
 
@@ -27,7 +27,7 @@ export default function SiteChrome() {
   return (
     <>
       <EntryPopup />
-      <ChatBot />
+      <WhatsAppButton />
       <ViewSwitcher />
     </>
   );

@@ -119,3 +119,22 @@ export const eventRegistrations = pgTable("event_registrations", {
 
 export type EventRegistrationRow = typeof eventRegistrations.$inferSelect;
 export type NewEventRegistrationRow = typeof eventRegistrations.$inferInsert;
+
+// -------------------- Events (the catalogue) --------------------
+// The cultural events shown on the site. Moved off localStorage so an event an
+// admin adds is seen by every visitor — and so registrations point at a real,
+// shared event. `kind` is plain text (Bookclub / Film / Workshop / ...).
+export const events = pgTable("events", {
+  id: text("id").primaryKey(),
+  date: text("date").notNull(),              // "YYYY-MM-DD"
+  title: text("title").notNull(),
+  kind: text("kind").notNull().default("Other"),
+  location: text("location").notNull().default(""),
+  description: text("description"),
+  bookingUrl: text("booking_url"),
+  published: boolean("published").notNull().default(true),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type EventRow = typeof events.$inferSelect;
+export type NewEventRow = typeof events.$inferInsert;
