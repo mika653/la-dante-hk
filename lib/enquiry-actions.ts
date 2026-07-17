@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { enquiries, type EnquiryRow } from "@/lib/db/schema";
-import { getSession, isAdmin } from "@/lib/auth";
+import { requireAdminFresh, requireOwnerFresh } from "@/lib/auth-guards";
 
 export type EnquiryType = "course" | "private" | "plida" | "workshop" | "trial" | "placement" | "newsletter" | "general";
 const TYPES: EnquiryType[] = ["course", "private", "plida", "workshop", "trial", "placement", "newsletter", "general"];
@@ -59,14 +59,12 @@ export async function submitEnquiry(_prev: SubmitState, formData: FormData): Pro
 // -------- admin --------
 
 export async function listEnquiries(): Promise<EnquiryRow[]> {
-  const s = await getSession();
-  if (!s || !isAdmin(s.role)) throw new Error("Not authorised");
+  await requireAdminFresh();
   return db.select().from(enquiries).orderBy(desc(enquiries.createdAt));
 }
 
 export async function setEnquiryStatus(id: string, status: EnquiryStatus): Promise<{ ok: boolean; error?: string }> {
-  const s = await getSession();
-  if (!s || !isAdmin(s.role)) return { ok: false, error: "Not authorised" };
+  try { await requireAdminFresh(); } catch { return { ok: false, error: "Not authorised" }; }
   if (!STATUSES.includes(status)) return { ok: false, error: "Unknown status" };
   await db.update(enquiries).set({ status }).where(eq(enquiries.id, id));
   revalidatePath("/admin/enquiries");
@@ -76,8 +74,7 @@ export async function setEnquiryStatus(id: string, status: EnquiryStatus): Promi
 // Permanent deletion — for honouring a data-erasure request (PDPO). Owner only,
 // since it destroys a record rather than just closing it.
 export async function deleteEnquiry(id: string): Promise<{ ok: boolean; error?: string }> {
-  const s = await getSession();
-  if (!s || s.role !== "owner") return { ok: false, error: "Only the owner can delete an enquiry." };
+  try { await requireOwnerFresh(); } catch { return { ok: false, error: "Only the owner can delete an enquiry." }; }
   await db.delete(enquiries).where(eq(enquiries.id, id));
   revalidatePath("/admin/enquiries");
   return { ok: true };

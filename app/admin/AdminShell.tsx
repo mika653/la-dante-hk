@@ -1,9 +1,12 @@
 "use client";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { LayoutDashboard, BookOpen, PaintBucket, Calendar, Users, Star, ShieldAlert, LogOut, Menu, X, Layout, UserPlus, CalendarDays, Inbox, Ticket } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { LayoutDashboard, BookOpen, PaintBucket, Calendar, Users, Star, ShieldAlert, LogOut, Menu, X, Layout, UserPlus, CalendarDays, Inbox, Ticket, KeyRound } from "lucide-react";
 import Wordmark from "@/components/Wordmark";
+import { logoutAction } from "@/lib/auth-actions";
+import type { Role } from "@/lib/db/schema";
+import { roleLabel } from "@/lib/leave-core";
 
 const navItems = [
   { href: "/admin",              label: "Overview",         icon: LayoutDashboard },
@@ -20,20 +23,9 @@ const navItems = [
   { href: "/admin/settings",     label: "Settings",         icon: ShieldAlert },
 ];
 
-export default function AdminShell({ children }: { children: React.ReactNode }) {
+export default function AdminShell({ children, userName, role }: { children: React.ReactNode; userName: string; role: Role }) {
   const path = usePathname();
-  const router = useRouter();
-  const [authed, setAuthed] = useState<boolean | null>(null);
   const [mobileNav, setMobileNav] = useState(false);
-
-  useEffect(() => {
-    const ok = typeof window !== "undefined" && localStorage.getItem("ladante-admin") === "yes";
-    setAuthed(ok);
-  }, []);
-
-  if (authed === null) return <div className="min-h-screen bg-cream" aria-hidden />;
-
-  if (!authed) return <AdminLogin onOk={() => setAuthed(true)} />;
 
   return (
     <div className="min-h-screen bg-cream-2 flex">
@@ -58,9 +50,18 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           </ul>
         </nav>
         <div className="p-3 border-t border-cream/10">
-          <button type="button" onClick={() => { localStorage.removeItem("ladante-admin"); router.push("/admin"); setAuthed(false); }} className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-[14px] text-cream/75 hover:bg-cream/10 hover:text-cream">
-            <LogOut size={16} aria-hidden /> Sign out
-          </button>
+          <div className="px-3 pb-2">
+            <p className="text-[13px] text-cream font-medium truncate">{userName}</p>
+            <p className="text-[11px] text-cream/50">{roleLabel[role]}</p>
+          </div>
+          <Link href="/account/password" className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-[14px] text-cream/75 hover:bg-cream/10 hover:text-cream">
+            <KeyRound size={16} aria-hidden /> Password
+          </Link>
+          <form action={logoutAction}>
+            <button type="submit" className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-[14px] text-cream/75 hover:bg-cream/10 hover:text-cream">
+              <LogOut size={16} aria-hidden /> Sign out
+            </button>
+          </form>
         </div>
       </aside>
 
@@ -76,36 +77,3 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   );
 }
 
-function AdminLogin({ onOk }: { onOk: () => void }) {
-  const [pw, setPw] = useState("");
-  const [err, setErr] = useState("");
-  const DEMO_PASSWORD = "dante2026";
-
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (pw === DEMO_PASSWORD) {
-      localStorage.setItem("ladante-admin", "yes");
-      onOk();
-    } else {
-      setErr("Wrong password. Demo password is dante2026.");
-    }
-  }
-
-  return (
-    <div className="min-h-screen bg-cream flex items-center justify-center px-4">
-      <div className="frame p-8 md:p-10 bg-white max-w-md w-full text-center">
-        <Wordmark />
-        <p className="eyebrow mt-6">Staff only</p>
-        <h1 className="mt-2 text-2xl md:text-3xl">Sign in to admin.</h1>
-        <p className="mt-3 text-sm text-ink-muted">Demo password: <code className="font-mono bg-cream-2 px-1.5 py-0.5 rounded">dante2026</code></p>
-        <form onSubmit={submit} className="mt-6 grid gap-3 text-left">
-          <label className="text-sm font-medium">Password
-            <input type="password" value={pw} onChange={(e) => { setPw(e.target.value); setErr(""); }} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" required />
-          </label>
-          {err && <p className="text-sm text-rosso">{err}</p>}
-          <button type="submit" className="btn btn-primary mt-2">Sign in</button>
-        </form>
-      </div>
-    </div>
-  );
-}

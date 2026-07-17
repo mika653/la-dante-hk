@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { eventRegistrations, type EventRegistrationRow } from "@/lib/db/schema";
-import { getSession, isAdmin } from "@/lib/auth";
+import { requireAdminFresh, requireOwnerFresh } from "@/lib/auth-guards";
 import { AGE_GROUPS } from "@/lib/event-constants";
 
 export type RegisterState = { ok?: boolean; error?: string };
@@ -48,15 +48,13 @@ export async function registerForEvent(_prev: RegisterState, formData: FormData)
 }
 
 export async function listRegistrations(): Promise<EventRegistrationRow[]> {
-  const s = await getSession();
-  if (!s || !isAdmin(s.role)) throw new Error("Not authorised");
+  await requireAdminFresh();
   return db.select().from(eventRegistrations).orderBy(desc(eventRegistrations.createdAt));
 }
 
 // Permanent deletion — for a data-erasure request (PDPO). Owner only.
 export async function deleteRegistration(id: string): Promise<{ ok: boolean; error?: string }> {
-  const s = await getSession();
-  if (!s || s.role !== "owner") return { ok: false, error: "Only the owner can delete a registration." };
+  try { await requireOwnerFresh(); } catch { return { ok: false, error: "Only the owner can delete a registration." }; }
   await db.delete(eventRegistrations).where(eq(eventRegistrations.id, id));
   revalidatePath("/admin/registrations");
   return { ok: true };

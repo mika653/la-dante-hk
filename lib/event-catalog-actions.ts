@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { events, type EventRow } from "@/lib/db/schema";
-import { getSession, isAdmin } from "@/lib/auth";
+import { requireAdminFresh } from "@/lib/auth-guards";
 import type { EventItem } from "@/lib/events-shared";
 
 function rowToEvent(r: EventRow): EventItem {
@@ -20,11 +20,7 @@ function rowToEvent(r: EventRow): EventItem {
   };
 }
 
-async function requireAdmin() {
-  const s = await getSession();
-  if (!s || !isAdmin(s.role)) throw new Error("Not authorised");
-  return s;
-}
+const requireAdmin = requireAdminFresh;
 
 function refresh() {
   revalidatePath("/api/events");

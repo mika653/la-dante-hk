@@ -7,15 +7,11 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { courses, type CourseRow } from "@/lib/db/schema";
-import { getSession, isAdmin } from "@/lib/auth";
+import { requireAdminFresh } from "@/lib/auth-guards";
 import { rowToCourse, courseToRow } from "@/lib/course-map";
 import type { Course } from "@/lib/data";
 
-async function requireAdmin() {
-  const s = await getSession();
-  if (!s || !isAdmin(s.role)) throw new Error("Not authorised");
-  return s;
-}
+const requireAdmin = requireAdminFresh;
 
 function refresh() {
   // Refresh the cached public catalogue immediately so an availability change is
