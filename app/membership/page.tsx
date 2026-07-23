@@ -1,10 +1,35 @@
 import PageHeader from "@/components/PageHeader";
 import MembershipClient from "./MembershipClient";
+import PerksDirectory, { type Perk } from "./PerksDirectory";
 import { memberPerks } from "@/lib/data";
+import { listActivePrivileges } from "@/lib/privilege-actions";
 
 export const metadata = { title: "Membership — La Dante HK" };
 
-export default function MembershipPage() {
+// Fallback so the section is never empty before staff add real partners in admin.
+function seedPerks(): Perk[] {
+  return memberPerks.flatMap((g) =>
+    g.items.map((i) => ({ id: `${g.category}-${i.name}`, brand: i.name, category: g.category, discount: i.perk }))
+  );
+}
+
+export default async function MembershipPage() {
+  const rows = await listActivePrivileges();
+  const perks: Perk[] = rows.length
+    ? rows.map((r) => ({
+        id: r.id,
+        brand: r.brand,
+        category: r.category,
+        discount: r.discount,
+        note: r.note,
+        logo: r.logo,
+        address: r.address,
+        phone: r.phone,
+        website: r.website,
+        socials: r.socials,
+      }))
+    : seedPerks();
+
   return (
     <>
       <PageHeader
@@ -24,21 +49,7 @@ export default function MembershipPage() {
             <h2 className="mt-3 text-3xl md:text-5xl">50+ reasons to belong.</h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {memberPerks.map((group) => (
-              <div key={group.category} className="frame p-8 bg-cream-2/50">
-                <h3 className="text-xl font-heading font-bold uppercase tracking-wider text-azzurro-deep">{group.category}</h3>
-                <ul className="mt-5 divide-y divide-line">
-                  {group.items.map((i) => (
-                    <li key={i.name} className="py-3 flex items-start justify-between gap-4">
-                      <span className="font-medium">{i.name}</span>
-                      <span className="text-sm text-ink-muted text-right">{i.perk}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          <PerksDirectory perks={perks} />
         </div>
       </section>
     </>

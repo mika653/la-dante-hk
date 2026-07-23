@@ -1,5 +1,5 @@
 // Database schema (Drizzle / Postgres) for authentication + staff leave.
-import { pgTable, pgEnum, uuid, text, integer, date, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, uuid, text, integer, date, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["owner", "manager", "teacher"]);
 export const leaveTypeEnum = pgEnum("leave_type", ["annual", "sick"]);
@@ -119,3 +119,32 @@ export const eventRegistrations = pgTable("event_registrations", {
 
 export type EventRegistrationRow = typeof eventRegistrations.$inferSelect;
 export type NewEventRegistrationRow = typeof eventRegistrations.$inferInsert;
+
+// -------------------- Member privileges --------------------
+// The partner directory behind the membership "member perks" section. Each row is
+// one partner brand and the discount members get there. `category` is plain text
+// (Dining, E-Shop, Wines…) so staff can invent a new category any time — it just
+// becomes a new filter tab on the site, no migration needed. `logo` holds an
+// uploaded image as a data URL. `socials` is a free list of {platform, url} so any
+// number/kind of social link can be attached. Everything but brand/discount is
+// optional so a partner can be added with as little as a name + discount.
+export type Social = { platform: string; url: string };
+
+export const privileges = pgTable("privileges", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  brand: text("brand").notNull(),
+  category: text("category").notNull().default("Dining"),
+  discount: text("discount").notNull(),      // the headline offer
+  note: text("note"),                        // fine print (e.g. "cannot be combined")
+  logo: text("logo"),                         // uploaded logo image as a data URL (initials shown if blank)
+  address: text("address"),
+  phone: text("phone"),
+  website: text("website"),
+  socials: jsonb("socials").$type<Social[]>(),  // [{ platform: "Facebook", url: "https://…" }, …]
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type PrivilegeRow = typeof privileges.$inferSelect;
+export type NewPrivilegeRow = typeof privileges.$inferInsert;
