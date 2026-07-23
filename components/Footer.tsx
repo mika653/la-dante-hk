@@ -65,15 +65,15 @@ export default function Footer() {
             <ul className="space-y-3 text-[14px]">
               <li className="flex gap-3">
                 <Phone size={16} className="shrink-0 mt-0.5 text-azzurro-deep" aria-hidden />
-                <a href="tel:+85228529788" className="hover:text-azzurro-deep">+852 2852 9788</a>
+                <a href="tel:+85228329799" className="hover:text-azzurro-deep">+852 2832 9799</a>
               </li>
               <li className="flex gap-3">
                 <MessageCircle size={16} className="shrink-0 mt-0.5 text-azzurro-deep" aria-hidden />
-                <a href="https://wa.me/85228529788" target="_blank" rel="noopener noreferrer" className="hover:text-azzurro-deep">{t.footer.whatsapp}: +852 2852 9788</a>
+                <a href="https://wa.me/85255128084" target="_blank" rel="noopener noreferrer" className="hover:text-azzurro-deep">{t.footer.whatsapp}: +852 5512 8084</a>
               </li>
               <li className="flex gap-3">
                 <Mail size={16} className="shrink-0 mt-0.5 text-azzurro-deep" aria-hidden />
-                <a href="mailto:info@ladante.cc" className="hover:text-azzurro-deep">info@ladante.cc</a>
+                <a href="mailto:dantealighieri@ladante.cc" className="hover:text-azzurro-deep">dantealighieri@ladante.cc</a>
               </li>
               <li className="flex gap-3">
                 <MapPin size={16} className="shrink-0 mt-0.5 text-azzurro-deep" aria-hidden />
@@ -113,6 +113,7 @@ export default function Footer() {
           <p>© {new Date().getFullYear()} Dante Alighieri Society of Hong Kong · {t.footer.allRights}</p>
           <div className="flex gap-5">
             <Link href={lp("/privacy")} className="hover:text-azzurro-deep">{t.footer.privacy}</Link>
+            <Link href="/cookie-policy" className="hover:text-azzurro-deep">Cookies</Link>
             <Link href={lp("/terms")} className="hover:text-azzurro-deep">{t.footer.terms}</Link>
             <Link href={lp("/bad-weather")} className="hover:text-azzurro-deep">{t.footer.typhoon}</Link>
           </div>

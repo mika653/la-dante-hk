@@ -4,6 +4,7 @@ import Link from "next/link";
 import { questionBank, type Question, type CEFR, levelInfo } from "@/lib/placement-questions";
 import { useCourses } from "@/lib/use-courses";
 import { suggestFor, seatsLeft, formatStart } from "@/lib/placement-suggest";
+import { submitEnquiry } from "@/lib/enquiry-actions";
 import { ArrowLeft, ArrowRight, Check, Mail, Sparkles, Clock, CalendarDays, MapPin, User, Phone } from "lucide-react";
 
 type Stage = "intro" | "testing" | "email" | "result";
@@ -112,6 +113,23 @@ export default function TestClient() {
     setSelected(null);
   }
 
+  // Send the finished test to the office as a placement enquiry, so these — the
+  // hottest leads the site produces — actually reach someone. Best-effort: a
+  // failure here never blocks the student from seeing their result.
+  function saveLead() {
+    if (!email.trim()) return;
+    const { level, breakdown } = scoreToCEFR(answers, served.map((q) => q.id));
+    const fd = new FormData();
+    fd.set("type", "placement");
+    fd.set("name", name.trim() || "Placement test");
+    fd.set("email", email.trim());
+    fd.set("level", level);
+    fd.set("sourcePath", "/placement-test");
+    fd.set("message", `Placement test result: ${level}. ` +
+      Object.entries(breakdown).map(([s, p]) => `${s} ${p}%`).join(", "));
+    submitEnquiry({}, fd).catch(() => { /* best effort */ });
+  }
+
   function goBack() {
     if (served.length <= 1) return;
     const last = served[served.length - 1];
@@ -145,7 +163,7 @@ export default function TestClient() {
             <div className="mt-8 grid grid-cols-3 gap-2 max-w-md mx-auto text-center">
               <div><Clock size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">~5 minutes</p></div>
               <div><Sparkles size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">Adaptive</p></div>
-              <div><Mail size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">Emailed to you</p></div>
+              <div><Mail size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">Office follows up</p></div>
             </div>
             <button type="button" onClick={begin} className="btn btn-primary mt-10">Begin the test <ArrowRight size={16} /></button>
             <p className="mt-4 text-xs text-ink-muted">No account needed. You can stop anytime.</p>
@@ -211,9 +229,9 @@ export default function TestClient() {
           <div className="frame p-8 md:p-12 bg-white text-center">
             <div className="w-14 h-14 rounded-full bg-sole mx-auto inline-flex items-center justify-center"><Check size={22} /></div>
             <h2 className="mt-6 text-3xl">Nice work.</h2>
-            <p className="mt-3 text-ink-muted">Leave your name and email to see your level and we&apos;ll send a copy for later.</p>
+            <p className="mt-3 text-ink-muted">Leave your name and email to see your level. Our office may follow up with a class that fits.</p>
             <form
-              onSubmit={(e) => { e.preventDefault(); setStage("result"); }}
+              onSubmit={(e) => { e.preventDefault(); saveLead(); setStage("result"); }}
               className="mt-8 grid gap-3 text-left"
             >
               <label className="text-sm font-medium">First name<input required value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>

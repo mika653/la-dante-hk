@@ -9,7 +9,7 @@ export default function PlacementTestPage() {
       <PageHeader
         eyebrow="Free · 5 minutes · CEFR-aligned"
         title="Find your Italian level."
-        subtitle="30 adaptive questions covering grammar, vocabulary, and reading. Your result and a recommended class land in your inbox."
+        subtitle="30 adaptive questions covering grammar, vocabulary, and reading. See your CEFR level instantly, with a recommended class to match."
         crumbs={[{ label: "Home", href: "/" }, { label: "Placement test" }]}
         tone="sole-soft"
       />

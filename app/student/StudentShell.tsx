@@ -130,7 +130,7 @@ function StudentLogin({ onOk }: { onOk: () => void }) {
           {err && <p className="text-sm text-rosso">{err}</p>}
           <button type="submit" className="btn btn-primary mt-2">Sign in</button>
         </form>
-        <p className="mt-5 text-xs text-ink-muted">Forgot your password? <a href="mailto:info@ladante.cc" className="underline hover:text-ink">Email us</a></p>
+        <p className="mt-5 text-xs text-ink-muted">Forgot your password? <a href="mailto:dantealighieri@ladante.cc" className="underline hover:text-ink">Email us</a></p>
       </div>
     </div>
   );

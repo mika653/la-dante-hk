@@ -1,6 +1,7 @@
 "use client";
-import { useMemo, useState } from "react";
-import { Download, Users, GraduationCap, Repeat, CalendarCheck, ChevronDown } from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
+import { Download, Users, GraduationCap, Repeat, CalendarCheck, ChevronDown, Trash2 } from "lucide-react";
+import { deleteRegistration } from "@/lib/event-actions";
 
 type Row = {
   id: string; eventId: string; eventTitle: string; eventDate: string | null;
@@ -27,10 +28,19 @@ function download(name: string, rows: Row[]) {
   URL.revokeObjectURL(url);
 }
 
-export default function RegistrationsClient({ rows, error }: { rows: Row[]; error: string | null }) {
+export default function RegistrationsClient({ rows, error, isOwner = false }: { rows: Row[]; error: string | null; isOwner?: boolean }) {
   const years = useMemo(() => Array.from(new Set(rows.map(yearOf))).sort().reverse(), [rows]);
   const [year, setYear] = useState<string>("all");
-  const inYear = useMemo(() => (year === "all" ? rows : rows.filter((r) => yearOf(r) === year)), [rows, year]);
+  const [deleted, setDeleted] = useState<Set<string>>(new Set());
+  const [busy, startTransition] = useTransition();
+  const visible = useMemo(() => rows.filter((r) => !deleted.has(r.id)), [rows, deleted]);
+  const inYear = useMemo(() => (year === "all" ? visible : visible.filter((r) => yearOf(r) === year)), [visible, year]);
+
+  function remove(id: string) {
+    if (!confirm("Permanently delete this registration? This cannot be undone (use it to honour a data-erasure request).")) return;
+    setDeleted((s) => new Set(s).add(id));
+    startTransition(() => { deleteRegistration(id); });
+  }
 
   // Yearly stats the office asked for.
   const stats = useMemo(() => {
@@ -133,6 +143,7 @@ export default function RegistrationsClient({ rows, error }: { rows: Row[]; erro
                         <th className="px-5 py-2 text-left font-medium">Age</th>
                         <th className="px-5 py-2 text-left font-medium">Student</th>
                         <th className="px-5 py-2 text-left font-medium">Registered</th>
+                        {isOwner && <th className="px-5 py-2" />}
                       </tr>
                     </thead>
                     <tbody>
@@ -144,6 +155,13 @@ export default function RegistrationsClient({ rows, error }: { rows: Row[]; erro
                           <td className="px-5 py-3 text-ink-muted">{r.ageGroup ?? "—"}</td>
                           <td className="px-5 py-3">{r.isStudent ? <span className="text-xs px-2 py-0.5 rounded-full bg-azzurro/15 text-azzurro-deep">Student</span> : "—"}</td>
                           <td className="px-5 py-3 text-ink-muted">{fmt(r.createdAt)}</td>
+                          {isOwner && (
+                            <td className="px-3 py-3 text-right">
+                              <button type="button" disabled={busy} onClick={() => remove(r.id)} title="Delete permanently" className="w-7 h-7 rounded-full inline-flex items-center justify-center text-ink-muted hover:bg-rosso/10 hover:text-rosso disabled:opacity-50">
+                                <Trash2 size={14} />
+                              </button>
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>

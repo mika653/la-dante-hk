@@ -1,10 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Plus, Check } from "lucide-react";
-import { getWorkshops, addWorkshop } from "@/lib/admin-store";
+import { getWorkshops, addWorkshop } from "@/lib/use-workshops";
+import { workshopIcon, WORKSHOP_ICONS } from "@/lib/workshop-icons";
 import type { Workshop } from "@/lib/data";
 
-const EMOJI = ["🎭", "🍝", "🎨", "🎬", "🎶", "📚", "✍️", "🏛️", "☕", "🍷"];
+function errText(e: unknown) {
+  const m = e instanceof Error ? e.message : String(e);
+  return /Not authorised/i.test(m) ? "You need to be signed in as an owner or manager to change workshops. Please sign in first." : m;
+}
+
+const DEFAULT_ICON = WORKSHOP_ICONS[0].key;
 
 export default function AdminWorkshops() {
   const [list, setList] = useState<Workshop[]>([]);
@@ -15,27 +21,30 @@ export default function AdminWorkshops() {
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<Workshop["status"]>("planned");
   const [dateLabel, setDateLabel] = useState("");
-  const [image, setImage] = useState(EMOJI[0]);
+  const [image, setImage] = useState<string>(DEFAULT_ICON);
 
-  useEffect(() => { setList(getWorkshops()); }, []);
-  const refresh = () => setList(getWorkshops());
+  const [err, setErr] = useState<string | null>(null);
+  const refresh = () => getWorkshops().then(setList).catch((e) => setErr(errText(e)));
+  useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const w: Workshop = {
-      id: `w-${Date.now()}`,
+    setErr(null);
+    const w: Omit<Workshop, "id"> = {
       title: title.trim() || "Untitled workshop",
       description,
       status,
       image,
       ...(status === "planned" ? { dateLabel: dateLabel || "Date TBC" } : { interested: 0 }),
     };
-    addWorkshop(w);
-    setTitle(""); setDescription(""); setStatus("planned"); setDateLabel(""); setImage(EMOJI[0]);
-    setShowForm(false);
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 4000);
-    refresh();
+    try {
+      await addWorkshop(w);
+      setTitle(""); setDescription(""); setStatus("planned"); setDateLabel(""); setImage(DEFAULT_ICON);
+      setShowForm(false);
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 4000);
+      await refresh();
+    } catch (e) { setErr(errText(e)); }
   }
 
   return (
@@ -47,6 +56,8 @@ export default function AdminWorkshops() {
         </div>
         {!showForm && <button type="button" onClick={() => setShowForm(true)} className="btn btn-primary"><Plus size={16} /> New workshop</button>}
       </div>
+
+      {err && <div className="frame p-4 bg-rosso/10 text-rosso text-sm mb-6">{err}</div>}
 
       {justAdded && (
         <div className="frame p-4 bg-sole mb-6 flex items-start gap-3">
@@ -82,8 +93,10 @@ export default function AdminWorkshops() {
           <div>
             <label className="block text-sm font-medium mb-2">Icon</label>
             <div className="flex flex-wrap gap-2">
-              {EMOJI.map((em) => (
-                <button key={em} type="button" onClick={() => setImage(em)} className={`w-11 h-11 rounded-xl border text-2xl flex items-center justify-center ${image === em ? "border-ink bg-sole-soft" : "border-line hover:border-ink-muted"}`}>{em}</button>
+              {WORKSHOP_ICONS.map(({ key, Icon, label }) => (
+                <button key={key} type="button" title={label} aria-label={label} onClick={() => setImage(key)} className={`w-11 h-11 rounded-xl border flex items-center justify-center ${image === key ? "border-ink bg-sole-soft text-azzurro-deep" : "border-line text-ink-muted hover:border-ink-muted"}`}>
+                  <Icon size={20} strokeWidth={1.5} />
+                </button>
               ))}
             </div>
           </div>
@@ -95,9 +108,13 @@ export default function AdminWorkshops() {
       )}
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {list.map((w) => (
+        {list.map((w) => {
+          const Icon = workshopIcon(w.image);
+          return (
           <div key={w.id} className="frame p-6 bg-white">
-            <div className="aspect-[4/3] rounded-xl bg-sole-soft flex items-center justify-center text-6xl">{w.image}</div>
+            <div className="aspect-[4/3] rounded-xl bg-sole-soft flex items-center justify-center">
+              <Icon size={44} strokeWidth={1.5} className="text-azzurro-deep" />
+            </div>
             <div className="mt-4 flex items-center gap-2 text-xs">
               <span className={`px-2.5 py-1 rounded-full font-medium uppercase tracking-wider ${w.status === "planned" ? "bg-azzurro/10 text-azzurro-deep" : "bg-sole text-ink"}`}>
                 {w.status === "planned" ? `Planned · ${w.dateLabel}` : `${w.interested} interested`}
@@ -106,7 +123,8 @@ export default function AdminWorkshops() {
             <h3 className="mt-3 font-semibold">{w.title}</h3>
             <p className="mt-1 text-sm text-ink-muted">{w.description}</p>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

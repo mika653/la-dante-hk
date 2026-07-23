@@ -1,11 +1,13 @@
 "use client";
-import { workshops } from "@/lib/data";
+import { useWorkshops } from "@/lib/use-workshops";
+import { workshopIcon } from "@/lib/workshop-icons";
 import { ArrowRight, Users } from "lucide-react";
 import Link from "next/link";
 import { useT, localizePath } from "@/lib/locale";
 
 export default function WorkshopsGrid() {
   const { t, locale } = useT();
+  const workshops = useWorkshops();
   return (
     <section className="bg-cream py-16 md:py-24">
       <div className="container-xl">
@@ -19,10 +21,12 @@ export default function WorkshopsGrid() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {workshops.map((w) => (
+          {workshops.map((w) => {
+            const Icon = workshopIcon(w.image);
+            return (
             <article key={w.id} className="frame p-6 bg-white flex flex-col">
-              <div className="aspect-[4/3] rounded-xl bg-sole-soft flex items-center justify-center text-6xl" aria-hidden>
-                <span>{w.image}</span>
+              <div className="aspect-[4/3] rounded-xl bg-sole-soft flex items-center justify-center" aria-hidden>
+                <Icon size={44} strokeWidth={1.5} className="text-azzurro-deep" />
               </div>
               <div className="mt-5 flex items-center gap-2 text-xs">
                 {w.status === "planned" ? (
@@ -39,7 +43,8 @@ export default function WorkshopsGrid() {
                 {w.status === "planned" ? (<>{t.workshops.book} <ArrowRight size={14} /></>) : (<>{t.workshops.imInterested}</>)}
               </Link>
             </article>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

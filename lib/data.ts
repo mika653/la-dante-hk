@@ -106,10 +106,10 @@ export type Workshop = {
 };
 
 export const workshops: Workshop[] = [
-  { id: "w1", title: "Italian Wine & Language",         description: "Five regions, five grapes, five conversations — all in Italian with a sommelier.", status: "planned",  dateLabel: "15 May · 7pm", image: "🍷" },
-  { id: "w2", title: "Sketchnoting in Italian",          description: "Draw your way into Italian vocabulary with a visual-thinking coach.",                 status: "interest", interested: 12, image: "✏️" },
-  { id: "w3", title: "Dante's Inferno — Reading Club",   description: "Four sessions, four circles of hell. Original text with guided English support.",     status: "planned",  dateLabel: "Starts 22 Jun",  image: "📖" },
-  { id: "w4", title: "Homemade Pizza Napoletana",        description: "Learn the dough, the lexicon, and the attitude. Tasting included.",                   status: "interest", interested: 18, image: "🍕" },
+  { id: "w1", title: "Italian Wine & Language",         description: "Five regions, five grapes, five conversations — all in Italian with a sommelier.", status: "planned",  dateLabel: "15 May · 7pm", image: "wine" },
+  { id: "w2", title: "Sketchnoting in Italian",          description: "Draw your way into Italian vocabulary with a visual-thinking coach.",                 status: "interest", interested: 12, image: "writing" },
+  { id: "w3", title: "Dante's Inferno — Reading Club",   description: "Four sessions, four circles of hell. Original text with guided English support.",     status: "planned",  dateLabel: "Starts 22 Jun",  image: "book" },
+  { id: "w4", title: "Homemade Pizza Napoletana",        description: "Learn the dough, the lexicon, and the attitude. Tasting included.",                   status: "interest", interested: 18, image: "food" },
 ];
 
 export type Testimonial = {

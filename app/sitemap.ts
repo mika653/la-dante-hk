@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
-const BASE = "https://ladante.cc";
+import { SITE_URL } from "./layout";
+const BASE = SITE_URL;
 
 const pages = [
   "/", "/courses",

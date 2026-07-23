@@ -26,7 +26,7 @@ const en = {
     line1: "Impara",
     line2: "l'italiano",
     line3: "a Hong Kong",
-    subhead: "Certified native teachers, CEFR-aligned courses, and a 90-year tradition of Italian culture in the heart of Wanchai.",
+    subhead: "Certified native teachers, CEFR-aligned courses, and a 90-year tradition of Italian culture in the heart of Wanchai.",
     cta1: "Take the placement test",
     cta2: "See September courses",
     trust: ["4.9 rating", "1,500+ students", "Wanchai & online", "PLIDA certified"],
@@ -129,8 +129,8 @@ const en = {
     studentPortal: "Student portal",
     gift: "Gift a year",
     visit: "Visit us",
-    address: "TC2, TCF, HK Arts Centre, 2 Harbour Road, Wan Chai, Hong Kong",
-    hours: "Mon–Fri 10:00–19:00 · Sat 10:00–14:00",
+    address: "Room 702, 7/F, Hong Kong Arts Centre, 2 Harbour Road, Wan Chai, Hong Kong",
+    hours: "Mon–Fri 10:30–19:00 · Sat 10:00–17:00 · Closed Sun",
     allRights: "All rights reserved",
     privacy: "Privacy",
     terms: "Terms",
@@ -144,7 +144,7 @@ const en = {
     courses: "Courses",
     badWeather: "Bad weather arrangement",
   },
-  banner: "Traditional Chinese translations are preview-grade. Help us polish — email info@ladante.cc.",
+  banner: "Traditional Chinese translations are preview-grade. Help us polish — email dantealighieri@ladante.cc.",
   switcher: { label: "中", title: "繁體中文" },
 };
 
@@ -274,8 +274,8 @@ const zh: typeof en = {
     studentPortal: "學員專頁",
     gift: "送一年禮物",
     visit: "聯絡我們",
-    address: "香港灣仔港灣道 2 號香港藝術中心 TC2 TCF",
-    hours: "週一至週五 10:00–19:00 · 週六 10:00–14:00",
+    address: "香港灣仔港灣道2號香港藝術中心7樓702室",
+    hours: "週一至週五 10:30–19:00 · 週六 10:00–17:00 · 週日休息",
     allRights: "版權所有",
     privacy: "私隱政策",
     terms: "條款",
@@ -289,7 +289,7 @@ const zh: typeof en = {
     courses: "課程",
     badWeather: "惡劣天氣安排",
   },
-  banner: "此頁為繁體中文預覽版本 · 如有錯漏,請電郵 info@ladante.cc 告知我們。",
+  banner: "此頁為繁體中文預覽版本 · 如有錯漏,請電郵 dantealighieri@ladante.cc 告知我們。",
   switcher: { label: "EN", title: "English" },
 };
 

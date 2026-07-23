@@ -148,3 +148,59 @@ export const privileges = pgTable("privileges", {
 
 export type PrivilegeRow = typeof privileges.$inferSelect;
 export type NewPrivilegeRow = typeof privileges.$inferInsert;
+
+// -------------------- Events (the catalogue) --------------------
+// The cultural events shown on the site. Moved off localStorage so an event an
+// admin adds is seen by every visitor — and so registrations point at a real,
+// shared event. `kind` is plain text (Bookclub / Film / Workshop / ...).
+export const events = pgTable("events", {
+  id: text("id").primaryKey(),
+  date: text("date").notNull(),              // "YYYY-MM-DD"
+  title: text("title").notNull(),
+  kind: text("kind").notNull().default("Other"),
+  location: text("location").notNull().default(""),
+  description: text("description"),
+  bookingUrl: text("booking_url"),
+  published: boolean("published").notNull().default(true),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type EventRow = typeof events.$inferSelect;
+export type NewEventRow = typeof events.$inferInsert;
+
+// -------------------- Site config (singletons) --------------------
+// Editable homepage content that used to live in localStorage (so edits were
+// invisible to real visitors). One row per config key ('content' = hero +
+// carousel), holding the whole object as JSON so the shape can evolve freely.
+export const siteConfig = pgTable("site_config", {
+  key: text("key").primaryKey(),
+  data: jsonb("data").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type SiteConfigRow = typeof siteConfig.$inferSelect;
+
+// -------------------- Reviews & Workshops (public content) --------------------
+export const reviews = pgTable("reviews", {
+  id: text("id").primaryKey(),
+  quote: text("quote").notNull(),
+  name: text("name").notNull(),
+  level: text("level").notNull().default(""),
+  year: integer("year").notNull(),
+  published: boolean("published").notNull().default(true),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+export type ReviewRow = typeof reviews.$inferSelect;
+
+export const workshopsTable = pgTable("workshops", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull().default(""),
+  status: text("status").notNull().default("interest"),  // "planned" | "interest"
+  dateLabel: text("date_label"),
+  interested: integer("interested"),
+  image: text("image").notNull().default(""),
+  published: boolean("published").notNull().default(true),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+export type WorkshopRow = typeof workshopsTable.$inferSelect;

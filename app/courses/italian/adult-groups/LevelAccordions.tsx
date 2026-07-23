@@ -102,7 +102,7 @@ export default function LevelAccordions() {
                           <span className={`text-xs px-2.5 py-1 rounded-full ${c.enrolled >= c.seats ? "bg-rosso/10 text-rosso" : "bg-azzurro/10 text-azzurro-deep"}`}>
                             {c.enrolled >= c.seats ? "Waitlist" : `${c.seats - c.enrolled} seats left`}
                           </span>
-                          <Link href="/membership" className={`btn ${c.enrolled >= c.seats ? "btn-ghost" : "btn-primary"} text-sm h-10 px-5`}>
+                          <Link href="#enquire" className={`btn ${c.enrolled >= c.seats ? "btn-ghost" : "btn-primary"} text-sm h-10 px-5`}>
                             {c.enrolled >= c.seats ? "Join waitlist" : "Enrol"}
                           </Link>
                         </div>

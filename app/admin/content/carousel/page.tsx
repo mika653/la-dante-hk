@@ -3,13 +3,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Check, RotateCcw, ExternalLink, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
-import { readSiteContent, writeSiteContent, defaultCarousel, type CarouselSlide } from "@/lib/site-content";
+import { defaultCarousel, type CarouselSlide } from "@/lib/site-content";
+import { getSiteContent, saveSiteContent } from "@/lib/site-content-actions";
 
 export default function CarouselEditor() {
   const [slides, setSlides] = useState<CarouselSlide[]>(defaultCarousel);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => { setSlides(readSiteContent().carousel); }, []);
+  useEffect(() => { getSiteContent().then((c) => setSlides(c.carousel)).catch(() => {}); }, []);
 
   function updateSlide(id: string, patch: Partial<CarouselSlide>) {
     setSlides((list) => list.map((s) => (s.id === id ? { ...s, ...patch } : s)));
@@ -30,11 +33,15 @@ export default function CarouselEditor() {
     });
   }
 
-  function save() {
-    const current = readSiteContent();
-    writeSiteContent({ ...current, carousel: slides });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  async function save() {
+    setErr(null); setSaving(true);
+    try {
+      const current = await getSiteContent();
+      const res = await saveSiteContent({ ...current, carousel: slides });
+      if (!res.ok) { setErr(res.error === "Not authorised" ? "You need to be signed in as an owner or manager to save." : (res.error ?? "Couldn't save.")); return; }
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } finally { setSaving(false); }
   }
   function reset() {
     if (!confirm("Reset the carousel to default slides?")) return;
@@ -105,9 +112,10 @@ export default function CarouselEditor() {
         <button type="button" onClick={addSlide} className="btn btn-ghost"><Plus size={16} /> Add slide</button>
         <div className="flex items-center gap-3">
           <span className={`text-sm transition-opacity ${saved ? "opacity-100 text-azzurro-deep" : "opacity-0"}`}>
-            <Check size={14} className="inline -mt-1 mr-1" /> Saved. Reload the homepage to see changes.
+            <Check size={14} className="inline -mt-1 mr-1" /> Saved. It&apos;s live on the homepage.
           </span>
-          <button type="button" onClick={save} className="btn btn-primary">Save carousel</button>
+          {err && <span className="text-sm text-rosso">{err}</span>}
+          <button type="button" onClick={save} disabled={saving} className="btn btn-primary disabled:opacity-50">{saving ? "Saving…" : "Save carousel"}</button>
         </div>
       </div>
     </div>

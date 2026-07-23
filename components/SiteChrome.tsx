@@ -1,7 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import ChatBot from "./ChatBot";
+import WhatsAppButton from "./WhatsAppButton";
 import EntryPopup from "./EntryPopup";
 import ViewSwitcher from "./ViewSwitcher";
 
@@ -11,10 +11,15 @@ import ViewSwitcher from "./ViewSwitcher";
 export default function SiteChrome() {
   const pathname = usePathname() || "";
   const [isPreview, setIsPreview] = useState(false);
+  // The device-preview tool is DFB-internal — hidden from visitors, opened with
+  // ?tools=1 for demos, so it never shows up as "PREVIEW" chrome on the real site.
+  const [showTools, setShowTools] = useState(false);
 
   useEffect(() => {
     try {
-      setIsPreview(new URLSearchParams(window.location.search).get("preview") === "1");
+      const q = new URLSearchParams(window.location.search);
+      setIsPreview(q.get("preview") === "1");
+      setShowTools(q.get("tools") === "1");
     } catch {
       setIsPreview(false);
     }
@@ -27,8 +32,8 @@ export default function SiteChrome() {
   return (
     <>
       <EntryPopup />
-      <ChatBot />
-      <ViewSwitcher />
+      <WhatsAppButton />
+      {showTools && <ViewSwitcher />}
     </>
   );
 }

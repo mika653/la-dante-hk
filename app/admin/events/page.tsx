@@ -6,10 +6,16 @@ import { getEvents, addEvent, updateEvent, removeEvent, type EventItem, type Eve
 
 const KINDS: EventKind[] = ["Bookclub", "Film", "Aperitivo", "Workshop", "Culture", "Trip", "Other"];
 
+function errText(e: unknown) {
+  const m = e instanceof Error ? e.message : String(e);
+  return /Not authorised/i.test(m) ? "You need to be signed in as an owner or manager to change events. Please sign in first." : m;
+}
+
 export default function AdminEventsPage() {
   const [list, setList] = useState<EventItem[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [justAdded, setJustAdded] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
 
   const [date, setDate] = useState("");
   const [title, setTitle] = useState("");
@@ -19,24 +25,31 @@ export default function AdminEventsPage() {
   const [bookingUrl, setBookingUrl] = useState("");
   const [published, setPublished] = useState(true);
 
-  useEffect(() => { setList(getEvents()); }, []);
-  const refresh = () => setList(getEvents().slice().sort((a, b) => a.date.localeCompare(b.date)));
+  const refresh = () => getEvents().then((l) => setList(l.slice().sort((a, b) => a.date.localeCompare(b.date)))).catch((e) => setErr(errText(e)));
+  useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const ev = addEvent({ date, title, kind, location, description: description || undefined, bookingUrl: bookingUrl || undefined, published });
-    setDate(""); setTitle(""); setKind("Workshop"); setLocation("Wanchai"); setDescription(""); setBookingUrl(""); setPublished(true);
-    setShowForm(false);
-    setJustAdded(ev.title);
-    setTimeout(() => setJustAdded(null), 6000);
-    refresh();
+    setErr(null);
+    try {
+      const ev = await addEvent({ date, title, kind, location, description: description || undefined, bookingUrl: bookingUrl || undefined, published });
+      setDate(""); setTitle(""); setKind("Workshop"); setLocation("Wanchai"); setDescription(""); setBookingUrl(""); setPublished(true);
+      setShowForm(false);
+      setJustAdded(ev.title);
+      setTimeout(() => setJustAdded(null), 6000);
+      await refresh();
+    } catch (e) { setErr(errText(e)); }
   }
 
-  function del(id: string) {
-    if (!confirm("Remove this event? You can restore by resetting demo data.")) return;
-    removeEvent(id); refresh();
+  async function del(id: string) {
+    if (!confirm("Remove this event from the site? You can re-seed the demo events to restore them.")) return;
+    setErr(null);
+    try { await removeEvent(id); await refresh(); } catch (e) { setErr(errText(e)); }
   }
-  function togglePublish(e: EventItem) { updateEvent(e.id, { published: !e.published }); refresh(); }
+  async function togglePublish(e: EventItem) {
+    setErr(null);
+    try { await updateEvent(e.id, { published: !e.published }); await refresh(); } catch (e) { setErr(errText(e)); }
+  }
 
   return (
     <div className="max-w-5xl">
@@ -48,6 +61,10 @@ export default function AdminEventsPage() {
         </div>
         {!showForm && <button type="button" onClick={() => setShowForm(true)} className="btn btn-primary"><Plus size={16} /> New event</button>}
       </div>
+
+      {err && (
+        <div className="frame p-4 bg-rosso/10 text-rosso text-sm mb-6">{err}</div>
+      )}
 
       {justAdded && (
         <div className="frame p-4 bg-sole mb-6 flex items-start gap-3">
