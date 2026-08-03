@@ -16,7 +16,7 @@ const navGroups: NavGroup[] = [
   {
     label: "Courses",
     menu: [
-      { label: "Italian", submenu: [
+      { label: "Italian", href: "/courses/italian", submenu: [
         { label: "Adult courses",   href: "/courses/italian/adult-groups" },
         { label: "Kids & Teen",     href: "/courses/italian/kids" },
         { label: "Private Lessons", href: "/courses/italian/private" },
@@ -25,8 +25,8 @@ const navGroups: NavGroup[] = [
         { label: "Level progression", href: "/courses/italian/level-progression" },
         { label: "Test your level", href: "/placement-test" },
       ]},
-      { label: "Latin", submenu: [
-        { label: "Groups",          href: "/courses/latin" },
+      { label: "Latin", href: "/courses/latin", submenu: [
+        { label: "Groups",          href: "/courses/latin/groups" },
         { label: "Private Lessons", href: "/courses/latin/private" },
       ]},
       { label: "Special Offers", href: "/courses" },
@@ -151,19 +151,20 @@ export default function Nav() {
                           className="relative"
                           onMouseEnter={() => mi.submenu && setOpenSub(mi.label)}
                         >
-                          {mi.submenu ? (
-                            <span className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[14px] font-medium text-ink cursor-default hover:bg-cream">
-                              {mi.label}
-                              <ChevronRight size={14} className="opacity-50" aria-hidden />
-                            </span>
-                          ) : (
+                          {mi.href ? (
                             <Link
-                              href={mi.href!}
-                              className="block px-3 py-2 rounded-lg text-[14px] text-ink-muted hover:text-azzurro-deep hover:bg-cream"
+                              href={mi.href}
+                              className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[14px] hover:bg-cream ${mi.submenu ? "font-medium text-ink" : "text-ink-muted hover:text-azzurro-deep"}`}
                               onClick={() => { setOpenGroup(null); setOpenSub(null); }}
                             >
                               {mi.label}
+                              {mi.submenu && <ChevronRight size={14} className="opacity-50" aria-hidden />}
                             </Link>
+                          ) : (
+                            <span className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[14px] font-medium text-ink cursor-default hover:bg-cream">
+                              {mi.label}
+                              {mi.submenu && <ChevronRight size={14} className="opacity-50" aria-hidden />}
+                            </span>
                           )}
                           {mi.submenu && openSub === mi.label && (
                             <div className="absolute left-full top-0 pl-2">
@@ -245,7 +246,11 @@ export default function Nav() {
                       {g.menu.map((mi) => (
                         mi.submenu ? (
                           <div key={mi.label}>
-                            <p className="eyebrow mb-1">{mi.label}</p>
+                            {mi.href ? (
+                              <Link href={mi.href} onClick={() => setMobileOpen(false)} className="eyebrow mb-1 block">{mi.label}</Link>
+                            ) : (
+                              <p className="eyebrow mb-1">{mi.label}</p>
+                            )}
                             <div className="space-y-1">
                               {mi.submenu.map((s) => (
                                 <Link key={s.label} href={s.href} onClick={() => setMobileOpen(false)} className="block py-1.5 text-[15px] text-ink-muted">

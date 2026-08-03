@@ -47,7 +47,7 @@ export default function CourseCircles() {
         <div className="mt-12 md:mt-16 grid grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 max-w-5xl mx-auto">
           <CourseCircle tag={t.courses.circles.groups.tag}    label={t.courses.circles.groups.label}    href={localizePath("/courses/italian/adult-groups", locale)} tone="blue"   icon={iconGroup} />
           <CourseCircle tag={t.courses.circles.private.tag}   label={t.courses.circles.private.label}   href={localizePath("/courses/italian/private", locale)}      tone="cream"  icon={iconPrivate} />
-          <CourseCircle tag={t.courses.circles.latin.tag}     label={t.courses.circles.latin.label}     href={localizePath("/courses/latin", locale)}                tone="yellow" icon={iconLatin} />
+          <CourseCircle tag={t.courses.circles.latin.tag}     label={t.courses.circles.latin.label}     href={localizePath("/courses/latin/groups", locale)}         tone="yellow" icon={iconLatin} />
           <CourseCircle tag={t.courses.circles.corporate.tag} label={t.courses.circles.corporate.label} href={localizePath("/courses/italian/corporate", locale)}    tone="white"  icon={iconCorporate} />
         </div>
       </div>

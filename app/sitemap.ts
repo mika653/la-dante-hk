@@ -5,8 +5,9 @@ const BASE = SITE_URL;
 
 const pages = [
   "/", "/courses",
-  "/courses/italian/adult-groups", "/courses/italian/private", "/courses/italian/kids", "/courses/italian/corporate", "/courses/italian/online",
-  "/courses/latin", "/courses/latin/private", "/courses/latin/kids",
+  "/courses/italian", "/courses/italian/adult-groups", "/courses/italian/private", "/courses/italian/kids", "/courses/italian/corporate",
+  "/courses/italian/special", "/courses/italian/level-progression", "/courses/italian/online",
+  "/courses/latin", "/courses/latin/groups", "/courses/latin/private", "/courses/latin/kids",
   "/courses/study-in-italy", "/courses/teacher-training",
   "/placement-test", "/membership", "/plida", "/culture", "/about", "/contact",
   "/services/translation", "/services/sponsorship",

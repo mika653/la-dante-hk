@@ -125,7 +125,7 @@ export default function NewCoursePage() {
       course.type === "private"     ? "/courses/italian/private" :
       course.type === "corporate"   ? "/courses/italian/corporate" :
       course.type === "online"      ? "/courses/italian/online" :
-      course.type === "latin-group" ? "/courses/latin" :
+      course.type === "latin-group" ? "/courses/latin/groups" :
       course.type === "special"     ? "/courses/italian/special" :
       "/courses";
     try { sessionStorage.setItem("ladante-admin-flash", `Published "${course.title}". It's now live at ${publicPath}.${nextMsg}`); } catch {}
