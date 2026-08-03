@@ -16,8 +16,17 @@ const TYPES: Array<{ v: CourseType; l: string }> = [
   { v: "corporate", l: "Corporate" },
   { v: "online", l: "Online" },
   { v: "latin-group", l: "Latin group" },
+  { v: "special", l: "Special course" },
 ];
-const LEVELS = ["A1.1", "A1.2", "A1.3", "A2.1", "A2.2", "A2.3", "B1.1", "B1.2", "B1.3", "B2", "C1", "C2", "Beginner", "Intermediate", "Advanced"];
+const LEVELS = [
+  "A1.1", "A1.2", "A1.3",
+  "A2.1", "A2.2", "A2.3", "A2.4",
+  "B1.1", "B1.2", "B1.3", "B1.4", "B1.5",
+  "B2.1", "B2.2", "B2.3", "B2.4", "B2.5",
+  "C1.1", "C1.2", "C1.3", "C1.4", "C1.5",
+  "C2.1", "C2.2", "C2.3", "C2.4", "C2.5",
+  "Beginner", "Intermediate", "Advanced",
+];
 const LOCATIONS: Course["location"][] = ["Wanchai", "Online", "Corporate"];
 
 export default function EditCourseClient({ id }: { id: string }) {

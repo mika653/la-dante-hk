@@ -21,7 +21,14 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const DOW_IDX: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 const LOCATIONS = ["Wanchai", "Online", "Corporate"] as const;
 const TEACHERS = ["Giulia Marchetti", "Marco Rossi", "Sofia Bianchi", "Elena Conti", "Anna De Luca", "Dr. Paolo Venturi"];
-const LEVELS: CEFRLevel[] = ["A1.1", "A1.2", "A1.3", "A2.1", "A2.2", "A2.3", "B1.1", "B1.2", "B1.3", "B2", "C1"];
+const LEVELS: CEFRLevel[] = [
+  "A1.1", "A1.2", "A1.3",
+  "A2.1", "A2.2", "A2.3", "A2.4",
+  "B1.1", "B1.2", "B1.3", "B1.4", "B1.5",
+  "B2.1", "B2.2", "B2.3", "B2.4", "B2.5",
+  "C1.1", "C1.2", "C1.3", "C1.4", "C1.5",
+  "C2.1", "C2.2", "C2.3", "C2.4", "C2.5",
+];
 
 export default function NewCoursePage() {
   const router = useRouter();
@@ -59,7 +66,7 @@ export default function NewCoursePage() {
 
   function autoTitle() {
     const levelLabel = LEVELS.includes(level as CEFRLevel) ? level : "Beginner";
-    const typeLabel = type === "adult-group" ? "Adult Group" : type === "kids" ? "Kids" : type === "corporate" ? "Corporate" : type === "private" ? "Private" : type === "latin-group" ? "Latin Group" : "Online";
+    const typeLabel = type === "adult-group" ? "Adult Group" : type === "kids" ? "Kids" : type === "corporate" ? "Corporate" : type === "private" ? "Private" : type === "latin-group" ? "Latin Group" : type === "special" ? "Special" : "Online";
     const langLabel = lang === "italian" ? "Italian" : "Latin";
     const dayLabel = days.length > 0 ? ` — ${days.join("/")}` : "";
     return `${levelLabel} ${langLabel} ${typeLabel}${dayLabel}`;
@@ -119,6 +126,7 @@ export default function NewCoursePage() {
       course.type === "corporate"   ? "/courses/italian/corporate" :
       course.type === "online"      ? "/courses/italian/online" :
       course.type === "latin-group" ? "/courses/latin" :
+      course.type === "special"     ? "/courses/italian/special" :
       "/courses";
     try { sessionStorage.setItem("ladante-admin-flash", `Published "${course.title}". It's now live at ${publicPath}.${nextMsg}`); } catch {}
     router.push(`/admin/courses?view=${encodeURIComponent(publicPath)}`);
@@ -177,6 +185,7 @@ export default function NewCoursePage() {
                   { v: "corporate", l: "Corporate" },
                   { v: "online", l: "Online" },
                   { v: "latin-group", l: "Latin group" },
+                  { v: "special", l: "Special course" },
                 ] as Array<{ v: CourseType; l: string }>).map((t) => (
                   <button key={t.v} type="button" onClick={() => setType(t.v)} className={`px-5 py-2.5 rounded-full border ${type === t.v ? "bg-ink text-cream border-ink" : "border-line hover:border-ink-muted"}`}>{t.l}</button>
                 ))}

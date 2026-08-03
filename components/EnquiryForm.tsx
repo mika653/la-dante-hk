@@ -45,6 +45,12 @@ const COPY: Record<EnquiryType, Copy> = {
     showLevel: false,
     timingLabel: "Preferred timing", messageLabel: "Message",
   },
+  special: {
+    title: "Suggest a special course",
+    blurb: "Have a specific interest — conversation, grammar, PLIDA prep, creative writing, something else? Tell us and we'll consider it for the next round.",
+    showLevel: true, levelLabel: "Your level (or “not sure”)",
+    timingLabel: "Topic / format you'd like", messageLabel: "Anything else",
+  },
   // placement and newsletter enquiries are filed programmatically, not via this
   // form — these entries exist only to satisfy the type.
   placement: {

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Calendar, Clock, MapPin, User } from "lucide-react";
 import { useCourses } from "@/lib/use-courses";
 import { levelOutcomes, type Course } from "@/lib/data";
+import { SUB_LEVELS, subLevelSyllabus } from "@/lib/adult-groups-syllabus";
 import { formatDateRange, formatHKD } from "@/lib/utils";
 
 const LEVEL_ORDER: Array<{ key: string; prefix: string }> = [
@@ -11,6 +12,7 @@ const LEVEL_ORDER: Array<{ key: string; prefix: string }> = [
   { key: "B1", prefix: "B1" },
   { key: "B2", prefix: "B2" },
   { key: "C1", prefix: "C1" },
+  { key: "C2", prefix: "C2" },
 ];
 
 function cefrMatch(course: Course, prefix: string) {
@@ -58,7 +60,10 @@ export default function LevelAccordions() {
                   <div className="flex items-center gap-4 md:gap-6">
                     <span className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-sole text-ink font-heading font-extrabold text-xl inline-flex items-center justify-center shrink-0">{l.key}</span>
                     <div>
-                      <h2 className="text-xl md:text-2xl font-semibold">{info?.label}</h2>
+                      <h2 className="text-xl md:text-2xl font-semibold">
+                        Level {info?.tier} {l.key} <span className="font-normal text-ink-muted">({info?.stage})</span>
+                      </h2>
+                      <p className="text-[13px] text-ink-soft">{info?.labelZh}</p>
                       <p className="mt-1 text-sm text-ink-muted">{matching.length} course{matching.length === 1 ? "" : "s"} this term</p>
                     </div>
                   </div>
@@ -69,46 +74,68 @@ export default function LevelAccordions() {
                   </span>
                 </summary>
 
-                <div className="border-t border-line px-6 md:px-8 py-6 md:py-8 space-y-6">
-                  <div>
-                    <p className="eyebrow">After this level you will</p>
-                    <ul className="mt-3 grid sm:grid-cols-2 gap-x-8 gap-y-2">
-                      {info?.outcomes.map((o) => (
-                        <li key={o} className="flex gap-2 text-[15px]"><span className="mt-2 w-1.5 h-1.5 rounded-full bg-azzurro shrink-0" aria-hidden />{o}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="grid gap-3">
-                    {matching.length === 0 && (
-                      <div className="p-5 rounded-2xl bg-cream-2 border border-line text-[14px] text-ink-muted">
-                        No scheduled classes this term. <Link href="/contact" className="text-azzurro-deep underline">Request one →</Link>
-                      </div>
-                    )}
-                    {matching.map((c) => (
-                      <div key={c.id} className="p-5 rounded-2xl border border-line bg-cream-2/50 grid md:grid-cols-[1fr_auto] gap-4 items-center">
+                <div className="border-t border-line px-6 md:px-8 py-6 md:py-8 space-y-8">
+                  {SUB_LEVELS[l.key]?.map((subKey) => {
+                    const sub = subLevelSyllabus[subKey];
+                    if (!sub) return null;
+                    const subMatching = adultCourses.filter((c) => c.level === subKey);
+                    return (
+                      <div key={subKey} className="pt-6 first:pt-0 border-t border-line first:border-t-0 grid md:grid-cols-[1fr_300px] gap-6">
                         <div>
-                          <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro-deep">{c.level}</p>
-                          <h3 className="mt-1 text-lg font-semibold">{c.title}</h3>
-                          <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-[13px] text-ink-muted">
-                            <span className="inline-flex items-center gap-1.5"><Calendar size={13} aria-hidden />{formatDateRange(c.startISO, c.endISO)}</span>
-                            <span className="inline-flex items-center gap-1.5"><Clock size={13} aria-hidden />{c.dayLabel}</span>
-                            <span className="inline-flex items-center gap-1.5"><MapPin size={13} aria-hidden />{c.location}</span>
-                            <span className="inline-flex items-center gap-1.5"><User size={13} aria-hidden />{c.teacher}</span>
-                          </div>
+                          <h3 className="font-heading text-lg font-bold">{subKey}</h3>
+
+                          <p className="mt-3 eyebrow">At the end of the course, you will be able to</p>
+                          <ul className="mt-2 space-y-1">
+                            {sub.outcomes.map((o) => (
+                              <li key={o} className="flex gap-2 text-[15px]">
+                                <span className="mt-2 w-1.5 h-1.5 rounded-full bg-azzurro shrink-0" aria-hidden />{o}
+                              </li>
+                            ))}
+                          </ul>
+
+                          <p className="mt-3 text-[13px] text-ink-soft">在完成該課程後，你能夠：</p>
+                          <ul className="mt-1 space-y-1">
+                            {sub.outcomesZh.map((o) => (
+                              <li key={o} className="flex gap-2 text-[13px] text-ink-soft">
+                                <span className="mt-1.5 w-1 h-1 rounded-full bg-ink-soft shrink-0" aria-hidden />{o}
+                              </li>
+                            ))}
+                          </ul>
+
+                          <p className="mt-4 text-[13px] text-ink-muted"><span className="font-medium text-ink">Grammar:</span> {sub.grammar}</p>
+                          <p className="text-[13px] text-ink-soft mt-1">文法：{sub.grammarZh}</p>
                         </div>
-                        <div className="flex items-center gap-3 md:flex-col md:items-end">
-                          <span className="text-xl md:text-lg font-heading font-bold">{formatHKD(c.priceHKD)}</span>
-                          <span className={`text-xs px-2.5 py-1 rounded-full ${c.enrolled >= c.seats ? "bg-rosso/10 text-rosso" : "bg-azzurro/10 text-azzurro-deep"}`}>
-                            {c.enrolled >= c.seats ? "Waitlist" : `${c.seats - c.enrolled} seats left`}
-                          </span>
-                          <Link href="#enquire" className={`btn ${c.enrolled >= c.seats ? "btn-ghost" : "btn-primary"} text-sm h-10 px-5`}>
-                            {c.enrolled >= c.seats ? "Join waitlist" : "Enrol"}
-                          </Link>
+
+                        <div className="space-y-3">
+                          {subMatching.length === 0 ? (
+                            <div className="p-4 rounded-2xl bg-cream-2 border border-line text-[13px] text-ink-muted">
+                              No scheduled classes this term. <Link href="/contact" className="text-azzurro-deep underline">Request one →</Link>
+                            </div>
+                          ) : subMatching.map((c) => (
+                            <div key={c.id} className="p-4 rounded-2xl border border-line bg-cream-2/50">
+                              <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro-deep">{c.courseCode ?? c.level}</p>
+                              <h4 className="mt-1 font-semibold text-[15px]">{c.title}</h4>
+                              <div className="mt-2 space-y-1 text-[13px] text-ink-muted">
+                                <div className="flex items-center gap-1.5"><Calendar size={13} aria-hidden />{formatDateRange(c.startISO, c.endISO)}</div>
+                                <div className="flex items-center gap-1.5"><Clock size={13} aria-hidden />{c.dayLabel}</div>
+                                <div className="flex items-center gap-1.5"><MapPin size={13} aria-hidden />{c.location}</div>
+                                <div className="flex items-center gap-1.5"><User size={13} aria-hidden />{c.teacher}</div>
+                              </div>
+                              <div className="mt-3 flex items-center justify-between gap-3">
+                                <span className="text-lg font-heading font-bold">{formatHKD(c.priceHKD)}</span>
+                                <span className={`text-xs px-2.5 py-1 rounded-full ${c.enrolled >= c.seats ? "bg-rosso/10 text-rosso" : "bg-azzurro/10 text-azzurro-deep"}`}>
+                                  {c.enrolled >= c.seats ? "Waitlist" : `${c.seats - c.enrolled} left`}
+                                </span>
+                              </div>
+                              <Link href="#enquire" className={`btn ${c.enrolled >= c.seats ? "btn-ghost" : "btn-primary"} text-sm h-10 px-5 w-full mt-3`}>
+                                {c.enrolled >= c.seats ? "Join waitlist" : "Enrol"}
+                              </Link>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
 
                   <div className="pt-2 text-sm text-ink-muted">
                     Can&apos;t find a suitable time? <Link href="/contact" className="text-azzurro-deep underline">Request a new class →</Link>

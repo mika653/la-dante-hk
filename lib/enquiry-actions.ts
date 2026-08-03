@@ -11,8 +11,8 @@ import { db } from "@/lib/db";
 import { enquiries, type EnquiryRow } from "@/lib/db/schema";
 import { requireAdminFresh, requireOwnerFresh } from "@/lib/auth-guards";
 
-export type EnquiryType = "course" | "private" | "plida" | "workshop" | "trial" | "placement" | "newsletter" | "general";
-const TYPES: EnquiryType[] = ["course", "private", "plida", "workshop", "trial", "placement", "newsletter", "general"];
+export type EnquiryType = "course" | "private" | "plida" | "workshop" | "trial" | "placement" | "newsletter" | "general" | "special";
+const TYPES: EnquiryType[] = ["course", "private", "plida", "workshop", "trial", "placement", "newsletter", "general", "special"];
 const STATUSES = ["new", "contacted", "closed"] as const;
 export type EnquiryStatus = (typeof STATUSES)[number];
 

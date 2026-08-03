@@ -7,11 +7,13 @@ const paths = [
   { href: "/courses/italian/private",      tag: "Italian · 1-to-1",  title: "Private Lessons",blurb: "Fully flexible, bespoke curriculum. Any level, any schedule.",       tone: "cream" },
   { href: "/courses/italian/kids",         tag: "Italian · 7–15",    title: "Kids & Teens",   blurb: "Piccoli Dante and Ragazzi Dante — fun, story-driven, Saturday-friendly.", tone: "yellow" },
   { href: "/courses/italian/corporate",    tag: "Italian · Teams",   title: "Corporate",       blurb: "On-site team packages with cultural briefing included.",             tone: "white"  },
+  { href: "/courses/italian/special",      tag: "Italian · Topics",  title: "Special Courses", blurb: "Short-term courses by topic — conversation, grammar, PLIDA prep, creative writing.", tone: "yellow" },
   { href: "/courses/italian/online",       tag: "Italian · Online",  title: "Online",          blurb: "Live small-group classes over Zoom with HK-timezone slots.",         tone: "blue" },
   { href: "/courses/latin",                tag: "Latin",             title: "Latin",           blurb: "Classical Latin, from beginner declensions to reading Cicero.",       tone: "yellow" },
   { href: "/courses/study-in-italy",       tag: "Abroad",            title: "Study in Italy",  blurb: "Summer schools, university prep, and student-visa guidance.",        tone: "cream" },
   { href: "/courses/teacher-training",     tag: "Professional",      title: "Teacher Training",blurb: "CEDILS and DITALS training for aspiring Italian teachers.",          tone: "white"  },
   { href: "/placement-test",               tag: "Free · 5 min",      title: "Placement Test",  blurb: "Find your level in 30 adaptive questions.",                          tone: "blue"   },
+  { href: "/courses/italian/level-progression", tag: "Reference",    title: "Level Progression", blurb: "See how A1 through C2 map to our courses and textbooks.",          tone: "cream"  },
 ];
 
 const toneClass: Record<string, string> = {
@@ -27,7 +29,7 @@ export default function CoursesIndex() {
       <PageHeader
         eyebrow="All courses"
         title="Pick your path."
-        subtitle="Nine ways into Italian (and Latin). All our group courses are CEFR-aligned and taught by certified native teachers."
+        subtitle="Eleven ways into Italian (and Latin). All our group courses are CEFR-aligned and taught by certified native teachers."
         crumbs={[{ label: "Home", href: "/" }, { label: "Courses" }]}
       />
       <section className="bg-cream py-16 md:py-20">

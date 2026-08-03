@@ -169,6 +169,7 @@ export default function AdminCoursesList() {
           <option value="corporate">Corporate</option>
           <option value="online">Online</option>
           <option value="latin-group">Latin group</option>
+          <option value="special">Special course</option>
         </select>
       </div>
 
