@@ -38,7 +38,7 @@ export default function AdultGroupsPage() {
               </li>
             </ul>
             <p className="mt-6 text-[15px] leading-relaxed">
-              <span className="font-medium text-ink">Where:</span> In presence, with blended mode available upon request. Specific courses may be entirely online. Check our upcoming courses below! 📚
+              <span className="font-medium text-ink">Where:</span> In person, with blended mode available upon request. Specific courses may be entirely online. Check our upcoming courses below! 📚
             </p>
           </div>
 
@@ -50,7 +50,7 @@ export default function AdultGroupsPage() {
             </div>
             <div className="frame p-6 bg-cream-2">
               <p className="text-[14px] text-ink-muted leading-relaxed">
-                Group classes are held Monday to Saturday, ranging from A1 to C2. We offer courses in presence, online, and blended mode. Check the syllabus.
+                Group classes are held Monday to Saturday, ranging from A1 to C2. We offer courses in person, online, and blended mode. Check the syllabus.
               </p>
               <Link href="#A1" className="btn btn-yellow mt-4 text-sm h-11">Syllabus</Link>
             </div>

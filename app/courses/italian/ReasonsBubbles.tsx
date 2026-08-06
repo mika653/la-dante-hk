@@ -15,7 +15,7 @@ const REASONS = [
   {
     key: "heritage",
     label: "Connection with Heritage",
-    body: "For Italian descent, learning the language can foster a connection with their roots and family history.",
+    body: "For those of Italian descent, learning the language can foster a connection with their roots and family history.",
   },
   {
     key: "structure",

@@ -33,7 +33,7 @@ export default function CorporatePage() {
           </div>
 
           <div>
-            <h2 className="text-xl font-semibold">Members Perks <span className="text-ink-muted font-normal">會員權益</span></h2>
+            <h2 className="text-xl font-semibold">Members&apos; Perks <span className="text-ink-muted font-normal">會員權益</span></h2>
             <p className="mt-2">
               Our Silver, Diamond and Gold members can unlock exclusive perks with a special discount and complimentary classes.{" "}
               <Link href="/services/sponsorship" className="text-azzurro-deep underline">Learn more about sponsorship →</Link>

@@ -34,7 +34,7 @@ export default function PrivatePage() {
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4 pt-2 border-t border-line">
-            <p><span className="font-medium text-ink">Where:</span> In presence or online via Zoom.</p>
+            <p><span className="font-medium text-ink">Where:</span> In person or online via Zoom.</p>
             <p><span className="font-medium text-ink">When:</span> Flexible time and schedule. Monday to Saturday.</p>
           </div>
           <div className="grid sm:grid-cols-2 gap-4 -mt-4 text-[13px] text-ink-soft">

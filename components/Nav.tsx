@@ -18,7 +18,7 @@ const navGroups: NavGroup[] = [
     menu: [
       { label: "Italian", href: "/courses/italian", submenu: [
         { label: "Adult courses",   href: "/courses/italian/adult-groups" },
-        { label: "Kids & Teen",     href: "/courses/italian/kids" },
+        { label: "Kids & Teens",     href: "/courses/italian/kids" },
         { label: "Private Lessons", href: "/courses/italian/private" },
         { label: "Corporate courses", href: "/courses/italian/corporate" },
         { label: "Special courses", href: "/courses/italian/special" },
