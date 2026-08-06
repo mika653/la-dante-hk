@@ -101,7 +101,7 @@ export default function Footer() {
           <div className="md:col-span-2">
             <p className="eyebrow mb-4">{t.footer.newsletter}</p>
             <a
-              href="mailto:info@ladante.cc?subject=Newsletter%20subscription"
+              href="mailto:dantealighieri@ladante.cc?subject=Newsletter%20subscription"
               className="inline-flex items-center justify-center rounded-md bg-sole text-ink font-semibold text-[13px] tracking-wide uppercase px-6 py-2.5 transition-colors hover:bg-ink hover:text-cream"
             >
               {t.footer.subscribe}
