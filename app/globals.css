@@ -207,18 +207,19 @@ html { scroll-behavior: smooth; }
   height: 220px;
   border-radius: 9999px;
   background: var(--color-azzurro);
-  opacity: 0.55;
-  filter: blur(2px);
+  opacity: 0.42;
+  filter: blur(3px);
   top: -30px;
   left: -40px;
   pointer-events: none;
+  animation: floatCircle 9s ease-in-out infinite;
 }
 .circle-accent-sm::before {
   width: 120px;
   height: 120px;
   top: -12px;
   left: -18px;
-  opacity: 0.7;
+  opacity: 0.52;
 }
 .circle-accent-right::before {
   left: auto;
@@ -241,12 +242,31 @@ html { scroll-behavior: smooth; }
   min-width: 140px;
   border-radius: 9999px;
   background: var(--color-azzurro);
-  opacity: 0.55;
-  filter: blur(1px);
+  opacity: 0.42;
+  filter: blur(2px);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
+  animation: floatCircleCenter 10s ease-in-out infinite;
+}
+
+/* Subtle floating drift for the brand circles behind headings.
+   Circles sit at z-index:-1 (fully behind the text); this just makes them
+   breathe gently. Disabled for users who prefer reduced motion. */
+@keyframes floatCircle {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(7px, -10px); }
+}
+@keyframes floatCircleCenter {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50%      { transform: translate(-50%, calc(-50% - 9px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .circle-accent::before,
+  .circle-accent-center::before,
+  .float-a,
+  .float-b { animation: none; }
 }
 @media (min-width: 768px) {
   .circle-accent-center::before { min-width: 180px; }

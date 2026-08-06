@@ -38,6 +38,15 @@ export default function Footer() {
         className="w-full h-auto select-none pointer-events-none"
         priority
       />
+      {/* Lighten the mural's faint reflection so the footer text over it stays crisp. */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-[58%]"
+        aria-hidden
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(255,251,240,0) 0%, rgba(255,251,240,0.55) 38%, rgba(255,251,240,0.9) 100%)",
+        }}
+      />
 
       <div className="relative z-10 container-xl mt-[-14%] md:mt-[-18%] pb-12">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
@@ -111,11 +120,12 @@ export default function Footer() {
 
         <div className="mt-12 pt-6 border-t border-line flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-[13px] text-ink-muted">
           <p>© {new Date().getFullYear()} Dante Alighieri Society of Hong Kong · {t.footer.allRights}</p>
-          <div className="flex gap-5">
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
             <Link href={lp("/privacy")} className="hover:text-azzurro-deep">{t.footer.privacy}</Link>
             <Link href="/cookie-policy" className="hover:text-azzurro-deep">Cookies</Link>
             <Link href={lp("/terms")} className="hover:text-azzurro-deep">{t.footer.terms}</Link>
             <Link href={lp("/bad-weather")} className="hover:text-azzurro-deep">{t.footer.typhoon}</Link>
+            <Link href="/login" className="hover:text-azzurro-deep">{t.footer.staffLogin}</Link>
           </div>
         </div>
       </div>
