@@ -12,7 +12,7 @@ const paths = [
   { href: "/courses/latin/groups",         tag: "Latin",             title: "Latin",           blurb: "Classical Latin, from beginner declensions to reading Cicero.",       tone: "yellow" },
   { href: "/courses/study-in-italy",       tag: "Abroad",            title: "Study in Italy",  blurb: "Summer schools, university prep, and student-visa guidance.",        tone: "cream" },
   { href: "/courses/teacher-training",     tag: "Professional",      title: "Teacher Training",blurb: "CEDILS and DITALS training for aspiring Italian teachers.",          tone: "white"  },
-  { href: "/placement-test",               tag: "Free · 5 min",      title: "Placement Test",  blurb: "Find your level in 30 adaptive questions.",                          tone: "blue"   },
+  { href: "/placement-test",               tag: "Free · 5 min",      title: "Placement Test",  blurb: "Find your level in 15 adaptive questions.",                          tone: "blue"   },
   { href: "/courses/italian/level-progression", tag: "Reference",    title: "Level Progression", blurb: "See how A1 through C2 map to our courses and textbooks.",          tone: "cream"  },
 ];
 

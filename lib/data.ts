@@ -277,8 +277,8 @@ export const memberPerks = [
 
 export const featuredCards = [
   { eyebrow: "NEW TERM",   title: "September–December 2026 courses",     body: "Early-bird 10% off until 14 August. Uni students −20% year-round.", href: "/courses/italian/adult-groups", cta: "See courses" },
-  { eyebrow: "PLIDA EXAM", title: "Next session: 14 June",     body: "The official Italian language certificate. A1–C2. Register by 10 May.", href: "/plida", cta: "Register" },
-  { eyebrow: "5-MIN TEST", title: "Find your level",           body: "30 adaptive questions, CEFR-aligned. Your result emailed to you.",      href: "/placement-test",                cta: "Start test" },
+  { eyebrow: "PLIDA EXAM", title: "Next session: 15 November",  body: "The official Italian language certificate. A1–C2. Register by 10 October.", href: "/plida", cta: "Register" },
+  { eyebrow: "5-MIN TEST", title: "Find your level",           body: "15 adaptive questions, CEFR-aligned. See your level instantly.",       href: "/placement-test",                cta: "Start test" },
   { eyebrow: "CULTURE",    title: "Dante's Inferno Bookclub",  body: "4 Saturdays, 4 circles. Guided reading in Italian with English support.", href: "/culture",                    cta: "Learn more" },
   { eyebrow: "MEMBERSHIP", title: "50+ member perks in HK",    body: "Restaurants, shops, culture, services — unlocked for a year of Italy.",  href: "/membership",                 cta: "Become a member" },
 ];

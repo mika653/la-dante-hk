@@ -85,7 +85,9 @@ const en = {
   instagram: {
     eyebrow: "@ladantehk",
     titleHighlight: "Italy,",
-    titleTail: " this week in HK.",
+    titleTail: " lived in Hong Kong.",
+    peek: "A peek at life at Dante — follow along on Instagram.",
+    themes: ["Aperitivo nights", "Bookclub evenings", "Graduation days", "Member day trips", "Cultural talks", "Cooking with Nonna"],
     follow: "Follow on Instagram",
   },
   sponsors: {
@@ -232,8 +234,10 @@ const zh: typeof en = {
   },
   instagram: {
     eyebrow: "@ladantehk",
-    titleHighlight: "本週",
-    titleTail: "香港的意大利日常。",
+    titleHighlight: "意式生活",
+    titleTail: ",在香港。",
+    peek: "但丁的日常一隅 — 在 Instagram 上追蹤我們。",
+    themes: ["餐前酒之夜", "讀書會", "畢業日", "會員小旅行", "文化講座", "與 Nonna 下廚"],
     follow: "追蹤 Instagram",
   },
   sponsors: {
