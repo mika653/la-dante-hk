@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { privileges, type PrivilegeRow, type Social } from "@/lib/db/schema";
-import { getSession, isAdmin } from "@/lib/auth";
+import { requireAdminFresh } from "@/lib/auth-guards";
 
 const clip = (v: FormDataEntryValue | null | undefined, max: number) =>
   String(v ?? "").trim().slice(0, max);
@@ -50,18 +50,15 @@ export async function listActivePrivileges(): Promise<PrivilegeRow[]> {
 // -------- admin --------
 
 export async function listPrivileges(): Promise<PrivilegeRow[]> {
-  const s = await getSession();
-  if (!s || !isAdmin(s.role)) throw new Error("Not authorised");
+  await requireAdminFresh();
   return db.select().from(privileges).orderBy(asc(privileges.sortOrder), asc(privileges.brand));
 }
 
 export type SaveState = { ok?: boolean; error?: string };
 
 export async function createPrivilege(_prev: SaveState, formData: FormData): Promise<SaveState> {
-  const s = await getSession();
-  if (!s || !isAdmin(s.role)) {
-    return { error: "You need to be signed in as an owner or manager to add a privilege." };
-  }
+  try { await requireAdminFresh(); }
+  catch { return { error: "You need to be signed in as an owner or manager to add a privilege." }; }
 
   const brand = clip(formData.get("brand"), 160);
   const category = clip(formData.get("category"), 60) || "Dining";
@@ -92,8 +89,7 @@ export async function createPrivilege(_prev: SaveState, formData: FormData): Pro
 }
 
 export async function deletePrivilege(id: string): Promise<SaveState> {
-  const s = await getSession();
-  if (!s || !isAdmin(s.role)) return { error: "Not authorised" };
+  try { await requireAdminFresh(); } catch { return { error: "Not authorised" }; }
   await db.delete(privileges).where(eq(privileges.id, id));
   revalidatePath("/admin/privileges");
   revalidatePath("/membership");
