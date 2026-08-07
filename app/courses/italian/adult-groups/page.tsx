@@ -26,15 +26,15 @@ export default function AdultGroupsPage() {
             <ul className="mt-4 space-y-4 text-[15px] leading-relaxed">
               <li>
                 <span className="font-medium text-ink">Regular course:</span> 2 hours class once a week for 15 weeks (30h)
-                <span className="block text-[13px] text-ink-soft mt-0.5">常規課程：每星期授課一堂，每堂 2 小時，共 15 星期（30 小時）</span>
+                <span className="block text-[13px] text-ink-muted mt-0.5">常規課程：每星期授課一堂，每堂 2 小時，共 15 星期（30 小時）</span>
               </li>
               <li>
                 <span className="font-medium text-ink">Saturday course:</span> 3 hours class once a week for 10 weeks, or 2 hours class once a week for 15 weeks (30h)
-                <span className="block text-[13px] text-ink-soft mt-0.5">星期六課程：每星期六授課一堂，每堂 3 小時，共 10 星期（30 小時）</span>
+                <span className="block text-[13px] text-ink-muted mt-0.5">星期六課程：每星期六授課一堂，每堂 3 小時，共 10 星期（30 小時）</span>
               </li>
               <li>
                 <span className="font-medium text-ink">Intensive course:</span> 2 hours, twice a week for 15 lessons (30h)
-                <span className="block text-[13px] text-ink-soft mt-0.5">速成課程：每星期授課兩堂，每堂 2 小時，共 15 節課（30 小時）</span>
+                <span className="block text-[13px] text-ink-muted mt-0.5">速成課程：每星期授課兩堂，每堂 2 小時，共 15 節課（30 小時）</span>
               </li>
             </ul>
             <p className="mt-6 text-[15px] leading-relaxed">

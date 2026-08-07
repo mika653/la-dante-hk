@@ -19,7 +19,7 @@ export default function LatinGroupsPage() {
       <section className="bg-cream py-14">
         <div className="container-xl">
           <p className="eyebrow">Group Classes · 小組課堂</p>
-          <p className="mt-1 text-[13px] text-ink-soft">2026 課程列表</p>
+          <p className="mt-1 text-[13px] text-ink-muted">2026 課程列表</p>
           <div className="mt-6">
             <CourseListClient language="latin" />
           </div>

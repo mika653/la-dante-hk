@@ -72,7 +72,7 @@ export default function CourseSchedulePreview({
             <div key={`${y}-${m}`} className="rounded-xl border border-line p-3 bg-white">
               <p className="text-xs font-heading font-bold text-ink mb-2">{MONTHS[m]} {y}</p>
               <div className="grid grid-cols-7 gap-0.5 text-center">
-                {DOW.map((d, i) => <div key={i} className="text-[10px] text-ink-soft py-1">{d}</div>)}
+                {DOW.map((d, i) => <div key={i} className="text-[10px] text-ink-muted py-1">{d}</div>)}
                 {cells.map((day, i) => {
                   if (day === null) return <div key={i} />;
                   const date = iso(y, m, day);

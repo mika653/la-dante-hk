@@ -52,7 +52,7 @@ export default function Newsletter() {
               <button type="submit" className="btn btn-primary whitespace-nowrap">{t.newsletter.subscribe}</button>
             </form>
           )}
-          <p className="mt-4 text-xs text-ink-soft">{t.newsletter.small}</p>
+          <p className="mt-4 text-xs text-ink-muted">{t.newsletter.small}</p>
         </div>
       </div>
     </section>

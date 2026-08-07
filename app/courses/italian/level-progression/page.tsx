@@ -191,7 +191,7 @@ export default function LevelProgressionPage() {
                           </li>
                         ))}
                       </ul>
-                      <ul className="space-y-1 text-[13px] text-ink-soft leading-relaxed">
+                      <ul className="space-y-1 text-[13px] text-ink-muted leading-relaxed">
                         {l.zh.map((o) => (
                           <li key={o} className="flex gap-2">
                             <span className="mt-1.5 w-1 h-1 rounded-full bg-ink-soft shrink-0" aria-hidden />{o}

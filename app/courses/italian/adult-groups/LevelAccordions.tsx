@@ -63,7 +63,7 @@ export default function LevelAccordions() {
                       <h2 className="text-xl md:text-2xl font-semibold">
                         Level {info?.tier} {l.key} <span className="font-normal text-ink-muted">({info?.stage})</span>
                       </h2>
-                      <p className="text-[13px] text-ink-soft">{info?.labelZh}</p>
+                      <p className="text-[13px] text-ink-muted">{info?.labelZh}</p>
                       <p className="mt-1 text-sm text-ink-muted">{matching.length} course{matching.length === 1 ? "" : "s"} this term</p>
                     </div>
                   </div>
@@ -93,17 +93,17 @@ export default function LevelAccordions() {
                             ))}
                           </ul>
 
-                          <p className="mt-3 text-[13px] text-ink-soft">在完成該課程後，你能夠：</p>
+                          <p className="mt-3 text-[13px] text-ink-muted">在完成該課程後，你能夠：</p>
                           <ul className="mt-1 space-y-1">
                             {sub.outcomesZh.map((o) => (
-                              <li key={o} className="flex gap-2 text-[13px] text-ink-soft">
+                              <li key={o} className="flex gap-2 text-[13px] text-ink-muted">
                                 <span className="mt-1.5 w-1 h-1 rounded-full bg-ink-soft shrink-0" aria-hidden />{o}
                               </li>
                             ))}
                           </ul>
 
                           <p className="mt-4 text-[13px] text-ink-muted"><span className="font-medium text-ink">Grammar:</span> {sub.grammar}</p>
-                          <p className="text-[13px] text-ink-soft mt-1">文法：{sub.grammarZh}</p>
+                          <p className="text-[13px] text-ink-muted mt-1">文法：{sub.grammarZh}</p>
                         </div>
 
                         <div className="space-y-3">

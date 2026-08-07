@@ -41,7 +41,7 @@ export default function SpecialCoursesPage() {
         <div className="container-xl max-w-2xl">
           <div className="mb-6 space-y-1.5 text-[15px] leading-relaxed">
             <p>Do you have any specific interest? Share your ideas and suggestions in the form below or contact us at <a href="mailto:dantealighieri@ladante.cc" className="text-azzurro-deep underline">dantealighieri@ladante.cc</a>.</p>
-            <p className="text-[13px] text-ink-soft">有任何想法或感興趣的活動？歡迎填寫以下表格，或電郵 dantealighieri@ladante.cc 向我們提供意見！</p>
+            <p className="text-[13px] text-ink-muted">有任何想法或感興趣的活動？歡迎填寫以下表格，或電郵 dantealighieri@ladante.cc 向我們提供意見！</p>
           </div>
           <EnquiryForm type="special" />
         </div>
