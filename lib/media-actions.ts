@@ -11,7 +11,7 @@ import { db } from "@/lib/db";
 import { media, type MediaRow } from "@/lib/db/schema";
 import { requireAdminFresh } from "@/lib/auth-guards";
 
-export type MediaSaveState = { ok?: boolean; error?: string };
+export type MediaSaveState = { ok?: boolean; error?: string; url?: string };
 
 const MAX_BYTES = 10_000_000; // 10 MB
 const OK_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml", "image/avif"];
@@ -36,9 +36,11 @@ export async function uploadMedia(_prev: MediaSaveState, formData: FormData): Pr
 
   const alt = String(formData.get("alt") ?? "").trim().slice(0, 300);
 
+  let url: string;
   try {
     // addRandomSuffix keeps two files with the same name from colliding.
     const blob = await put(file.name, file, { access: "public", addRandomSuffix: true });
+    url = blob.url;
     await db.insert(media).values({
       url: blob.url,
       pathname: blob.pathname,
@@ -53,7 +55,7 @@ export async function uploadMedia(_prev: MediaSaveState, formData: FormData): Pr
   }
 
   revalidatePath("/admin/media");
-  return { ok: true };
+  return { ok: true, url };
 }
 
 export async function updateMediaAlt(id: string, alt: string): Promise<MediaSaveState> {

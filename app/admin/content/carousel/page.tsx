@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Check, RotateCcw, ExternalLink, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { defaultCarousel, type CarouselSlide } from "@/lib/site-content";
 import { getSiteContent, saveSiteContent } from "@/lib/site-content-actions";
+import MediaPicker from "@/components/MediaPicker";
 
 export default function CarouselEditor() {
   const [slides, setSlides] = useState<CarouselSlide[]>(defaultCarousel);
@@ -55,7 +56,7 @@ export default function CarouselEditor() {
         <div>
           <p className="eyebrow">Admin · Content · Carousel</p>
           <h1 className="mt-2 text-3xl md:text-4xl">Edit the hero carousel.</h1>
-          <p className="mt-2 text-ink-muted">Paste any image URL (we recommend Unsplash or uploading to a service like Cloudinary). Images auto-rotate every 6 seconds on the live site.</p>
+          <p className="mt-2 text-ink-muted">Pick an image from your Media Library, upload a new one, or paste any URL. Images auto-rotate every 6 seconds on the live site.</p>
         </div>
         <div className="flex items-center gap-2">
           <button type="button" onClick={reset} className="btn btn-ghost text-sm"><RotateCcw size={14} /> Reset</button>
@@ -87,9 +88,13 @@ export default function CarouselEditor() {
 
             {/* Fields */}
             <div className="space-y-3 min-w-0">
-              <label className="block text-xs text-ink-muted">Image URL
-                <input value={s.src} onChange={(e) => updateSlide(s.id, { src: e.target.value })} placeholder="https://…" className="mt-1 w-full h-10 px-3 rounded-lg border border-line bg-white focus:outline-none focus:border-ink font-mono text-xs" />
-              </label>
+              <div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs text-ink-muted">Image</span>
+                  <MediaPicker onChange={(url, alt) => updateSlide(s.id, { src: url, ...(alt && !s.alt ? { alt } : {}) })} />
+                </div>
+                <input value={s.src} onChange={(e) => updateSlide(s.id, { src: e.target.value })} placeholder="https://… or choose from library" className="mt-1 w-full h-10 px-3 rounded-lg border border-line bg-white focus:outline-none focus:border-ink font-mono text-xs" />
+              </div>
               <label className="block text-xs text-ink-muted">Alt text <span className="italic">(what a screen reader announces)</span>
                 <input value={s.alt} onChange={(e) => updateSlide(s.id, { alt: e.target.value })} className="mt-1 w-full h-10 px-3 rounded-lg border border-line bg-white focus:outline-none focus:border-ink text-sm" />
               </label>
