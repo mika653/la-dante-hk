@@ -204,3 +204,19 @@ export const workshopsTable = pgTable("workshops", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 export type WorkshopRow = typeof workshopsTable.$inferSelect;
+
+// Media Library — files uploaded to Vercel Blob, tracked here so staff can
+// browse, reuse, and delete them from the admin. `url` is the public Blob URL
+// rendered on the site; `pathname` is what Vercel Blob's del() needs.
+export const media = pgTable("media", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  url: text("url").notNull(),
+  pathname: text("pathname").notNull(),
+  filename: text("filename").notNull(),         // original display name
+  alt: text("alt").notNull().default(""),        // accessibility / editable caption
+  contentType: text("content_type").notNull().default(""),
+  size: integer("size").notNull().default(0),    // bytes
+  uploadedBy: text("uploaded_by").notNull().default(""),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+export type MediaRow = typeof media.$inferSelect;

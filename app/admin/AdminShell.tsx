@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, BookOpen, PaintBucket, Calendar, Users, Star, ShieldAlert, LogOut, Menu, X, Layout, UserPlus, CalendarDays, Inbox, Ticket, KeyRound, Award } from "lucide-react";
+import { LayoutDashboard, BookOpen, PaintBucket, Calendar, Users, Star, ShieldAlert, LogOut, Menu, X, Layout, UserPlus, CalendarDays, Inbox, Ticket, KeyRound, Award, ImageIcon } from "lucide-react";
 import Wordmark from "@/components/Wordmark";
 import { logoutAction } from "@/lib/auth-actions";
 import type { Role } from "@/lib/db/schema";
@@ -11,6 +11,7 @@ import { roleLabel } from "@/lib/leave-core";
 const navItems = [
   { href: "/admin",              label: "Overview",         icon: LayoutDashboard },
   { href: "/admin/content",      label: "Site content",     icon: Layout },
+  { href: "/admin/media",        label: "Media",            icon: ImageIcon },
   { href: "/admin/courses",      label: "Courses",          icon: BookOpen },
   { href: "/admin/enquiries",    label: "Enquiries",        icon: Inbox },
   { href: "/admin/workshops",    label: "Workshops",        icon: PaintBucket },
