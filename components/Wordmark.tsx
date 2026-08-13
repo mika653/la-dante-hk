@@ -1,9 +1,12 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useBranding } from "@/lib/use-branding";
 
 // Official Dante Alighieri Society Hong Kong logo — black wordmark with sky-blue circle.
-// The logo is designed for light surfaces. On dark surfaces we wrap it in a cream
-// "plaque" so it renders in its correct brand colors (no filters that distort the blue).
+// The logo image is admin-editable (Branding settings); it falls back to the
+// bundled /logo.png until the saved value loads. On dark surfaces we wrap it in a
+// cream "plaque" so it renders in its correct brand colors (no distorting filters).
 export default function Wordmark({
   className = "",
   color = "ink",
@@ -13,14 +16,16 @@ export default function Wordmark({
   color?: "ink" | "cream";
   size?: number;
 }) {
+  const { logo } = useBranding();
   const inner = (
     <span className="relative block" style={{ height: size, width: size * 3.2 }}>
       <Image
-        src="/logo.png"
+        src={logo || "/logo.png"}
         alt="Società Dante Alighieri Hong Kong"
         fill
         priority
         sizes="240px"
+        unoptimized={/^https?:\/\//.test(logo) && !logo.includes("/_next/")}
         className="object-contain object-left"
       />
     </span>

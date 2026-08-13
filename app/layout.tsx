@@ -3,6 +3,7 @@ import { League_Spartan, Poppins } from "next/font/google";
 import "./globals.css";
 import { ConditionalNav, ConditionalFooter } from "@/components/ConditionalChrome";
 import SiteChrome from "@/components/SiteChrome";
+import { getBrandingForMetadata } from "@/lib/branding-read";
 
 const leagueSpartan = League_Spartan({
   variable: "--font-league-spartan",
@@ -30,32 +31,39 @@ const DESCRIPTION =
   "The Dante Alighieri Society of Hong Kong — Italian and Latin language courses, cultural events, PLIDA certification, and membership in the heart of Wanchai since 1935.";
 const OG_IMAGE = { url: "/mural.png", width: 2400, height: 1347, alt: "La Dante HK — where Hong Kong meets Italy" };
 
-export const metadata: Metadata = {
-  // Pages already set their own full titles (with the brand), so no template here
-  // — this default just covers the home page and anything untitled.
-  title: "La Dante HK — Italian & Latin in Hong Kong since 1935",
-  description: DESCRIPTION,
-  applicationName: "La Dante HK",
-  metadataBase: new URL(SITE_URL),
-  alternates: { canonical: "/" },
-  // Until the site is flagged live, tell search engines not to index it.
-  robots: SITE_LIVE ? undefined : { index: false, follow: false },
-  openGraph: {
-    type: "website",
-    siteName: SITE_NAME,
-    title: "La Dante HK — Italian & Latin in Hong Kong since 1935",
+// Title, brand name, and favicon come from the admin-editable Branding settings
+// (cached, so pages stay static). Pages set their own full titles, so this
+// default just covers the home page and anything untitled.
+export async function generateMetadata(): Promise<Metadata> {
+  const branding = await getBrandingForMetadata();
+  const title = branding.tagline ? `${branding.siteTitle} — ${branding.tagline}` : branding.siteTitle;
+  return {
+    title,
     description: DESCRIPTION,
-    url: SITE_URL,
-    locale: "en_HK",
-    images: [OG_IMAGE],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "La Dante HK — Italian & Latin in Hong Kong",
-    description: DESCRIPTION,
-    images: [OG_IMAGE.url],
-  },
-};
+    applicationName: branding.siteTitle,
+    metadataBase: new URL(SITE_URL),
+    alternates: { canonical: "/" },
+    // Until the site is flagged live, tell search engines not to index it.
+    robots: SITE_LIVE ? undefined : { index: false, follow: false },
+    // A custom favicon overrides the bundled app/icon.png / favicon.ico defaults.
+    icons: branding.favicon ? { icon: branding.favicon, shortcut: branding.favicon, apple: branding.favicon } : undefined,
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      title,
+      description: DESCRIPTION,
+      url: SITE_URL,
+      locale: "en_HK",
+      images: [OG_IMAGE],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: DESCRIPTION,
+      images: [OG_IMAGE.url],
+    },
+  };
+}
 
 // schema.org structured data — one EducationalOrganization / LocalBusiness record.
 // Helps Google show the school with its logo, address, hours, and social links
