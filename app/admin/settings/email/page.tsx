@@ -70,8 +70,21 @@ export default function EmailSettings() {
         <ShieldAlert size={18} className="text-azzurro-deep shrink-0 mt-0.5" aria-hidden />
         <div className="text-sm space-y-1.5">
           <p><strong>These are sensitive credentials.</strong> They&apos;re stored <strong>encrypted</strong>, only the <strong>owner</strong> can see this page, and the password is <strong>write-only</strong> (never shown again after saving).</p>
-          <p className="text-ink-muted">Use a <strong>dedicated, app-specific</strong> SMTP credential (not a personal mailbox password). For email to actually deliver, your domain also needs <strong>SPF, DKIM and DMARC</strong> DNS records — ask us for the exact values.</p>
+          <p className="text-ink-muted">Tip: use a <strong>dedicated mailbox</strong> (e.g. <span className="font-mono text-[13px]">no-reply@ladante.cc</span>) rather than a personal one, so the credential is easy to rotate later.</p>
         </div>
+      </div>
+
+      {/* Concrete values for the school's own @ladante.cc mailbox (cPanel). */}
+      <div className="mt-3 frame p-4 bg-azzurro-soft">
+        <p className="text-sm font-medium">Using your @ladante.cc mailbox</p>
+        <ul className="mt-2 text-sm space-y-1">
+          <li><span className="text-ink-muted">Host:</span> <span className="font-mono text-[13px]">mail.ladante.cc</span></li>
+          <li><span className="text-ink-muted">Port:</span> <span className="font-mono text-[13px]">465</span> with SSL/TLS ticked <span className="text-ink-muted">(or 587 unticked)</span></li>
+          <li><span className="text-ink-muted">Username:</span> the full email address, e.g. <span className="font-mono text-[13px]">no-reply@ladante.cc</span></li>
+          <li><span className="text-ink-muted">Password:</span> that mailbox&apos;s password</li>
+          <li><span className="text-ink-muted">From:</span> the same address, e.g. <span className="font-mono text-[13px]">La Dante &lt;no-reply@ladante.cc&gt;</span></li>
+        </ul>
+        <p className="mt-2 text-xs text-ink-muted">Confirm the exact host/port in your email host&apos;s control panel (cPanel → Email Accounts → Connect Devices).</p>
       </div>
 
       {!s ? (
@@ -81,7 +94,7 @@ export default function EmailSettings() {
           <div className="mt-6 frame p-6 md:p-8 bg-white space-y-5">
             <div className="grid sm:grid-cols-2 gap-4">
               <label className="text-sm font-medium sm:col-span-2">SMTP host
-                <input value={s.host} onChange={(e) => set("host", e.target.value)} placeholder="smtp.your-provider.com" className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink font-normal" />
+                <input value={s.host} onChange={(e) => set("host", e.target.value)} placeholder="mail.ladante.cc" className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink font-normal" />
               </label>
               <label className="text-sm font-medium">Port
                 <input type="number" value={s.port} onChange={(e) => set("port", Number(e.target.value))} placeholder="587" className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink font-normal" />
@@ -93,7 +106,7 @@ export default function EmailSettings() {
                 </span>
               </label>
               <label className="text-sm font-medium">Username
-                <input value={s.user} onChange={(e) => set("user", e.target.value)} placeholder="apikey / user@domain" autoComplete="off" className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink font-normal" />
+                <input value={s.user} onChange={(e) => set("user", e.target.value)} placeholder="no-reply@ladante.cc" autoComplete="off" className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink font-normal" />
               </label>
               <label className="text-sm font-medium">Password
                 <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
