@@ -1,61 +1,55 @@
 "use server";
-// Media Library — upload/list/delete images stored in Vercel Blob.
-// Every action is gated to a signed-in owner or manager via requireAdminFresh.
-// The blob store is public (images render on the site); the DB row lets staff
-// browse and reuse them and gives del() the pathname it needs to remove them.
+// Media Library — list/record/delete images & documents stored in Vercel Blob.
+// Uploads happen client-side straight to Blob (see /api/media/upload) so large
+// PDFs work; recordMedia() then writes the DB row. Every action is gated to a
+// signed-in owner or manager via requireAdminFresh.
 
 import { revalidatePath } from "next/cache";
 import { desc, eq } from "drizzle-orm";
-import { put, del } from "@vercel/blob";
+import { del } from "@vercel/blob";
 import { db } from "@/lib/db";
 import { media, type MediaRow } from "@/lib/db/schema";
 import { requireAdminFresh } from "@/lib/auth-guards";
 
 export type MediaSaveState = { ok?: boolean; error?: string; url?: string };
 
-const MAX_BYTES = 10_000_000; // 10 MB
-const OK_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml", "image/avif"];
-
 export async function listMedia(): Promise<MediaRow[]> {
   await requireAdminFresh();
   return db.select().from(media).orderBy(desc(media.createdAt));
 }
 
-export async function uploadMedia(_prev: MediaSaveState, formData: FormData): Promise<MediaSaveState> {
+// Write the DB row after a successful client-side Blob upload.
+export async function recordMedia(input: {
+  url: string;
+  pathname: string;
+  filename: string;
+  alt?: string;
+  contentType: string;
+  size: number;
+}): Promise<MediaSaveState> {
   let user;
   try {
     user = await requireAdminFresh();
   } catch {
     return { error: "You need to be signed in as an owner or manager to upload." };
   }
+  if (!input?.url || !input?.pathname) return { error: "Missing upload details." };
 
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) return { error: "Choose an image to upload." };
-  if (!OK_TYPES.includes(file.type)) return { error: "Only images are allowed (PNG, JPG, WEBP, GIF, SVG, AVIF)." };
-  if (file.size > MAX_BYTES) return { error: "That image is too large — keep it under 10 MB." };
-
-  const alt = String(formData.get("alt") ?? "").trim().slice(0, 300);
-
-  let url: string;
   try {
-    // addRandomSuffix keeps two files with the same name from colliding.
-    const blob = await put(file.name, file, { access: "public", addRandomSuffix: true });
-    url = blob.url;
     await db.insert(media).values({
-      url: blob.url,
-      pathname: blob.pathname,
-      filename: file.name.slice(0, 300),
-      alt,
-      contentType: file.type,
-      size: file.size,
+      url: input.url,
+      pathname: input.pathname,
+      filename: (input.filename || "file").slice(0, 300),
+      alt: (input.alt || "").trim().slice(0, 300),
+      contentType: input.contentType || "",
+      size: input.size || 0,
       uploadedBy: user.name || user.email || "",
     });
   } catch {
-    return { error: "Upload failed — please try again." };
+    return { error: "Couldn't save that file. Please try again." };
   }
-
   revalidatePath("/admin/media");
-  return { ok: true, url };
+  return { ok: true, url: input.url };
 }
 
 export async function updateMediaAlt(id: string, alt: string): Promise<MediaSaveState> {

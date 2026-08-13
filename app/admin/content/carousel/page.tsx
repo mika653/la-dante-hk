@@ -91,7 +91,7 @@ export default function CarouselEditor() {
               <div>
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-ink-muted">Image</span>
-                  <MediaPicker onChange={(url, alt) => updateSlide(s.id, { src: url, ...(alt && !s.alt ? { alt } : {}) })} />
+                  <MediaPicker accept="image" onChange={(url, alt) => updateSlide(s.id, { src: url, ...(alt && !s.alt ? { alt } : {}) })} />
                 </div>
                 <input value={s.src} onChange={(e) => updateSlide(s.id, { src: e.target.value })} placeholder="https://… or choose from library" className="mt-1 w-full h-10 px-3 rounded-lg border border-line bg-white focus:outline-none focus:border-ink font-mono text-xs" />
               </div>
