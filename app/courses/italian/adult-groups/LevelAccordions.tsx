@@ -113,7 +113,7 @@ export default function LevelAccordions() {
                             </div>
                           ) : subMatching.map((c) => (
                             <div key={c.id} className="p-4 rounded-2xl border border-line bg-cream-2/50">
-                              <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro-deep">{c.courseCode ?? c.level}</p>
+                              <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro-deep">{c.level}</p>
                               <h4 className="mt-1 font-semibold text-[15px]">{c.title}</h4>
                               <div className="mt-2 space-y-1 text-[13px] text-ink-muted">
                                 <div className="flex items-center gap-1.5"><Calendar size={13} aria-hidden />{formatDateRange(c.startISO, c.endISO)}</div>

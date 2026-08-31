@@ -208,6 +208,7 @@ export default function AdminCoursesList() {
           <table className="w-full text-sm">
             <thead className="bg-cream-2 text-xs uppercase tracking-wider text-ink-muted">
               <tr>
+                <th className="px-5 py-3 text-left font-medium">Code</th>
                 <th className="px-5 py-3 text-left font-medium">Title</th>
                 <th className="px-5 py-3 text-left font-medium">Level</th>
                 <th className="px-5 py-3 text-left font-medium">Schedule</th>
@@ -220,7 +221,7 @@ export default function AdminCoursesList() {
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={8} className="p-10 text-center text-ink-muted">No courses match your filters.</td></tr>
+                <tr><td colSpan={9} className="p-10 text-center text-ink-muted">No courses match your filters.</td></tr>
               )}
               {filtered.map((c) => {
                 const started = hasStarted(c, today);
@@ -228,9 +229,13 @@ export default function AdminCoursesList() {
                 const nextMade = hasContinuation(c.id);
                 return (
                   <tr key={c.id} className={`border-t border-line hover:bg-cream-2/30 ${c.archived ? "opacity-60" : ""}`}>
+                    <td className="px-5 py-4">
+                      {c.courseCode
+                        ? <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-azzurro-soft text-azzurro-deep whitespace-nowrap">{c.courseCode}</span>
+                        : <span className="text-ink-soft">—</span>}
+                    </td>
                     <td className="px-5 py-4 font-medium">
                       {c.title}
-                      {c.courseCode && <span className="ml-2 align-middle font-mono text-[11px] px-1.5 py-0.5 rounded bg-azzurro-soft text-azzurro-deep">{c.courseCode}</span>}
                       {c.status === "Draft" && (
                         <span className="ml-2 align-middle px-2 py-0.5 rounded-full text-[11px] font-medium bg-cream-2 border border-line text-ink-muted">Draft</span>
                       )}
