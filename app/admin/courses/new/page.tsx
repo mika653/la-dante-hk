@@ -7,6 +7,7 @@ import { addCourse } from "@/lib/admin-store";
 import { levelOutcomes } from "@/lib/data";
 import type { Course, Language, CourseType, CEFRLevel } from "@/lib/data";
 import { generateContinuation, nextLevel, daysBetween, computeEndDate } from "@/lib/course-schedule";
+import { previewCourseCode } from "@/lib/course-code";
 import { holidaySet } from "@/lib/holidays";
 import CourseSchedulePreview from "@/components/CourseSchedulePreview";
 
@@ -268,8 +269,12 @@ export default function NewCoursePage() {
           <div className="space-y-6">
             <p className="eyebrow">This is how it will appear on the site</p>
             <div className="frame p-5 md:p-6 bg-cream-2/50">
-              <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro-deep">{level}</p>
-              <h3 className="mt-1 text-lg md:text-xl font-semibold">{title || autoTitle()}</h3>
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro-deep">{level}</p>
+                <span className="text-[11px] font-mono uppercase tracking-widest text-ink-muted">· {previewCourseCode({ language: lang, type, startISO: startDate || new Date().toISOString().slice(0, 10) })}</span>
+              </div>
+              <p className="mt-1 text-[11px] text-ink-muted">Course code is assigned automatically — the last two digits are set when you save.</p>
+              <h3 className="mt-2 text-lg md:text-xl font-semibold">{title || autoTitle()}</h3>
               <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 text-[13px] text-ink-muted">
                 <span className="inline-flex items-center gap-1.5"><Calendar size={13} aria-hidden />{startDate || "—"} → {endDate || "—"}</span>
                 <span className="inline-flex items-center gap-1.5"><Users size={13} aria-hidden />{days.join("/")} · {startTime}–{endTime}</span>

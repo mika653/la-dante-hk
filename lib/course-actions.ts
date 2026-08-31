@@ -9,6 +9,7 @@ import { db } from "@/lib/db";
 import { courses, type CourseRow } from "@/lib/db/schema";
 import { requireAdminFresh } from "@/lib/auth-guards";
 import { rowToCourse, courseToRow } from "@/lib/course-map";
+import { generateCourseCode } from "@/lib/course-code";
 import type { Course } from "@/lib/data";
 
 const requireAdmin = requireAdminFresh;
@@ -29,7 +30,18 @@ export async function listAllCourses(): Promise<Course[]> {
 
 export async function createCourse(course: Course): Promise<void> {
   await requireAdmin();
-  await db.insert(courses).values(courseToRow(course)).onConflictDoNothing();
+
+  // Auto-assign the house course code (e.g. DA032601) when the form didn't set
+  // one. Done here on the server so the trailing sequence is taken from the
+  // codes actually in the database — two admins creating courses at once can't
+  // land on the same number. An explicit code from the form is left untouched.
+  let toInsert = course;
+  if (!course.courseCode || !course.courseCode.trim()) {
+    const existing = await db.select({ code: courses.courseCode }).from(courses);
+    toInsert = { ...course, courseCode: generateCourseCode(course, existing.map((r) => r.code)) };
+  }
+
+  await db.insert(courses).values(courseToRow(toInsert)).onConflictDoNothing();
   refresh();
 }
 
