@@ -8,6 +8,9 @@ import { setSeatsLeft } from "@/lib/course-actions";
 import type { Course, Language, CourseType } from "@/lib/data";
 import { formatHKD } from "@/lib/utils";
 import { nextLevel, generateContinuation, hasStarted, isUpcoming, todayISO } from "@/lib/course-schedule";
+import { holidaySet } from "@/lib/holidays";
+import { plidaDateSet } from "@/lib/plida-dates";
+import { useClosures } from "@/lib/use-closures";
 
 function errText(e: unknown) {
   const m = e instanceof Error ? e.message : String(e);
@@ -64,6 +67,15 @@ export default function AdminCoursesList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const { holidays: holidayList, plida: plidaList } = useClosures();
+  // The skip-set for a course's continuation: shared holidays, plus PLIDA days
+  // when that course pauses for them (the continuation inherits the flag).
+  function skipSetFor(c: Course): Set<string> {
+    const s = holidaySet(holidayList);
+    if (c.skipPlida) for (const d of plidaDateSet(plidaList)) s.add(d);
+    return s;
+  }
+
   const hasContinuation = (id: string) => courses.some((c) => c.continuationOf === id);
 
   const filtered = useMemo(() => courses.filter((c) => {
@@ -89,7 +101,7 @@ export default function AdminCoursesList() {
 
   // Generate the next-level continuation of a course as a draft, then open it for review.
   async function createNext(c: Course) {
-    const cont = generateContinuation(c);
+    const cont = generateContinuation(c, { holidays: skipSetFor(c) });
     if (!cont) return;
     setErr(null);
     try {
@@ -108,7 +120,7 @@ export default function AdminCoursesList() {
       for (const c of needRollover) {
         await updateCourse(c.id, { archived: true });
         if (nextLevel(c.level) && !hasContinuation(c.id)) {
-          const cont = generateContinuation(c);
+          const cont = generateContinuation(c, { holidays: skipSetFor(c) });
           if (cont) { await addCourse(cont); gen++; }
         }
       }

@@ -6,8 +6,9 @@ import { ArrowLeft, Save, Sparkles, RefreshCw } from "lucide-react";
 import { getCourses, updateCourse } from "@/lib/admin-store";
 import type { Course, Language, CourseType } from "@/lib/data";
 import { computeEndDate, parseDayLabel, weekdayOf, daysBetween } from "@/lib/course-schedule";
-import { holidaySet, getHolidays } from "@/lib/holidays";
-import { getPlidaDates, plidaDateSet } from "@/lib/plida-dates";
+import { holidaySet } from "@/lib/holidays";
+import { plidaDateSet } from "@/lib/plida-dates";
+import { useClosures } from "@/lib/use-closures";
 import CourseSchedulePreview from "@/components/CourseSchedulePreview";
 
 const TYPES: Array<{ v: CourseType; l: string }> = [
@@ -56,6 +57,7 @@ export default function EditCourseClient({ id }: { id: string }) {
   const [earlyBirdDueISO, setEarlyBirdDueISO] = useState("");
   const [earlyBirdFeeHKD, setEarlyBirdFeeHKD] = useState<number | "">("");
   const [skipPlida, setSkipPlida] = useState(false);
+  const { holidays: holidayList, plida: plidaList } = useClosures();
 
   useEffect(() => {
     let alive = true;
@@ -89,8 +91,8 @@ export default function EditCourseClient({ id }: { id: string }) {
 
   // Dates the scheduler skips: public holidays + PLIDA exam days when this class pauses for them.
   function skipDates(skip: boolean = skipPlida): Set<string> {
-    const s = holidaySet();
-    if (skip) for (const d of plidaDateSet()) s.add(d);
+    const s = holidaySet(holidayList);
+    if (skip) for (const d of plidaDateSet(plidaList)) s.add(d);
     return s;
   }
 
@@ -289,7 +291,7 @@ export default function EditCourseClient({ id }: { id: string }) {
             startISO={startISO}
             weekday={parseDayLabel(dayLabel).weekday ?? (startISO ? weekdayOf(startISO) : null)}
             lessons={lessons !== "" ? Number(lessons) : (startISO && endISO ? Math.max(1, Math.floor(daysBetween(startISO, endISO) / 7) + 1) : 0)}
-            holidays={skipPlida ? [...getHolidays(), ...getPlidaDates()] : getHolidays()}
+            holidays={skipPlida ? [...holidayList, ...plidaList] : holidayList}
           />
         </div>
 

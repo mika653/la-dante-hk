@@ -2,7 +2,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { computeLessonDates, weekdayOf, addDays } from "@/lib/course-schedule";
-import { getHolidays, holidaySet, holidayNameMap, type Holiday } from "@/lib/holidays";
+import { holidaySet, holidayNameMap, type Holiday } from "@/lib/holidays";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const DOW = ["S", "M", "T", "W", "T", "F", "S"];
@@ -12,7 +12,7 @@ function iso(y: number, m: number, d: number) { return `${y}-${String(m + 1).pad
 function pretty(isoStr: string) { const { y, m, d } = parts(isoStr); return `${d} ${MONTHS[m].slice(0, 3)} ${y}`; }
 
 export default function CourseSchedulePreview({
-  startISO, weekday, lessons, holidays = getHolidays(),
+  startISO, weekday, lessons, holidays = [],
 }: { startISO: string; weekday: number | null; lessons: number; holidays?: Holiday[] }) {
   const data = useMemo(() => {
     if (!startISO || weekday === null || !lessons || lessons < 1) return null;

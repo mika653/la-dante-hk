@@ -80,6 +80,22 @@ export const courses = pgTable("courses", {
 export type CourseRow = typeof courses.$inferSelect;
 export type NewCourseRow = typeof courses.$inferInsert;
 
+// -------------------- Closures --------------------
+// The days the course scheduler skips, shared across every computer (replacing
+// the old per-browser store). kind = "holiday" (public holidays + school
+// closures, which may span a range via endDate) or "plida" (exam days).
+export const closures = pgTable("closures", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  kind: text("kind").notNull(),                 // "holiday" | "plida"
+  date: text("date").notNull(),                 // "YYYY-MM-DD" (start day)
+  endDate: text("end_date"),                    // last day, inclusive, for a multi-day break
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type ClosureRow = typeof closures.$inferSelect;
+export type NewClosureRow = typeof closures.$inferInsert;
+
 // -------------------- Enquiries --------------------
 // One inbox for every "I'm interested" form on the site — course, private, PLIDA,
 // workshop, trial class. `type` is plain text so a new form never needs a

@@ -8,8 +8,9 @@ import { levelOutcomes } from "@/lib/data";
 import type { Course, Language, CourseType, CEFRLevel } from "@/lib/data";
 import { generateContinuation, nextLevel, daysBetween, computeEndDate } from "@/lib/course-schedule";
 import { previewCourseCode } from "@/lib/course-code";
-import { holidaySet, getHolidays } from "@/lib/holidays";
-import { getPlidaDates, plidaDateSet } from "@/lib/plida-dates";
+import { holidaySet } from "@/lib/holidays";
+import { plidaDateSet } from "@/lib/plida-dates";
+import { useClosures } from "@/lib/use-closures";
 import CourseSchedulePreview from "@/components/CourseSchedulePreview";
 
 function errText(e: unknown) {
@@ -54,12 +55,13 @@ export default function NewCoursePage() {
   const [gapWeeks, setGapWeeks] = useState(1);
   const [weeks, setWeeks] = useState<number | "">("");
   const [skipPlida, setSkipPlida] = useState(false);
+  const { holidays: holidayList, plida: plidaList } = useClosures();
 
   // The dates the scheduler skips: always public holidays, plus PLIDA exam days
-  // when this class is set to pause for them.
+  // when this class is set to pause for them. Both come from the shared list.
   function skipDates(skip: boolean): Set<string> {
-    const s = holidaySet();
-    if (skip) for (const d of plidaDateSet()) s.add(d);
+    const s = holidaySet(holidayList);
+    if (skip) for (const d of plidaDateSet(plidaList)) s.add(d);
     return s;
   }
 
@@ -120,7 +122,7 @@ export default function NewCoursePage() {
   // Optionally generate the next-level course as a draft (returns a message fragment).
   async function maybeCreateNext(course: Course): Promise<string> {
     if (!createNext || !nextLevel(course.level)) return "";
-    const cont = generateContinuation(course, { gapWeeks });
+    const cont = generateContinuation(course, { gapWeeks, holidays: skipDates(!!course.skipPlida) });
     if (!cont) return "";
     await addCourse(cont);
     return ` The ${cont.level} continuation was created as a draft — review and publish it when ready.`;
@@ -312,7 +314,7 @@ export default function NewCoursePage() {
                   startISO={startDate}
                   weekday={DOW_IDX[days[0]]}
                   lessons={weeks !== "" ? Number(weeks) : Math.max(1, Math.floor(daysBetween(startDate, endDate) / 7) + 1)}
-                  holidays={skipPlida ? [...getHolidays(), ...getPlidaDates()] : getHolidays()}
+                  holidays={skipPlida ? [...holidayList, ...plidaList] : holidayList}
                 />
               </div>
             )}
