@@ -230,7 +230,7 @@ export default function AdminCoursesList() {
                   <tr key={c.id} className={`border-t border-line hover:bg-cream-2/30 ${c.archived ? "opacity-60" : ""}`}>
                     <td className="px-5 py-4 font-medium">
                       {c.title}
-                      {c.courseCode && <span className="ml-2 align-middle font-mono text-[11px] text-ink-soft">{c.courseCode}</span>}
+                      {c.courseCode && <span className="ml-2 align-middle font-mono text-[11px] px-1.5 py-0.5 rounded bg-azzurro-soft text-azzurro-deep">{c.courseCode}</span>}
                       {c.status === "Draft" && (
                         <span className="ml-2 align-middle px-2 py-0.5 rounded-full text-[11px] font-medium bg-cream-2 border border-line text-ink-muted">Draft</span>
                       )}
