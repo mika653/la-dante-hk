@@ -2,7 +2,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { computeLessonDates, weekdayOf, addDays } from "@/lib/course-schedule";
-import { getHolidays, holidaySet, type Holiday } from "@/lib/holidays";
+import { getHolidays, holidaySet, holidayNameMap, type Holiday } from "@/lib/holidays";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const DOW = ["S", "M", "T", "W", "T", "F", "S"];
@@ -20,7 +20,7 @@ export default function CourseSchedulePreview({
     const lessonDates = computeLessonDates(startISO, weekday, lessons, hs);
     if (lessonDates.length === 0) return null;
     const lessonNo = new Map(lessonDates.map((d, i) => [d, i + 1]));
-    const holMap = new Map(holidays.map((h) => [h.date, h.name]));
+    const holMap = holidayNameMap(holidays);
     const last = lessonDates[lessonDates.length - 1];
 
     // holidays that fall on the class weekday within the term = skipped weeks
@@ -58,7 +58,7 @@ export default function CourseSchedulePreview({
       {/* legend */}
       <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-ink-muted">
         <span className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-azzurro-deep inline-block" /> Class day</span>
-        <span className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-rosso/15 border border-rosso inline-block" /> Public holiday (week skipped)</span>
+        <span className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-rosso/15 border border-rosso inline-block" /> Holiday / closure (week skipped)</span>
       </div>
 
       {/* month grids */}

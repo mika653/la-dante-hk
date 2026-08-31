@@ -56,6 +56,7 @@ export async function patchCourse(id: string, patch: Partial<Course>): Promise<v
   if (patch.enrolled !== undefined) set.enrolled = num(patch.enrolled);
   if (patch.status !== undefined) set.status = patch.status === "Draft" ? "Draft" : "Published";
   if (patch.archived !== undefined) set.archived = !!patch.archived;
+  if (patch.skipPlida !== undefined) set.skipPlida = !!patch.skipPlida;
   if (patch.title !== undefined) set.title = String(patch.title);
   if (patch.level !== undefined) set.level = String(patch.level);
   if (patch.dayLabel !== undefined) set.dayLabel = String(patch.dayLabel);

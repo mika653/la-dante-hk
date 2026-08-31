@@ -69,6 +69,10 @@ export const courses = pgTable("courses", {
   earlyBirdDueISO: text("early_bird_due_iso"),
   earlyBirdFeeHKD: integer("early_bird_fee_hkd"),
   archived: boolean("archived").notNull().default(false),
+  // When true, this class also skips its sessions that fall on PLIDA exam days
+  // (not every class does — some carry on as normal). Nullable + default false so
+  // it is a purely additive migration; existing courses read as "don't skip".
+  skipPlida: boolean("skip_plida").default(false),
   continuationOf: text("continuation_of"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

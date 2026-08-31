@@ -8,7 +8,8 @@ import { levelOutcomes } from "@/lib/data";
 import type { Course, Language, CourseType, CEFRLevel } from "@/lib/data";
 import { generateContinuation, nextLevel, daysBetween, computeEndDate } from "@/lib/course-schedule";
 import { previewCourseCode } from "@/lib/course-code";
-import { holidaySet } from "@/lib/holidays";
+import { holidaySet, getHolidays } from "@/lib/holidays";
+import { getPlidaDates, plidaDateSet } from "@/lib/plida-dates";
 import CourseSchedulePreview from "@/components/CourseSchedulePreview";
 
 function errText(e: unknown) {
@@ -52,11 +53,20 @@ export default function NewCoursePage() {
   const [createNext, setCreateNext] = useState(false);
   const [gapWeeks, setGapWeeks] = useState(1);
   const [weeks, setWeeks] = useState<number | "">("");
+  const [skipPlida, setSkipPlida] = useState(false);
 
-  // Auto-fill the end date from start + duration (weeks) on the class day, skipping holidays.
-  function autoEndFor(start: string, wk: number | "", dys: string[]) {
+  // The dates the scheduler skips: always public holidays, plus PLIDA exam days
+  // when this class is set to pause for them.
+  function skipDates(skip: boolean): Set<string> {
+    const s = holidaySet();
+    if (skip) for (const d of plidaDateSet()) s.add(d);
+    return s;
+  }
+
+  // Auto-fill the end date from start + duration (weeks) on the class day, skipping closures.
+  function autoEndFor(start: string, wk: number | "", dys: string[], skip: boolean = skipPlida) {
     if (!start || wk === "" || dys[0] === undefined) return;
-    setEndDate(computeEndDate(start, DOW_IDX[dys[0]], Number(wk), holidaySet()));
+    setEndDate(computeEndDate(start, DOW_IDX[dys[0]], Number(wk), skipDates(skip)));
   }
 
   function toggleDay(d: string) {
@@ -103,6 +113,7 @@ export default function NewCoursePage() {
       startTime,
       endTime,
       lessons: weeks !== "" ? Number(weeks) : (startDate && endDate ? Math.max(1, Math.floor(daysBetween(startDate, endDate) / 7) + 1) : undefined),
+      skipPlida,
     };
   }
 
@@ -233,6 +244,15 @@ export default function NewCoursePage() {
                 {LOCATIONS.map((l) => <option key={l}>{l}</option>)}
               </select>
             </label>
+            <div className="frame p-4 md:p-5 bg-cream-2/40">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" checked={skipPlida} onChange={(e) => { setSkipPlida(e.target.checked); autoEndFor(startDate, weeks, days, e.target.checked); }} className="mt-1 accent-azzurro-deep w-4 h-4" />
+                <span className="text-sm">
+                  <b>Skip sessions on PLIDA exam days.</b>
+                  <span className="block text-ink-muted mt-0.5">This class won&apos;t meet on official PLIDA exam dates — the course just runs a week longer. Leave it off for classes that carry on as normal. Exam dates come from your <a href="/admin/holidays" className="text-azzurro-deep underline">holidays &amp; exam days</a> list.</span>
+                </span>
+              </label>
+            </div>
             <div className="flex items-center justify-between">
               <button type="button" onClick={() => setStep(1)} className="btn btn-ghost"><ArrowLeft size={16} /> Back</button>
               <button type="button" onClick={() => setStep(3)} className="btn btn-primary">Next: Details <ArrowRight size={16} /></button>
@@ -292,6 +312,7 @@ export default function NewCoursePage() {
                   startISO={startDate}
                   weekday={DOW_IDX[days[0]]}
                   lessons={weeks !== "" ? Number(weeks) : Math.max(1, Math.floor(daysBetween(startDate, endDate) / 7) + 1)}
+                  holidays={skipPlida ? [...getHolidays(), ...getPlidaDates()] : getHolidays()}
                 />
               </div>
             )}

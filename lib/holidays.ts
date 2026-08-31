@@ -6,7 +6,28 @@
 // editable store rather than a hard-coded constant. School-specific closures can
 // be added here too.
 
-export type Holiday = { date: string; name: string }; // date = "YYYY-MM-DD"
+// date = "YYYY-MM-DD". A single-day closure has no endDate. A multi-day closure
+// (e.g. a Christmas break) sets endDate to the last day, inclusive — the whole
+// span is skipped by the scheduler.
+export type Holiday = { date: string; name: string; endDate?: string };
+
+// Expand a possibly-multi-day holiday into every calendar date it covers.
+// Kept inline (no import) so this stays free of a cycle with course-schedule.
+function eachDate(startISO: string, endISO: string): string[] {
+  const out: string[] = [];
+  const [ys, ms, ds] = startISO.split("-").map(Number);
+  const [ye, me, de] = endISO.split("-").map(Number);
+  const cur = new Date(ys, ms - 1, ds);
+  const last = new Date(ye, me - 1, de);
+  for (let i = 0; cur <= last && i < 400; i++) {
+    out.push(`${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}-${String(cur.getDate()).padStart(2, "0")}`);
+    cur.setDate(cur.getDate() + 1);
+  }
+  return out;
+}
+function datesOf(h: Holiday): string[] {
+  return h.endDate && h.endDate >= h.date ? eachDate(h.date, h.endDate) : [h.date];
+}
 
 export const HK_HOLIDAYS_SEED: Holiday[] = [
   // 2026 — verify lunar dates against the official HK gazette before relying on them
@@ -53,7 +74,14 @@ export function setHolidays(list: Holiday[]) {
   try { localStorage.setItem(KEY, JSON.stringify(list)); } catch {}
 }
 
-/** Set of holiday date strings, for O(1) lookup in the scheduler. */
+/** Set of every skipped date, multi-day closures expanded, for the scheduler. */
 export function holidaySet(list: Holiday[] = getHolidays()): Set<string> {
-  return new Set(list.map((h) => h.date));
+  return new Set(list.flatMap(datesOf));
+}
+
+/** Map every skipped date -> its closure name (ranges expanded), for the preview. */
+export function holidayNameMap(list: Holiday[] = getHolidays()): Map<string, string> {
+  const m = new Map<string, string>();
+  for (const h of list) for (const d of datesOf(h)) if (!m.has(d)) m.set(d, h.name);
+  return m;
 }

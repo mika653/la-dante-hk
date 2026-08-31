@@ -30,6 +30,7 @@ export function rowToCourse(r: CourseRow): Course {
     ...(r.earlyBirdDueISO != null && { earlyBirdDueISO: r.earlyBirdDueISO }),
     ...(r.earlyBirdFeeHKD != null && { earlyBirdFeeHKD: r.earlyBirdFeeHKD }),
     ...(r.archived && { archived: r.archived }),
+    ...(r.skipPlida && { skipPlida: r.skipPlida }),
     ...(r.continuationOf != null && { continuationOf: r.continuationOf }),
   };
 }
@@ -59,6 +60,7 @@ export function courseToRow(c: Course): NewCourseRow {
     earlyBirdDueISO: c.earlyBirdDueISO ?? null,
     earlyBirdFeeHKD: c.earlyBirdFeeHKD ?? null,
     archived: c.archived ?? false,
+    skipPlida: c.skipPlida ?? false,
     continuationOf: c.continuationOf ?? null,
   };
 }
