@@ -41,7 +41,7 @@ const en = {
     { label: "1,500+ students",        detail: "Hong Kong's largest" },
   ],
   courses: {
-    eyebrow: "Four ways to learn",
+    eyebrow: "Six ways to learn",
     titleLead: "",
     titleHighlight: "Find",
     titleTail: " your course.",
@@ -49,8 +49,11 @@ const en = {
     circles: {
       groups:    { tag: "Most popular", label: "Groups" },
       private:   { tag: "Flexible",     label: "Private" },
-      latin:     { tag: "Classical",    label: "Latin" },
+      kids:      { tag: "Ages 7–15",    label: "Kids & Teens" },
+      online:    { tag: "From home",    label: "Online" },
       corporate: { tag: "For teams",    label: "Corporate" },
+      special:   { tag: "By topic",     label: "Special Courses" },
+      latin:     { tag: "Classical",    label: "Latin" },
     },
   },
   membership: {
@@ -192,7 +195,7 @@ const zh: typeof en = {
     { label: "1,500+ 學員",          detail: "全港最大意大利文學習社群" },
   ],
   courses: {
-    eyebrow: "四種學習方式",
+    eyebrow: "六種學習方式",
     titleLead: "",
     titleHighlight: "選擇",
     titleTail: "你的課程。",
@@ -200,8 +203,11 @@ const zh: typeof en = {
     circles: {
       groups:    { tag: "最受歡迎", label: "小組班" },
       private:   { tag: "時間靈活", label: "私人課" },
-      latin:     { tag: "古典文化", label: "拉丁文" },
+      kids:      { tag: "7–15 歲",  label: "兒童及青少年" },
+      online:    { tag: "網上授課", label: "網上課程" },
       corporate: { tag: "企業團隊", label: "企業課" },
+      special:   { tag: "主題課程", label: "特別課程" },
+      latin:     { tag: "古典文化", label: "拉丁文" },
     },
   },
   membership: {

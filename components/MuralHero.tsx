@@ -1,9 +1,11 @@
 "use client";
 import Link from "next/link";
-import { ArrowRight, Sparkles, Star } from "lucide-react";
+import { ArrowRight, Sparkles, Star, Users, MapPin, Award } from "lucide-react";
 import HeroCarousel from "./HeroCarousel";
 import { useSiteContent } from "@/lib/site-content";
 import { useT, localizePath } from "@/lib/locale";
+
+const TRUST_ICON = [Star, Users, MapPin, Award];
 
 export default function MuralHero() {
   const { hero: heroSite } = useSiteContent();
@@ -22,8 +24,8 @@ export default function MuralHero() {
   };
 
   return (
-    <section className="relative bg-ink overflow-hidden min-h-[540px] md:min-h-[720px] lg:min-h-[760px] -mt-16 md:-mt-20">
-      {/* Full-bleed photo carousel */}
+    <section className="relative bg-ink overflow-hidden min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-5rem)] -mt-16 md:-mt-20">
+      {/* Full-bleed photo carousel background */}
       <div className="absolute inset-0">
         <HeroCarousel />
       </div>
@@ -34,21 +36,27 @@ export default function MuralHero() {
         aria-hidden
         style={{
           background:
-            "linear-gradient(180deg, rgba(255,251,240,0.55) 0%, rgba(255,251,240,0.12) 140px, rgba(255,251,240,0) 200px), linear-gradient(90deg, rgba(255,251,240,0.98) 0%, rgba(255,251,240,0.92) 32%, rgba(255,251,240,0.55) 52%, rgba(255,251,240,0) 72%)",
+            "linear-gradient(90deg, rgba(255,251,240,0.97) 0%, rgba(255,251,240,0.9) 30%, rgba(255,251,240,0.55) 50%, rgba(255,251,240,0.08) 70%, rgba(255,251,240,0) 88%)",
         }}
       />
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-ink/40 z-[5]" aria-hidden />
+      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-ink/25 z-[5]" aria-hidden />
+
+      {/* Wave rising directly out of the photo — transparent above the curve, no flat colour band */}
+      <div className="absolute inset-x-0 bottom-0 z-[7] -mb-px" aria-hidden>
+        <svg viewBox="0 0 1440 96" className="block w-full h-16 md:h-20" preserveAspectRatio="none">
+          <path d="M0,64 C240,96 480,32 720,48 C960,64 1200,96 1440,56 L1440,96 L0,96 Z" fill="#FFFFFF" />
+        </svg>
+      </div>
 
       {/* Floating brand dots */}
-      <div className="absolute top-14 right-[10%] w-20 h-20 rounded-full bg-azzurro opacity-70 blur-[1px] float-a hidden md:block z-[6]" aria-hidden />
-      <div className="absolute bottom-[22%] right-[32%] w-12 h-12 rounded-full bg-sole opacity-80 float-b hidden md:block z-[6]" aria-hidden />
-      <div className="absolute top-[40%] right-[8%] w-4 h-4 rounded-full bg-azzurro float-b hidden md:block z-[6]" aria-hidden />
+      <div className="absolute top-24 right-[10%] w-16 h-16 rounded-full bg-azzurro opacity-70 blur-[1px] float-a hidden lg:block z-[6]" aria-hidden />
+      <div className="absolute bottom-[26%] right-[28%] w-10 h-10 rounded-full bg-sole opacity-80 float-b hidden lg:block z-[6]" aria-hidden />
 
       {/* Brand-yellow accent bar at the very top */}
       <div className="absolute top-0 inset-x-0 h-1 bg-sole z-[6]" aria-hidden />
 
       {/* Content */}
-      <div className="container-xl relative z-10 pt-24 md:pt-44 pb-16 md:pb-28 min-h-[540px] md:min-h-[720px] lg:min-h-[760px] flex items-center">
+      <div className="container-xl relative z-10 pt-24 md:pt-28 pb-14 md:pb-16 min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-5rem)] flex items-center">
         <div className="max-w-[600px]">
           <p className="eyebrow flex items-center gap-2">
             <Sparkles size={14} className="text-ink" aria-hidden />
@@ -80,14 +88,19 @@ export default function MuralHero() {
             </Link>
           </div>
 
-          <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-[14px] text-ink-muted">
-            {hero.trust.map((item, i, arr) => (
-              <span key={`${item}-${i}`} className="inline-flex items-center gap-1.5">
-                {i === 0 && <Star size={15} className="fill-sole text-sole" aria-hidden />}
-                {item}
-                {i < arr.length - 1 && <span className="text-ink-soft ml-3">·</span>}
-              </span>
-            ))}
+          {/* Trust stats */}
+          <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-3 max-w-[560px]">
+            {hero.trust.map((item, i) => {
+              const Icon = TRUST_ICON[i] ?? Star;
+              return (
+                <div key={item} className="flex items-center gap-2.5">
+                  <span className="w-9 h-9 rounded-full bg-white border border-line inline-flex items-center justify-center shrink-0">
+                    <Icon size={15} className="text-azzurro-deep" aria-hidden />
+                  </span>
+                  <span className="text-[13px] font-medium text-ink leading-tight">{item}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

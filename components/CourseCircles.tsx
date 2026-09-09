@@ -17,11 +17,19 @@ const iconPrivate = (
     <circle cx="62" cy="20" r="4" fill="currentColor" opacity="0.8" />
   </svg>
 );
-const iconLatin = (
+const iconKids = (
   <svg viewBox="0 0 80 80" className="w-full h-full">
-    <rect x="16" y="18" width="48" height="44" rx="4" fill="currentColor" opacity="0.9" />
-    <path d="M22 30 h36 M22 40 h32 M22 50 h28" stroke="var(--color-cream)" strokeWidth="3" strokeLinecap="round" />
-    <circle cx="14" cy="14" r="3" fill="currentColor" opacity="0.6" />
+    <circle cx="24" cy="30" r="8" fill="currentColor" opacity="0.85" />
+    <circle cx="46" cy="26" r="9" fill="currentColor" />
+    <path d="M10 64 Q 24 50 38 58 Q 52 46 70 58 L 70 68 L 10 68 Z" fill="currentColor" opacity="0.8" />
+    <path d="M46 12 l3 5 l5 1 l-4 4 l1 5 l-5 -3 l-5 3 l1 -5 l-4 -4 l5 -1 Z" fill="currentColor" />
+  </svg>
+);
+const iconOnline = (
+  <svg viewBox="0 0 80 80" className="w-full h-full">
+    <rect x="12" y="18" width="56" height="36" rx="4" fill="currentColor" opacity="0.9" />
+    <rect x="20" y="26" width="40" height="20" rx="2" fill="var(--color-cream)" />
+    <path d="M28 62 h24 M34 62 v6 M46 62 v6" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
   </svg>
 );
 const iconCorporate = (
@@ -30,6 +38,11 @@ const iconCorporate = (
     <rect x="34" y="18" width="18" height="46" fill="currentColor" />
     <rect x="56" y="34" width="16" height="30" fill="currentColor" opacity="0.75" />
     <circle cx="21" cy="22" r="3" fill="currentColor" opacity="0.6" />
+  </svg>
+);
+const iconSpecial = (
+  <svg viewBox="0 0 80 80" className="w-full h-full">
+    <path d="M40 10 l7 16 l17 2 l-13 12 l4 17 l-15 -9 l-15 9 l4 -17 l-13 -12 l17 -2 Z" fill="currentColor" />
   </svg>
 );
 
@@ -44,11 +57,13 @@ export default function CourseCircles() {
         </h2>
         <p className="mt-4 text-ink-muted max-w-xl mx-auto">{t.courses.subtitle}</p>
 
-        <div className="mt-12 md:mt-16 grid grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 max-w-5xl mx-auto">
+        <div className="mt-12 md:mt-16 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-10 md:gap-8 max-w-6xl mx-auto">
           <CourseCircle tag={t.courses.circles.groups.tag}    label={t.courses.circles.groups.label}    href={localizePath("/courses/italian/adult-groups", locale)} tone="blue"   icon={iconGroup} />
           <CourseCircle tag={t.courses.circles.private.tag}   label={t.courses.circles.private.label}   href={localizePath("/courses/italian/private", locale)}      tone="cream"  icon={iconPrivate} />
-          <CourseCircle tag={t.courses.circles.latin.tag}     label={t.courses.circles.latin.label}     href={localizePath("/courses/latin/groups", locale)}         tone="yellow" icon={iconLatin} />
+          <CourseCircle tag={t.courses.circles.kids.tag}      label={t.courses.circles.kids.label}      href={localizePath("/courses/italian/kids", locale)}         tone="yellow" icon={iconKids} />
+          <CourseCircle tag={t.courses.circles.online.tag}    label={t.courses.circles.online.label}    href={localizePath("/courses/italian/online", locale)}       tone="white"  icon={iconOnline} />
           <CourseCircle tag={t.courses.circles.corporate.tag} label={t.courses.circles.corporate.label} href={localizePath("/courses/italian/corporate", locale)}    tone="white"  icon={iconCorporate} />
+          <CourseCircle tag={t.courses.circles.special.tag}   label={t.courses.circles.special.label}   href={localizePath("/courses/italian/special", locale)}      tone="cream"  icon={iconSpecial} />
         </div>
       </div>
     </section>
