@@ -69,12 +69,32 @@ export const courses = pgTable("courses", {
   earlyBirdDueISO: text("early_bird_due_iso"),
   earlyBirdFeeHKD: integer("early_bird_fee_hkd"),
   archived: boolean("archived").notNull().default(false),
+  // When true, this class also skips its sessions that fall on PLIDA exam days
+  // (not every class does — some carry on as normal). Nullable + default false so
+  // it is a purely additive migration; existing courses read as "don't skip".
+  skipPlida: boolean("skip_plida").default(false),
   continuationOf: text("continuation_of"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type CourseRow = typeof courses.$inferSelect;
 export type NewCourseRow = typeof courses.$inferInsert;
+
+// -------------------- Closures --------------------
+// The days the course scheduler skips, shared across every computer (replacing
+// the old per-browser store). kind = "holiday" (public holidays + school
+// closures, which may span a range via endDate) or "plida" (exam days).
+export const closures = pgTable("closures", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  kind: text("kind").notNull(),                 // "holiday" | "plida"
+  date: text("date").notNull(),                 // "YYYY-MM-DD" (start day)
+  endDate: text("end_date"),                    // last day, inclusive, for a multi-day break
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type ClosureRow = typeof closures.$inferSelect;
+export type NewClosureRow = typeof closures.$inferInsert;
 
 // -------------------- Enquiries --------------------
 // One inbox for every "I'm interested" form on the site — course, private, PLIDA,

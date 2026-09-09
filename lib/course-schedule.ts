@@ -4,7 +4,6 @@
 // skipping public holidays, carrying over teacher / time / fee / early-bird.
 
 import type { Course, CEFRLevel } from "@/lib/data";
-import { holidaySet } from "@/lib/holidays";
 
 // The CEFR progression used to pick the "next" course.
 export const LEVEL_SEQUENCE: CEFRLevel[] = [
@@ -135,7 +134,8 @@ export function generateContinuation(
   const weekday = courseWeekday(parent);
   if (weekday === null) return null;
 
-  const holidays = opts?.holidays ?? holidaySet();
+  // Callers pass the loaded closures set; default to none if not provided.
+  const holidays = opts?.holidays ?? new Set<string>();
   const gapWeeks = opts?.gapWeeks ?? 1;
   const { startTime, endTime } = courseTimes(parent);
   const lessons = courseLessons(parent);

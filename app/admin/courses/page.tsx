@@ -2,16 +2,43 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Trash2, Pencil, CheckCircle2, ExternalLink, X, CalendarPlus, Archive } from "lucide-react";
+import { Plus, Search, Trash2, Pencil, CheckCircle2, ExternalLink, X, CalendarPlus, Archive, Download } from "lucide-react";
 import { getCourses, removeCourse, addCourse, updateCourse } from "@/lib/admin-store";
 import { setSeatsLeft } from "@/lib/course-actions";
 import type { Course, Language, CourseType } from "@/lib/data";
 import { formatHKD } from "@/lib/utils";
 import { nextLevel, generateContinuation, hasStarted, isUpcoming, todayISO } from "@/lib/course-schedule";
+import { holidaySet } from "@/lib/holidays";
+import { plidaDateSet } from "@/lib/plida-dates";
+import { useClosures } from "@/lib/use-closures";
 
 function errText(e: unknown) {
   const m = e instanceof Error ? e.message : String(e);
   return /Not authorised/i.test(m) ? "You need to be signed in as an owner or manager to change courses. Please sign in first." : m;
+}
+
+// Course list -> CSV. This is the "export the course list" step in the school's
+// current workflow (paste into ScuolaSemplice by hand); the columns are the ones
+// someone re-keying a class over there needs. Once the ScuolaSemplice API is
+// switched on, the same rows go straight across and this becomes the backup.
+function coursesToCSV(rows: Course[]) {
+  const head = [
+    "Course code", "Title", "Language", "Type", "Level", "Teacher",
+    "Start", "End", "Day & time", "Location", "Price HKD", "Capacity", "Enrolled", "Status",
+  ];
+  const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const lines = rows.map((c) =>
+    [c.courseCode ?? "", c.title, c.language, c.type, c.level, c.teacher,
+     c.startISO, c.endISO, c.dayLabel, c.location, c.priceHKD, c.seats, c.enrolled, c.status]
+      .map(esc).join(","));
+  return [head.join(","), ...lines].join("\n");
+}
+function downloadCoursesCSV(rows: Course[]) {
+  const blob = new Blob([coursesToCSV(rows)], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `courses-${todayISO()}.csv`; a.click();
+  URL.revokeObjectURL(url);
 }
 
 export default function AdminCoursesList() {
@@ -40,6 +67,15 @@ export default function AdminCoursesList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const { holidays: holidayList, plida: plidaList } = useClosures();
+  // The skip-set for a course's continuation: shared holidays, plus PLIDA days
+  // when that course pauses for them (the continuation inherits the flag).
+  function skipSetFor(c: Course): Set<string> {
+    const s = holidaySet(holidayList);
+    if (c.skipPlida) for (const d of plidaDateSet(plidaList)) s.add(d);
+    return s;
+  }
+
   const hasContinuation = (id: string) => courses.some((c) => c.continuationOf === id);
 
   const filtered = useMemo(() => courses.filter((c) => {
@@ -65,7 +101,7 @@ export default function AdminCoursesList() {
 
   // Generate the next-level continuation of a course as a draft, then open it for review.
   async function createNext(c: Course) {
-    const cont = generateContinuation(c);
+    const cont = generateContinuation(c, { holidays: skipSetFor(c) });
     if (!cont) return;
     setErr(null);
     try {
@@ -84,7 +120,7 @@ export default function AdminCoursesList() {
       for (const c of needRollover) {
         await updateCourse(c.id, { archived: true });
         if (nextLevel(c.level) && !hasContinuation(c.id)) {
-          const cont = generateContinuation(c);
+          const cont = generateContinuation(c, { holidays: skipSetFor(c) });
           if (cont) { await addCourse(cont); gen++; }
         }
       }
@@ -142,7 +178,12 @@ export default function AdminCoursesList() {
           <p className="eyebrow">Admin · Courses</p>
           <h1 className="mt-2 text-3xl md:text-4xl">All courses.</h1>
         </div>
-        <Link href="/admin/courses/new" className="btn btn-primary"><Plus size={16} /> New course</Link>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => downloadCoursesCSV(filtered)} disabled={!filtered.length} className="btn btn-ghost disabled:opacity-40" title="Download the courses shown as a spreadsheet">
+            <Download size={16} /> Export CSV
+          </button>
+          <Link href="/admin/courses/new" className="btn btn-primary"><Plus size={16} /> New course</Link>
+        </div>
       </div>
 
       {/* Filters */}
@@ -179,6 +220,7 @@ export default function AdminCoursesList() {
           <table className="w-full text-sm">
             <thead className="bg-cream-2 text-xs uppercase tracking-wider text-ink-muted">
               <tr>
+                <th className="px-5 py-3 text-left font-medium">Code</th>
                 <th className="px-5 py-3 text-left font-medium">Title</th>
                 <th className="px-5 py-3 text-left font-medium">Level</th>
                 <th className="px-5 py-3 text-left font-medium">Schedule</th>
@@ -191,7 +233,7 @@ export default function AdminCoursesList() {
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={8} className="p-10 text-center text-ink-muted">No courses match your filters.</td></tr>
+                <tr><td colSpan={9} className="p-10 text-center text-ink-muted">No courses match your filters.</td></tr>
               )}
               {filtered.map((c) => {
                 const started = hasStarted(c, today);
@@ -199,9 +241,13 @@ export default function AdminCoursesList() {
                 const nextMade = hasContinuation(c.id);
                 return (
                   <tr key={c.id} className={`border-t border-line hover:bg-cream-2/30 ${c.archived ? "opacity-60" : ""}`}>
+                    <td className="px-5 py-4">
+                      {c.courseCode
+                        ? <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-azzurro-soft text-azzurro-deep whitespace-nowrap">{c.courseCode}</span>
+                        : <span className="text-ink-soft">—</span>}
+                    </td>
                     <td className="px-5 py-4 font-medium">
                       {c.title}
-                      {c.courseCode && <span className="ml-2 align-middle font-mono text-[11px] text-ink-soft">{c.courseCode}</span>}
                       {c.status === "Draft" && (
                         <span className="ml-2 align-middle px-2 py-0.5 rounded-full text-[11px] font-medium bg-cream-2 border border-line text-ink-muted">Draft</span>
                       )}

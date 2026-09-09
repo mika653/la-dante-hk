@@ -7,6 +7,8 @@ import { getCourses, updateCourse } from "@/lib/admin-store";
 import type { Course, Language, CourseType } from "@/lib/data";
 import { computeEndDate, parseDayLabel, weekdayOf, daysBetween } from "@/lib/course-schedule";
 import { holidaySet } from "@/lib/holidays";
+import { plidaDateSet } from "@/lib/plida-dates";
+import { useClosures } from "@/lib/use-closures";
 import CourseSchedulePreview from "@/components/CourseSchedulePreview";
 
 const TYPES: Array<{ v: CourseType; l: string }> = [
@@ -54,6 +56,8 @@ export default function EditCourseClient({ id }: { id: string }) {
   const [lessons, setLessons] = useState<number | "">("");
   const [earlyBirdDueISO, setEarlyBirdDueISO] = useState("");
   const [earlyBirdFeeHKD, setEarlyBirdFeeHKD] = useState<number | "">("");
+  const [skipPlida, setSkipPlida] = useState(false);
+  const { holidays: holidayList, plida: plidaList } = useClosures();
 
   useEffect(() => {
     let alive = true;
@@ -80,23 +84,40 @@ export default function EditCourseClient({ id }: { id: string }) {
       setLessons(typeof c.lessons === "number" ? c.lessons : "");
       setEarlyBirdDueISO((c.earlyBirdDueISO || "").slice(0, 10));
       setEarlyBirdFeeHKD(typeof c.earlyBirdFeeHKD === "number" ? c.earlyBirdFeeHKD : "");
+      setSkipPlida(!!c.skipPlida);
     }).catch(() => { if (alive) setNotFound(true); });
     return () => { alive = false; };
   }, [id]);
 
-  // Recompute the end date weekly from the start, weeks, and weekday — skipping public holidays.
+  // Dates the scheduler skips: public holidays + PLIDA exam days when this class pauses for them.
+  function skipDates(skip: boolean = skipPlida): Set<string> {
+    const s = holidaySet(holidayList);
+    if (skip) for (const d of plidaDateSet(plidaList)) s.add(d);
+    return s;
+  }
+
+  // Toggle the PLIDA skip and refresh the end date with the new setting.
+  function toggleSkipPlida(checked: boolean) {
+    setSkipPlida(checked);
+    if (!startISO) return;
+    const weekday = parseDayLabel(dayLabel).weekday ?? weekdayOf(startISO);
+    const n = lessons === "" ? 10 : Number(lessons);
+    setEndISO(computeEndDate(startISO, weekday, n, skipDates(checked)));
+  }
+
+  // Recompute the end date weekly from the start, weeks, and weekday — skipping closures.
   function recomputeEnd() {
     if (!startISO) return;
     const weekday = parseDayLabel(dayLabel).weekday ?? weekdayOf(startISO);
     const n = lessons === "" ? 10 : Number(lessons);
-    setEndISO(computeEndDate(startISO, weekday, n, holidaySet()));
+    setEndISO(computeEndDate(startISO, weekday, n, skipDates()));
   }
 
   // Auto-fill the end date when the start date or duration (weeks) changes.
   function autoEnd(startVal: string, weeksVal: number | "") {
     if (!startVal || weeksVal === "") return;
     const weekday = parseDayLabel(dayLabel).weekday ?? weekdayOf(startVal);
-    setEndISO(computeEndDate(startVal, weekday, Number(weeksVal), holidaySet()));
+    setEndISO(computeEndDate(startVal, weekday, Number(weeksVal), skipDates()));
   }
 
   async function save() {
@@ -121,6 +142,7 @@ export default function EditCourseClient({ id }: { id: string }) {
       lessons: lessons === "" ? undefined : Number(lessons),
       earlyBirdDueISO: earlyBirdDueISO || undefined,
       earlyBirdFeeHKD: earlyBirdFeeHKD === "" ? undefined : Number(earlyBirdFeeHKD),
+      skipPlida,
     });
     const msg = status === "Draft"
       ? `Saved changes to "${title}". It's a draft — not live yet.`
@@ -247,8 +269,19 @@ export default function EditCourseClient({ id }: { id: string }) {
             </label>
           </div>
           <button type="button" onClick={recomputeEnd} className="mt-2 inline-flex items-center gap-1.5 text-xs text-azzurro-deep hover:underline">
-            <RefreshCw size={12} /> Recalculate end date from weeks (skips public holidays)
+            <RefreshCw size={12} /> Recalculate end date from weeks (skips holidays &amp; closures)
           </button>
+        </div>
+
+        {/* Skip PLIDA */}
+        <div className="rounded-2xl border border-line bg-cream-2/40 p-4 md:p-5">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" checked={skipPlida} onChange={(e) => toggleSkipPlida(e.target.checked)} className="mt-1 accent-azzurro-deep w-4 h-4" />
+            <span className="text-sm">
+              <b>Skip sessions on PLIDA exam days.</b>
+              <span className="block text-ink-muted mt-0.5">This class won&apos;t meet on official PLIDA exam dates — it just runs a week longer. Dates come from your <Link href="/admin/holidays" className="text-azzurro-deep underline">holidays &amp; exam days</Link> list.</span>
+            </span>
+          </label>
         </div>
 
         {/* Schedule preview */}
@@ -258,6 +291,7 @@ export default function EditCourseClient({ id }: { id: string }) {
             startISO={startISO}
             weekday={parseDayLabel(dayLabel).weekday ?? (startISO ? weekdayOf(startISO) : null)}
             lessons={lessons !== "" ? Number(lessons) : (startISO && endISO ? Math.max(1, Math.floor(daysBetween(startISO, endISO) / 7) + 1) : 0)}
+            holidays={skipPlida ? [...holidayList, ...plidaList] : holidayList}
           />
         </div>
 
