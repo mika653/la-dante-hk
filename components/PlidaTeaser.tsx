@@ -2,12 +2,27 @@
 import Link from "next/link";
 import { ArrowRight, CalendarClock } from "lucide-react";
 import { useT, localizePath } from "@/lib/locale";
+import { useClosures } from "@/lib/use-closures";
+import { todayISO, addDays } from "@/lib/course-schedule";
 
 const LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+function fmtEn(iso: string) { const [y, m, d] = iso.split("-").map(Number); return `${d} ${MONTHS_EN[m - 1]} ${y}`; }
+function fmtZh(iso: string) { const [y, m, d] = iso.split("-").map(Number); return `${y} 年 ${m} 月 ${d} 日`; }
 
 export default function PlidaTeaser() {
   const { locale } = useT();
   const isZh = locale === "zh";
+
+  // Next PLIDA sitting comes from the shared exam-days list (edited in /admin/holidays),
+  // never hard-coded. Deadline follows their published rule: five weeks before the exam.
+  const { plida } = useClosures();
+  const today = todayISO();
+  const next = [...plida].sort((a, b) => a.date.localeCompare(b.date)).find((p) => p.date >= today) ?? null;
+  const examDate = next ? (isZh ? fmtZh(next.date) : fmtEn(next.date)) : (isZh ? "日期待公佈" : "To be announced");
+  const deadline = next
+    ? (isZh ? `報名截止：${fmtZh(addDays(next.date, -35))}` : `Registration deadline: ${fmtEn(addDays(next.date, -35))}`)
+    : (isZh ? "報名詳情即將公佈" : "Registration details coming soon");
   return (
     <section className="bg-white py-16 md:py-20">
       <div className="container-xl">
@@ -38,8 +53,8 @@ export default function PlidaTeaser() {
 
           <div className="text-center md:text-right">
             <p className="eyebrow flex items-center gap-1.5 justify-center md:justify-end !text-ink-muted"><CalendarClock size={13} aria-hidden /> {isZh ? "考試日期" : "Exam Date"}</p>
-            <p className="mt-2 text-2xl font-heading font-bold">{isZh ? "2026 年 11 月 15 日" : "15 November 2026"}</p>
-            <p className="mt-1 text-[13px] text-ink-muted">{isZh ? "報名截止：2026 年 10 月 10 日" : "Registration deadline: 10 October 2026"}</p>
+            <p className="mt-2 text-2xl font-heading font-bold">{examDate}</p>
+            <p className="mt-1 text-[13px] text-ink-muted">{deadline}</p>
           </div>
         </div>
       </div>
