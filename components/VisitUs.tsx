@@ -16,7 +16,7 @@ export default function VisitUs() {
 
         <div className="frame bg-white p-6 md:p-8">
           <p className="eyebrow !text-azzurro-deep">{t.footer.visit}</p>
-          <h2 className="mt-2 text-2xl md:text-3xl font-heading font-bold">{"We're in the Heart of Wanchai"}</h2>
+          <h2 className="mt-2 text-2xl md:text-3xl font-heading font-bold" style={{ textWrap: "balance" }}>{t.footer.heartOfWanchai}</h2>
           <p className="mt-3 flex items-start gap-2 text-[14px] text-ink-muted">
             <MapPin size={16} className="shrink-0 mt-0.5 text-azzurro-deep" aria-hidden />
             {t.footer.address}
@@ -27,7 +27,7 @@ export default function VisitUs() {
             rel="noopener noreferrer"
             className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-azzurro-deep hover:underline"
           >
-            Get directions <ArrowUpRight size={14} />
+            {t.footer.getDirections} <ArrowUpRight size={14} />
           </a>
 
           <div className="mt-6 rounded-2xl overflow-hidden border border-line h-40">
@@ -44,7 +44,7 @@ export default function VisitUs() {
         </div>
 
         <div className="frame bg-white p-6 md:p-8">
-          <p className="eyebrow !text-azzurro-deep">Opening Hours</p>
+          <p className="eyebrow !text-azzurro-deep">{t.footer.openingHours}</p>
           <p className="mt-3 text-[14px] text-ink-muted whitespace-pre-line">{t.footer.hours.replace(/ · /g, "\n")}</p>
 
           <div className="mt-6 space-y-3 text-[14px]">
