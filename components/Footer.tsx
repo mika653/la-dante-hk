@@ -125,7 +125,6 @@ export default function Footer() {
             <Link href="/cookie-policy" className="hover:text-azzurro-deep">Cookies</Link>
             <Link href={lp("/terms")} className="hover:text-azzurro-deep">{t.footer.terms}</Link>
             <Link href={lp("/bad-weather")} className="hover:text-azzurro-deep">{t.footer.typhoon}</Link>
-            <Link href="/login" className="hover:text-azzurro-deep">{t.footer.staffLogin}</Link>
           </div>
         </div>
       </div>
