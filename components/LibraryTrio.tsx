@@ -5,9 +5,9 @@ import { useT, localizePath } from "@/lib/locale";
 import { useSiteContent } from "@/lib/site-content";
 import PhotoMosaic from "@/components/PhotoMosaic";
 
-// "Il Salotto di Dante" — the library & book-club section, styled to the team's
-// mockup: a tilted photo collage beside a yellow panel with a bold title,
-// subtitle and a black pill CTA.
+// "Il Salotto di Dante" — the library & book-club section. The tilted photo
+// collage bleeds off the left edge and spans the full height of the yellow
+// section; the title, subtitle and pill CTA sit on the yellow to the right.
 export default function LibraryTrio() {
   const { t, locale } = useT();
   const { sectionPhotos } = useSiteContent();
@@ -18,35 +18,42 @@ export default function LibraryTrio() {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-sole">
-      <div className="container-xl py-16 md:py-24">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          {/* Content on the yellow */}
-          <div className="order-1 lg:order-2 max-w-lg mx-auto lg:mx-0 text-center lg:text-left">
-            <h2 className="font-heading font-bold text-ink leading-[0.95] text-4xl sm:text-5xl lg:text-6xl text-balance">
-              {t.library.name}
-            </h2>
-            <p className="mt-4 text-lg md:text-2xl text-ink/70">{t.library.subtitle}</p>
+    <section className="relative overflow-hidden bg-sole lg:min-h-[560px]">
+      {/* Desktop: collage bleeds to the left edge, full top-to-bottom height */}
+      <div className="hidden lg:block absolute inset-y-0 left-0 w-[56%] overflow-hidden" aria-hidden>
+        <div className="absolute inset-0 flex items-center justify-start">
+          <PhotoMosaic images={sectionPhotos.mosaic} tile={190} />
+        </div>
+        {/* Fade the collage into the yellow so the text reads cleanly */}
+        <div className="absolute inset-y-0 right-0 w-56 bg-gradient-to-l from-sole to-transparent" />
+      </div>
 
-            <div className="mt-6 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-sm font-medium text-ink">
-              {links.map((l) => (
-                <Link key={l.label} href={localizePath(l.href, locale)} className="underline decoration-ink/30 underline-offset-4 hover:decoration-ink">
-                  {l.label}
-                </Link>
-              ))}
-            </div>
+      {/* Content on the yellow (right half on desktop) */}
+      <div className="container-xl relative z-10 py-16 md:py-24 lg:min-h-[560px] flex items-center">
+        <div className="lg:ml-[52%] lg:pl-4 max-w-lg mx-auto lg:mx-0 text-center lg:text-left">
+          <h2 className="font-heading font-bold text-ink leading-[0.95] text-4xl sm:text-5xl lg:text-6xl text-balance">
+            {t.library.name}
+          </h2>
+          <p className="mt-4 text-lg md:text-2xl text-ink/70">{t.library.subtitle}</p>
 
-            <Link href={localizePath("/culture", locale)} className="btn btn-primary mt-8">
-              {t.library.cta} <ArrowRight size={16} />
-            </Link>
+          <div className="mt-6 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-sm font-medium text-ink">
+            {links.map((l) => (
+              <Link key={l.label} href={localizePath(l.href, locale)} className="underline decoration-ink/30 underline-offset-4 hover:decoration-ink">
+                {l.label}
+              </Link>
+            ))}
           </div>
 
-          {/* Tilted photo mosaic */}
-          <div className="order-2 lg:order-1 relative h-[360px] sm:h-[440px] lg:h-[560px] overflow-hidden rounded-3xl">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <PhotoMosaic images={sectionPhotos.mosaic} />
-            </div>
-          </div>
+          <Link href={localizePath("/culture", locale)} className="btn btn-primary mt-8">
+            {t.library.cta} <ArrowRight size={16} />
+          </Link>
+        </div>
+      </div>
+
+      {/* Mobile: full-bleed collage band under the content (no rounded box) */}
+      <div className="lg:hidden relative h-[300px] overflow-hidden" aria-hidden>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <PhotoMosaic images={sectionPhotos.mosaic} />
         </div>
       </div>
     </section>
