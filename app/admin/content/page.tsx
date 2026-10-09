@@ -1,10 +1,11 @@
 "use client";
 import Link from "next/link";
-import { ArrowRight, Image as ImageIcon, Megaphone, Newspaper, PaintBucket, Sparkles, Type } from "lucide-react";
+import { ArrowRight, Image as ImageIcon, Images, Megaphone, Newspaper, PaintBucket, Sparkles, Type } from "lucide-react";
 
 const sections = [
   { href: "/admin/content/hero",      icon: Type,        title: "Hero section",         blurb: "Headline, subhead, CTAs, and the trust strip on the homepage." },
   { href: "/admin/content/carousel",  icon: ImageIcon,   title: "Hero carousel",        blurb: "Add, remove, and reorder the slides behind the hero." },
+  { href: "/admin/content/photos",    icon: Images,      title: "Section photos",       blurb: "Workshop card photos and the collage behind the Events & Library sections." },
   { href: "/admin/settings",          icon: Megaphone,   title: "Announcement & pop-up", blurb: "Top banner text and the entry pop-up on first visit." },
   { href: "/admin/content/featured",  icon: Sparkles,    title: "Featured cards",       blurb: "The five “Happening at Dante” cards (coming soon)", disabled: true },
   { href: "/admin/content/sponsors",  icon: PaintBucket, title: "Sponsors",             blurb: "Gold & Silver sponsor logos and order (coming soon)", disabled: true },

@@ -4,16 +4,13 @@ import { ArrowRight, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useT, localizePath } from "@/lib/locale";
-
-// PLACEHOLDER workshop photos — swap for real images (Media Library wiring next).
-const WORKSHOP_PHOTOS = [
-  "/workshops/1.jpg", "/workshops/2.jpg", "/workshops/3.jpg",
-  "/workshops/4.jpg", "/workshops/5.jpg", "/workshops/6.jpg",
-];
+import { useSiteContent } from "@/lib/site-content";
 
 export default function WorkshopsGrid() {
   const { t, locale } = useT();
   const workshops = useWorkshops();
+  const { sectionPhotos } = useSiteContent();
+  const photos = sectionPhotos.workshops;
   return (
     <section className="bg-cream py-16 md:py-24">
       <div className="container-xl">
@@ -28,11 +25,11 @@ export default function WorkshopsGrid() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {workshops.map((w, i) => {
-            const photo = WORKSHOP_PHOTOS[i % WORKSHOP_PHOTOS.length];
+            const photo = photos[i % photos.length];
             return (
             <article key={w.id} className="frame p-6 bg-white flex flex-col">
               <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-sole-soft">
-                <Image src={photo} alt="" fill sizes="(min-width: 1024px) 280px, (min-width: 640px) 45vw, 90vw" className="object-cover" />
+                <Image src={photo} alt="" fill sizes="(min-width: 1024px) 280px, (min-width: 640px) 45vw, 90vw" unoptimized={photo.startsWith("http")} className="object-cover" />
               </div>
               <div className="mt-5 flex items-center gap-2 text-xs">
                 {w.status === "planned" ? (

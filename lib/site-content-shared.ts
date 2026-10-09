@@ -14,7 +14,10 @@ export type HeroContent = {
 
 export type CarouselSlide = { id: string; src: string; alt: string; caption: string };
 
-export type SiteContent = { hero: HeroContent; carousel: CarouselSlide[] };
+// Editable photo sets for homepage sections (swappable from the Media Library).
+export type SectionPhotos = { workshops: string[]; mosaic: string[] };
+
+export type SiteContent = { hero: HeroContent; carousel: CarouselSlide[]; sectionPhotos: SectionPhotos };
 
 export const defaultHero: HeroContent = {
   eyebrow: "Italiano · Latino · Hong Kong · 1935",
@@ -35,13 +38,27 @@ export const defaultCarousel: CarouselSlide[] = [
   { id: "s4", src: "/mural.png", alt: "The La Dante mural — Hong Kong skyline merged with Italian landmarks.", caption: "Il nostro murales — where Hong Kong meets Italy" },
 ];
 
-export const defaultSiteContent: SiteContent = { hero: defaultHero, carousel: defaultCarousel };
+export const defaultSectionPhotos: SectionPhotos = {
+  workshops: ["/workshops/1.jpg", "/workshops/2.jpg", "/workshops/3.jpg", "/workshops/4.jpg", "/workshops/5.jpg", "/workshops/6.jpg"],
+  mosaic: ["/mosaic/1.jpg", "/mosaic/2.jpg", "/mosaic/3.jpg", "/mosaic/4.jpg", "/mosaic/5.jpg", "/mosaic/6.jpg", "/mosaic/7.jpg", "/mosaic/8.jpg", "/mosaic/9.jpg", "/mosaic/10.jpg"],
+};
+
+export const defaultSiteContent: SiteContent = { hero: defaultHero, carousel: defaultCarousel, sectionPhotos: defaultSectionPhotos };
 
 // Merge stored/partial content over the defaults so a missing field never blanks the page.
 export function normaliseSiteContent(parsed: unknown): SiteContent {
   const p = (parsed ?? {}) as Partial<SiteContent>;
+  const sp = (p.sectionPhotos ?? {}) as Partial<SectionPhotos>;
+  const nonEmpty = (a: unknown, fallback: string[]) =>
+    Array.isArray(a) && a.filter((x) => typeof x === "string" && x.trim()).length > 0
+      ? (a as string[]).filter((x) => typeof x === "string" && x.trim())
+      : fallback;
   return {
     hero: { ...defaultHero, ...(p.hero ?? {}) },
     carousel: Array.isArray(p.carousel) && p.carousel.length > 0 ? p.carousel : defaultCarousel,
+    sectionPhotos: {
+      workshops: nonEmpty(sp.workshops, defaultSectionPhotos.workshops),
+      mosaic: nonEmpty(sp.mosaic, defaultSectionPhotos.mosaic),
+    },
   };
 }

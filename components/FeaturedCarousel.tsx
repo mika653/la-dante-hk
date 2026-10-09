@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, CalendarDays, MapPin } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useT, localizePath } from "@/lib/locale";
+import { useSiteContent } from "@/lib/site-content";
 import PhotoMosaic from "@/components/PhotoMosaic";
 
 // Events / "What's on" — the team's "New term" mockup: a Dante-yellow band with
@@ -18,6 +19,7 @@ const EVENTS: { type: L; title: L; when: L; place: L }[] = [
 
 export default function FeaturedCarousel() {
   const { t, locale } = useT();
+  const { sectionPhotos } = useSiteContent();
   const isZh = locale === "zh";
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
@@ -66,7 +68,7 @@ export default function FeaturedCarousel() {
       {/* Tilted photo collage bleeding off the right edge, behind the tiles */}
       <div className="hidden lg:block absolute top-0 right-0 bottom-0 w-[52%] overflow-hidden" aria-hidden>
         <div className="absolute inset-0 flex items-center justify-end -mr-10">
-          <PhotoMosaic rotate={-11} tile={164} />
+          <PhotoMosaic rotate={-11} tile={164} images={sectionPhotos.mosaic} />
         </div>
         <div className="absolute inset-y-0 left-0 w-56 bg-gradient-to-r from-sole to-transparent" />
       </div>

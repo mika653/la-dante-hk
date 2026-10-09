@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useT, localizePath } from "@/lib/locale";
+import { useSiteContent } from "@/lib/site-content";
 import PhotoMosaic from "@/components/PhotoMosaic";
 
 // "Il Salotto di Dante" — the library & book-club section, styled to the team's
@@ -9,6 +10,7 @@ import PhotoMosaic from "@/components/PhotoMosaic";
 // subtitle and a black pill CTA.
 export default function LibraryTrio() {
   const { t, locale } = useT();
+  const { sectionPhotos } = useSiteContent();
   const links = [
     { label: t.library.bookclub, href: "/culture#bookclub" },
     { label: t.library.libraryLink, href: "/culture#library" },
@@ -42,7 +44,7 @@ export default function LibraryTrio() {
           {/* Tilted photo mosaic */}
           <div className="order-2 lg:order-1 relative h-[360px] sm:h-[440px] lg:h-[560px] overflow-hidden rounded-3xl">
             <div className="absolute inset-0 flex items-center justify-center">
-              <PhotoMosaic />
+              <PhotoMosaic images={sectionPhotos.mosaic} />
             </div>
           </div>
         </div>
