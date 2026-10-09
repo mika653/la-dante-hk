@@ -207,7 +207,7 @@ html { scroll-behavior: smooth; }
   height: 220px;
   border-radius: 9999px;
   background: var(--color-azzurro);
-  opacity: 0.42;
+  opacity: 0.22;
   filter: blur(3px);
   top: -30px;
   left: -40px;
@@ -219,7 +219,7 @@ html { scroll-behavior: smooth; }
   height: 120px;
   top: -12px;
   left: -18px;
-  opacity: 0.52;
+  opacity: 0.28;
 }
 .circle-accent-right::before {
   left: auto;
@@ -237,12 +237,12 @@ html { scroll-behavior: smooth; }
   content: "";
   position: absolute;
   z-index: -1;
-  width: 150%;
+  width: 118%;
   aspect-ratio: 1 / 1;
-  min-width: 140px;
+  min-width: 120px;
   border-radius: 9999px;
   background: var(--color-azzurro);
-  opacity: 0.42;
+  opacity: 0.2;
   filter: blur(2px);
   top: 50%;
   left: 50%;
@@ -269,7 +269,7 @@ html { scroll-behavior: smooth; }
   .float-b { animation: none; }
 }
 @media (min-width: 768px) {
-  .circle-accent-center::before { min-width: 180px; }
+  .circle-accent-center::before { min-width: 150px; }
 }
 
 /* Decorative Dante-style ring (like the logo's circle) */

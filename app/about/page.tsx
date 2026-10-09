@@ -55,7 +55,7 @@ export default function About() {
         </div>
       </section>
 
-      <section id="team" className="bg-sole-soft py-16 md:py-24">
+      <section id="team" className="bg-sole py-16 md:py-24">
         <div className="container-xl">
           <p className="eyebrow">Team & board</p>
           <h2 className="mt-3 text-3xl md:text-5xl">Faces you&apos;ll meet.</h2>

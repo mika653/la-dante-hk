@@ -55,7 +55,7 @@ export default function AboutZh() {
         </div>
       </section>
 
-      <section id="team" className="bg-sole-soft py-16 md:py-24">
+      <section id="team" className="bg-sole py-16 md:py-24">
         <div className="container-xl">
           <p className="eyebrow">團隊與董事會</p>
           <h2 className="mt-3 text-3xl md:text-5xl">你將會遇見的面孔。</h2>

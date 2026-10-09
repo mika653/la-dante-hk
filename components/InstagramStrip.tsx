@@ -20,7 +20,7 @@ export default function InstagramStrip() {
   const { t } = useT();
   const themes: string[] = t.instagram.themes;
   return (
-    <section className="bg-sole-soft py-16 md:py-24">
+    <section className="bg-sole py-16 md:py-24">
       <div className="container-xl">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
           <div>

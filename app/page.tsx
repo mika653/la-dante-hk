@@ -21,9 +21,9 @@ export default function Home() {
     <>
       <MuralHero />
       <UpcomingCourses />
-      <WaveDivider from="white" to="sole-soft" />
+      <WaveDivider from="white" to="sole" />
       <WhyLaDante />
-      <WaveDivider from="sole-soft" to="white" />
+      <WaveDivider from="sole" to="white" />
       <CourseCircles />
       <WaveDivider from="white" to="sole" />
       <LibraryTrio />
@@ -37,9 +37,9 @@ export default function Home() {
       <WorkshopsGrid />
       <WaveDivider from="cream" to="white" />
       <WordOfTheDay />
-      <WaveDivider from="white" to="sole-soft" />
+      <WaveDivider from="white" to="sole" />
       <InstagramStrip />
-      <WaveDivider from="sole-soft" to="cream" />
+      <WaveDivider from="sole" to="cream" />
       <SponsorsStrip />
       <WaveDivider from="cream" to="paper" />
       <ReviewsCarousel />

@@ -1,9 +1,15 @@
 "use client";
 import { useWorkshops } from "@/lib/use-workshops";
-import { workshopIcon } from "@/lib/workshop-icons";
 import { ArrowRight, Users } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useT, localizePath } from "@/lib/locale";
+
+// PLACEHOLDER workshop photos — swap for real images (Media Library wiring next).
+const WORKSHOP_PHOTOS = [
+  "/workshops/1.jpg", "/workshops/2.jpg", "/workshops/3.jpg",
+  "/workshops/4.jpg", "/workshops/5.jpg", "/workshops/6.jpg",
+];
 
 export default function WorkshopsGrid() {
   const { t, locale } = useT();
@@ -21,12 +27,12 @@ export default function WorkshopsGrid() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {workshops.map((w) => {
-            const Icon = workshopIcon(w.image);
+          {workshops.map((w, i) => {
+            const photo = WORKSHOP_PHOTOS[i % WORKSHOP_PHOTOS.length];
             return (
             <article key={w.id} className="frame p-6 bg-white flex flex-col">
-              <div className="aspect-[4/3] rounded-xl bg-sole-soft flex items-center justify-center" aria-hidden>
-                <Icon size={44} strokeWidth={1.5} className="text-azzurro-deep" />
+              <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-sole-soft">
+                <Image src={photo} alt="" fill sizes="(min-width: 1024px) 280px, (min-width: 640px) 45vw, 90vw" className="object-cover" />
               </div>
               <div className="mt-5 flex items-center gap-2 text-xs">
                 {w.status === "planned" ? (

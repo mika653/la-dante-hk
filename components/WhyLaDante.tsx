@@ -15,7 +15,7 @@ export default function WhyLaDante() {
   const { locale } = useT();
   const isZh = locale === "zh";
   return (
-    <section className="relative bg-sole-soft overflow-hidden py-14 md:py-20">
+    <section className="relative bg-sole overflow-hidden py-14 md:py-20">
       {/* Organic wavy background in the brand yellow */}
       <div className="absolute -top-16 right-[12%] w-[420px] h-[420px] rounded-[46%_54%_61%_39%/51%_46%_54%_49%] bg-sole/60 blur-3xl" aria-hidden />
       <div className="absolute -bottom-20 left-[6%] w-[360px] h-[360px] rounded-[55%_45%_40%_60%/45%_55%_50%_50%] bg-cream/70 blur-3xl" aria-hidden />
