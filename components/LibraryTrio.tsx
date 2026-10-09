@@ -1,44 +1,50 @@
 "use client";
 import Link from "next/link";
-import { ArrowRight, BookMarked, Library, Users } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { useT, localizePath } from "@/lib/locale";
+import PhotoMosaic from "@/components/PhotoMosaic";
 
-const items = [
-  { icon: BookMarked, title: "Bookclub", blurb: "Monthly Italian-language book discussions over wine. Open to all members, all levels.", href: "/culture#bookclub", tone: "yellow" },
-  { icon: Library,    title: "Italian Library", blurb: "Hong Kong&apos;s largest Italian-language library. 5,000+ titles, free for members.", href: "/culture#library",   tone: "white"  },
-  { icon: Users,      title: "Members-only events", blurb: "Aperitivi, film screenings, regional food tastings, and Dante lectures.", href: "/membership",         tone: "blue"   },
-] as const;
-
-const toneClass: Record<"yellow" | "white" | "blue", string> = {
-  yellow: "bg-sole-soft text-ink",
-  white:  "bg-white text-ink border border-line",
-  blue:   "bg-ink text-cream",
-};
-
-import { useT } from "@/lib/locale";
-
+// "Il Salotto di Dante" — the library & book-club section, styled to the team's
+// mockup: a tilted photo collage beside a yellow panel with a bold title,
+// subtitle and a black pill CTA.
 export default function LibraryTrio() {
-  const { t } = useT();
-  return (
-    <section className="bg-white py-16 md:py-24">
-      <div className="container-xl">
-        <div className="text-center mb-12">
-          <p className="eyebrow">{t.library.eyebrow}</p>
-          <h2 className="mt-3 text-3xl md:text-5xl">{t.library.title}</h2>
-        </div>
+  const { t, locale } = useT();
+  const links = [
+    { label: t.library.bookclub, href: "/culture#bookclub" },
+    { label: t.library.libraryLink, href: "/culture#library" },
+    { label: t.library.events, href: "/membership" },
+  ];
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {items.map(({ icon: Icon, title, blurb, href, tone }) => (
-            <Link key={title} href={href} className={`group frame p-8 ${toneClass[tone]} flex flex-col`}>
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${tone === "blue" ? "bg-cream/15" : "bg-white"}`}>
-                <Icon size={22} className={tone === "blue" ? "text-cream" : "text-azzurro-deep"} aria-hidden />
-              </div>
-              <h3 className="mt-6 text-2xl font-semibold">{title}</h3>
-              <p className={`mt-3 text-[15px] leading-relaxed flex-1 ${tone === "blue" ? "text-cream/85" : "text-ink-muted"}`} dangerouslySetInnerHTML={{ __html: blurb }} />
-              <span className={`mt-6 inline-flex items-center gap-2 text-sm font-medium ${tone === "blue" ? "text-sole" : "text-azzurro-deep"}`}>
-                Explore <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
-              </span>
+  return (
+    <section className="relative overflow-hidden bg-sole">
+      <div className="container-xl py-16 md:py-24">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          {/* Content on the yellow */}
+          <div className="order-1 lg:order-2 max-w-lg mx-auto lg:mx-0 text-center lg:text-left">
+            <h2 className="font-heading font-bold text-ink leading-[0.95] text-4xl sm:text-5xl lg:text-6xl text-balance">
+              {t.library.name}
+            </h2>
+            <p className="mt-4 text-lg md:text-2xl text-ink/70">{t.library.subtitle}</p>
+
+            <div className="mt-6 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-sm font-medium text-ink">
+              {links.map((l) => (
+                <Link key={l.label} href={localizePath(l.href, locale)} className="underline decoration-ink/30 underline-offset-4 hover:decoration-ink">
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+
+            <Link href={localizePath("/culture", locale)} className="btn btn-primary mt-8">
+              {t.library.cta} <ArrowRight size={16} />
             </Link>
-          ))}
+          </div>
+
+          {/* Tilted photo mosaic */}
+          <div className="order-2 lg:order-1 relative h-[360px] sm:h-[440px] lg:h-[560px] overflow-hidden rounded-3xl">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <PhotoMosaic />
+            </div>
+          </div>
         </div>
       </div>
     </section>

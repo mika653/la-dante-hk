@@ -25,11 +25,13 @@ export default function Home() {
       <WhyLaDante />
       <WaveDivider from="sole-soft" to="white" />
       <CourseCircles />
+      <WaveDivider from="white" to="sole" />
       <LibraryTrio />
+      <WaveDivider from="sole" to="white" />
       <PlidaTeaser />
-      <WaveDivider from="white" to="sole-soft" />
+      <WaveDivider from="white" to="sole" />
       <FeaturedCarousel />
-      <WaveDivider from="sole-soft" to="paper" />
+      <WaveDivider from="sole" to="paper" />
       <MembershipBand />
       <WaveDivider from="paper" to="cream" />
       <WorkshopsGrid />

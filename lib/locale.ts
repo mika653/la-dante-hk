@@ -84,6 +84,12 @@ const en = {
   library: {
     eyebrow: "Italy, every day",
     title: "Community, books, and bottles of wine.",
+    name: "Il Salotto di Dante",
+    subtitle: "Italian library & Book Club",
+    cta: "Discover more",
+    bookclub: "Book Club",
+    libraryLink: "Italian Library",
+    events: "Members' events",
   },
   instagram: {
     eyebrow: "@ladantehk",
@@ -109,6 +115,7 @@ const en = {
     eyebrow: "Happening at Dante",
     title: "What's on",
     seeAll: "See everything →",
+    tag: "New term",
   },
   newsletter: {
     eyebrow: "Stay in touch",
@@ -241,6 +248,12 @@ const zh: typeof en = {
   library: {
     eyebrow: "每一天的意大利",
     title: "社群、書籍,與一瓶瓶葡萄酒。",
+    name: "Il Salotto di Dante",
+    subtitle: "意大利圖書館與讀書會",
+    cta: "了解更多",
+    bookclub: "讀書會",
+    libraryLink: "意大利圖書館",
+    events: "會員活動",
   },
   instagram: {
     eyebrow: "@ladantehk",
@@ -266,6 +279,7 @@ const zh: typeof en = {
     eyebrow: "但丁的新動態",
     title: "近期活動",
     seeAll: "查看全部 →",
+    tag: "新學期",
   },
   newsletter: {
     eyebrow: "保持聯繫",
