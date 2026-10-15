@@ -163,7 +163,13 @@ h3 { font-weight: 600; }
   overflow: hidden;
   transition: transform 220ms ease-out, box-shadow 220ms ease-out;
 }
-.frame:hover { transform: translateY(-3px); box-shadow: var(--shadow-pop); }
+/* Hover: every frame just deepens its shadow — no layout shift, so the pointer
+   never loses the element and it can't "jitter". The 3px lift is limited to
+   genuinely interactive frames (links/buttons, or an explicit .frame-lift), so
+   modals and large static form containers can never flicker when the cursor
+   nears an edge. */
+.frame:hover { box-shadow: var(--shadow-pop); }
+a.frame:hover, button.frame:hover, .frame-lift:hover { transform: translateY(-3px); }
 
 /* Wave dividers */
 .wave-layer { display: block; width: 100%; height: 64px; line-height: 0; }
