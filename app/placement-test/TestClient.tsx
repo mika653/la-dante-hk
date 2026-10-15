@@ -1,7 +1,8 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { questionBank, type Question, type CEFR, levelInfo } from "@/lib/placement-questions";
+import { type Question, type CEFR, levelInfo } from "@/lib/placement-questions";
+import { usePlacementQuestions } from "@/lib/use-placement";
 import { useCourses } from "@/lib/use-courses";
 import { suggestFor, seatsLeft, formatStart } from "@/lib/placement-suggest";
 import { submitEnquiry } from "@/lib/enquiry-actions";
@@ -11,13 +12,13 @@ type Stage = "intro" | "testing" | "email" | "result";
 
 const levels: CEFR[] = ["A1", "A2", "B1", "B2", "C1"];
 
-function scoreToCEFR(answers: Record<string, number>, servedIds: string[]): { level: CEFR; breakdown: Record<string, number> } {
+function scoreToCEFR(answers: Record<string, number>, servedIds: string[], bank: Question[]): { level: CEFR; breakdown: Record<string, number> } {
   const perLevelCorrect: Record<CEFR, number> = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0 };
   const perLevelTotal:   Record<CEFR, number> = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0 };
   const perSection = { grammar: 0, vocabulary: 0, reading: 0, listening: 0 } as Record<string, number>;
   const perSectionTotal = { grammar: 0, vocabulary: 0, reading: 0, listening: 0 } as Record<string, number>;
   servedIds.forEach((id) => {
-    const q = questionBank.find((x) => x.id === id);
+    const q = bank.find((x) => x.id === id);
     if (!q) return;
     perLevelTotal[q.level]++;
     perSectionTotal[q.section]++;
@@ -38,7 +39,7 @@ function scoreToCEFR(answers: Record<string, number>, servedIds: string[]): { le
   return { level: achieved, breakdown };
 }
 
-function pickNextQuestion(servedIds: string[], currentLevel: CEFR): Question | null {
+function pickNextQuestion(servedIds: string[], currentLevel: CEFR, bank: Question[]): Question | null {
   // Adaptive: try the current level first, then neighbouring levels
   const order: CEFR[] = (() => {
     const i = levels.indexOf(currentLevel);
@@ -50,7 +51,7 @@ function pickNextQuestion(servedIds: string[], currentLevel: CEFR): Question | n
   })();
 
   for (const lv of order) {
-    const pool = questionBank.filter((q) => q.level === lv && !servedIds.includes(q.id));
+    const pool = bank.filter((q) => q.level === lv && !servedIds.includes(q.id));
     if (pool.length) return pool[Math.floor(Math.random() * pool.length)];
   }
   return null;
@@ -58,6 +59,7 @@ function pickNextQuestion(servedIds: string[], currentLevel: CEFR): Question | n
 
 export default function TestClient() {
   const courses = useCourses();
+  const bank = usePlacementQuestions();
   const [stage, setStage] = useState<Stage>("intro");
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [served, setServed] = useState<Question[]>([]);
@@ -68,10 +70,10 @@ export default function TestClient() {
   const MAX_Q = 15;
   const MIN_Q = 10;
 
-  const result = useMemo(() => (stage === "result" ? scoreToCEFR(answers, served.map((q) => q.id)) : null), [stage, answers, served]);
+  const result = useMemo(() => (stage === "result" ? scoreToCEFR(answers, served.map((q) => q.id), bank) : null), [stage, answers, served, bank]);
 
   function begin() {
-    const first = pickNextQuestion([], "A1")!;
+    const first = pickNextQuestion([], "A1", bank)!;
     setServed([first]);
     setStage("testing");
     setSelected(null);
@@ -107,7 +109,7 @@ export default function TestClient() {
       }
     }
 
-    const next = pickNextQuestion(served.map((s) => s.id), nextLvl);
+    const next = pickNextQuestion(served.map((s) => s.id), nextLvl, bank);
     if (!next) { setStage("email"); return; }
     setServed([...served, next]);
     setSelected(null);
@@ -118,7 +120,7 @@ export default function TestClient() {
   // failure here never blocks the student from seeing their result.
   function saveLead() {
     if (!email.trim()) return;
-    const { level, breakdown } = scoreToCEFR(answers, served.map((q) => q.id));
+    const { level, breakdown } = scoreToCEFR(answers, served.map((q) => q.id), bank);
     const fd = new FormData();
     fd.set("type", "placement");
     fd.set("name", name.trim() || "Placement test");

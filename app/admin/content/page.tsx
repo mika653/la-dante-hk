@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ArrowRight, Image as ImageIcon, Images, Megaphone, Newspaper, PaintBucket, Sparkles, Type } from "lucide-react";
+import { ArrowRight, Image as ImageIcon, Images, Megaphone, Newspaper, PaintBucket, Sparkles, Type, ClipboardCheck } from "lucide-react";
 
 const sections = [
   { href: "/admin/content/hero",      icon: Type,        title: "Hero section",         blurb: "Headline, subhead, CTAs, and the trust strip on the homepage." },
@@ -9,6 +9,7 @@ const sections = [
   { href: "/admin/settings",          icon: Megaphone,   title: "Announcement & pop-up", blurb: "Top banner text and the entry pop-up on first visit." },
   { href: "/admin/content/featured",  icon: Sparkles,    title: "Featured cards",       blurb: "The five “Happening at Dante” cards (coming soon)", disabled: true },
   { href: "/admin/content/sponsors",  icon: PaintBucket, title: "Sponsors",             blurb: "Classroom, gold & silver sponsor logos — add, edit and reorder." },
+  { href: "/admin/content/placement", icon: ClipboardCheck, title: "Placement test",     blurb: "Add, edit and remove the free placement-test questions and answers." },
   { href: "/admin/content/team",      icon: Newspaper,   title: "Team & history",        blurb: "About-page staff photos, bios, and the 90-years timeline (coming soon)", disabled: true },
 ];
 
