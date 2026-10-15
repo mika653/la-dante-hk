@@ -66,10 +66,8 @@ export default function MuralHero() {
           <div className="circle-accent mt-4">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl uppercase text-ink leading-[0.95] break-words">
               {hero.line1}
-              <br />
-              <span className="italian normal-case" style={{ letterSpacing: "-0.02em" }}>{hero.line2}</span>
-              <br />
-              {hero.line3}
+              {hero.line2 ? (<><br /><span className="italian normal-case" style={{ letterSpacing: "-0.02em" }}>{hero.line2}</span></>) : null}
+              {hero.line3 ? (<><br />{hero.line3}</>) : null}
               <span className="ring-dot" aria-hidden></span>
             </h1>
           </div>

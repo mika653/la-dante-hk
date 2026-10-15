@@ -26,9 +26,9 @@ export type SiteContent = { hero: HeroContent; carousel: CarouselSlide[]; sectio
 
 export const defaultHero: HeroContent = {
   eyebrow: "Italiano · Latino · Hong Kong · 1934",
-  line1: "Impara",
-  line2: "l'italiano",
-  line3: "a Hong Kong",
+  line1: "Since 1934.",
+  line2: "",
+  line3: "",
   subhead:
     "Certified native teachers, CEFR-aligned courses, and a 90-year tradition of Italian culture in the heart of Wanchai.",
   cta1: { label: "Take the placement test", href: "/placement-test" },

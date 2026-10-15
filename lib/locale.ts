@@ -26,9 +26,9 @@ const en = {
   },
   hero: {
     eyebrow: "Italiano · Latino · Hong Kong · 1934",
-    line1: "Impara",
-    line2: "l'italiano",
-    line3: "a Hong Kong",
+    line1: "自 1934 年。",
+    line2: "",
+    line3: "",
     subhead: "Certified native teachers, CEFR-aligned courses, and a 90-year tradition of Italian culture in the heart of Wanchai.",
     cta1: "Take the placement test",
     cta2: "See September courses",
