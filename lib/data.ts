@@ -269,11 +269,46 @@ export const membershipPlans: MembershipPlan[] = [
   { id: "gift",      name: "Gift",      priceHKD: 600, blurb: "Send a year of Italy to someone you love.",  perks: ["Beautifully presented certificate", "Recipient chooses their plan", "Personal message", "Instant digital delivery"] },
 ];
 
+// Real member partners, provided by La Dante. Staff can edit, add, and remove
+// these (with logos, addresses and links) in the admin Privileges editor — this
+// list is only the fallback shown before any are saved there.
 export const memberPerks = [
-  { category: "Food & drinks",   items: [{ name: "Grissini Trattoria", perk: "10% off à la carte" }, { name: "illy Wanchai", perk: "1 free cappuccino per visit" }, { name: "Grappa's Cellar", perk: "20% off wines by the glass" }] },
-  { category: "Shopping",         items: [{ name: "Giorgio Armani", perk: "15% off selected collections" }, { name: "Zegna", perk: "10% off alterations" }, { name: "Harmony Wine", perk: "10% off purchases over $1,000" }] },
-  { category: "Culture & travel", items: [{ name: "Italian Chamber of Commerce", perk: "Access to business events" }, { name: "Alitalia HK desk", perk: "Waived booking fees on Italy routes" }] },
-  { category: "Services",         items: [{ name: "Generali Insurance", perk: "Dedicated member consultation" }, { name: "Intesa Sanpaolo", perk: "Italian-language banking support" }] },
+  { category: "Dining", items: [
+    { name: "Alice Pizza", perk: "10% off pizza & drinks on $150+ (Wan Chai)" },
+    { name: "Belgos", perk: "10% off à la carte" },
+    { name: "Bella Lee", perk: "10% off (excl. happy hour)" },
+    { name: "Cadillac", perk: "10% off à la carte" },
+    { name: "The Italian Club HK", perk: "10% off the bill, in-store & online" },
+    { name: "Grappa's QRE", perk: "10% off à la carte" },
+    { name: "Happy Valley Bar & Grill", perk: "10% off à la carte" },
+    { name: "Inn Side Out", perk: "10% off à la carte" },
+    { name: "Mother of Pizzas", perk: "10% off the bill (cash)" },
+    { name: "Mostaccioli Brothers", perk: "10% off à la carte" },
+    { name: "The Mickey B Pizza Co.", perk: "10% off à la carte" },
+    { name: "Pantry Centrale", perk: "10% off groceries + dining perks" },
+  ] },
+  { category: "E-Shop", items: [
+    { name: "Bella Ciao", perk: "10% off, min. spend $600" },
+    { name: "Borgovivo", perk: "10% off, min. order $700" },
+    { name: "Cheese Meets Wine", perk: "10% off, no minimum" },
+    { name: "Botta di Cru", perk: "15% off, in-store & online" },
+    { name: "Simply Fresh", perk: "15% off" },
+  ] },
+  { category: "Wines", items: [
+    { name: "Castello del Vino", perk: "10% off regular-priced items" },
+    { name: "HK Butler", perk: "10% off any order" },
+    { name: "Valdivia", perk: "5% off wholesale prices" },
+    { name: "VinoVeritas Asia", perk: "10% off" },
+    { name: "Wine Paradise", perk: "Gift & voucher on $3,000+ orders" },
+  ] },
+  { category: "Specialty", items: [
+    { name: "Tenute San Fabiano", perk: "Member pricing on Tuscan EVOO" },
+  ] },
+  { category: "Services", items: [
+    { name: "Scuola Romanica — Modena", perk: "Scholarships + 10% off courses in Italy" },
+    { name: "Generali Life (Hong Kong)", perk: "Up to 20% off insurance products" },
+    { name: "DBMS Global", perk: "$1,000 off corporate services" },
+  ] },
 ];
 
 export const featuredCards = [

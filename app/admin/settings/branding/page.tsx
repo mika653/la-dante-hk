@@ -83,7 +83,7 @@ export default function BrandingSettings() {
               <input value={b.siteTitle} onChange={(e) => set("siteTitle", e.target.value)} placeholder="La Dante HK" className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink font-normal" />
             </label>
             <label className="text-sm font-medium">Tagline
-              <input value={b.tagline} onChange={(e) => set("tagline", e.target.value)} placeholder="Italian & Latin in Hong Kong since 1935" className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink font-normal" />
+              <input value={b.tagline} onChange={(e) => set("tagline", e.target.value)} placeholder="Italian & Latin in Hong Kong since 1934" className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink font-normal" />
             </label>
             <p className="sm:col-span-2 text-xs text-ink-muted -mt-1">Browser tab shows: <span className="font-medium text-ink">{b.tagline ? `${b.siteTitle} — ${b.tagline}` : b.siteTitle}</span></p>
           </div>

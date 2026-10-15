@@ -27,7 +27,7 @@ export default function LatinPage() {
           <p className="eyebrow">Why learn Latin at La Dante?</p>
           <h2 className="mt-2 text-2xl md:text-3xl font-heading font-bold">Dante Alighieri Society Hong Kong</h2>
           <div className="mt-4 space-y-3 text-[15px] leading-relaxed text-ink-muted">
-            <p>Dante Alighieri Society, your home for Italian language and culture in Hong Kong since 1935.</p>
+            <p>Dante Alighieri Society, your home for Italian language and culture in Hong Kong since 1934.</p>
             <p>Learn Latin with the most established and institutionally connected Italian centre, part of the globally recognised Società Dante Alighieri in Rome, with centres in more than 80 countries worldwide.</p>
           </div>
         </div>

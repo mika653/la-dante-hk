@@ -28,7 +28,7 @@ export const SITE_LIVE = process.env.NEXT_PUBLIC_SITE_LIVE === "true";
 
 const SITE_NAME = "Società Dante Alighieri Hong Kong";
 const DESCRIPTION =
-  "The Dante Alighieri Society of Hong Kong — Italian and Latin language courses, cultural events, PLIDA certification, and membership in the heart of Wanchai since 1935.";
+  "The Dante Alighieri Society of Hong Kong — Italian and Latin language courses, cultural events, PLIDA certification, and membership in the heart of Wanchai since 1934.";
 const OG_IMAGE = { url: "/mural.png", width: 2400, height: 1347, alt: "La Dante HK — where Hong Kong meets Italy" };
 
 // Title, brand name, and favicon come from the admin-editable Branding settings
@@ -77,7 +77,7 @@ const organizationJsonLd = {
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
   image: `${SITE_URL}/mural.png`,
-  foundingDate: "1935",
+  foundingDate: "1934",
   email: "dantealighieri@ladante.cc",
   telephone: "+852 2832 9799",
   areaServed: "Hong Kong",

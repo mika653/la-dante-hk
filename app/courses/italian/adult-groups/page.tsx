@@ -10,7 +10,7 @@ export default function AdultGroupsPage() {
       <PageHeader
         eyebrow="Italian · Adult Groups"
         title="From 'ciao' to 'cin cin'."
-        subtitle="CEFR-aligned group courses, certified native teachers, small classes in Wanchai and online. Our flagship programme since 1935."
+        subtitle="CEFR-aligned group courses, certified native teachers, small classes in Wanchai and online. Our flagship programme since 1934."
         crumbs={[{ label: "Home", href: "/" }, { label: "Courses", href: "/courses" }, { label: "Italian", href: "/courses/italian/adult-groups" }, { label: "Adult Groups" }]}
         tone="sole-soft"
       />

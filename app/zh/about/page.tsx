@@ -6,7 +6,7 @@ export default function AboutZh() {
     <>
       <PageHeader
         eyebrow="關於我們"
-        title="意大利文化在香港,自 1935 年。"
+        title="意大利文化在香港,自 1934 年。"
         subtitle="香港但丁.阿利吉耶里協會 是一間非牟利文化機構,秉持 90 年的使命 — 與我們深愛的城市分享意大利的語言、文化與社群。"
         crumbs={[{ label: "主頁", href: "/zh" }, { label: "關於" }]}
       />
@@ -38,7 +38,7 @@ export default function AboutZh() {
           <h2 className="mt-3 text-3xl md:text-5xl max-w-2xl">小小的協會,長長的記憶。</h2>
           <div className="mt-10 grid md:grid-cols-3 gap-8">
             {[
-              { year: "1935", title: "成立",              body: "一群在港意大利僑民與香港愛好者於私人寓所教授意大利文。" },
+              { year: "1934", title: "成立",              body: "一群在港意大利僑民與香港愛好者於私人寓所教授意大利文。" },
               { year: "1975", title: "遷入灣仔",          body: "於香港藝術中心開設常設教室 — 至今仍在。" },
               { year: "2010s", title: "PLIDA 認證",        body: "成為香港官方 PLIDA 考試中心,提供 A1–C2 認證。" },
               { year: "2020", title: "網上教學",          body: "疫情期間迅速轉型至網上直播課程,觸及全亞洲學員。" },

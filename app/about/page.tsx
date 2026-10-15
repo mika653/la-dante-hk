@@ -6,7 +6,7 @@ export default function About() {
     <>
       <PageHeader
         eyebrow="About"
-        title="Italian in Hong Kong since 1935."
+        title="Italian in Hong Kong since 1934."
         subtitle="The Dante Alighieri Society of Hong Kong is a non-profit cultural institution with a 90-year mission — to share the Italian language, culture, and community with the city we call home."
         crumbs={[{ label: "Home", href: "/" }, { label: "About" }]}
       />
@@ -38,7 +38,7 @@ export default function About() {
           <h2 className="mt-3 text-3xl md:text-5xl max-w-2xl">A small society. A long memory.</h2>
           <div className="mt-10 grid md:grid-cols-3 gap-8">
             {[
-              { year: "1935", title: "Founded", body: "A small circle of Italian expats and Hong Kong enthusiasts gather to teach Italian in private homes." },
+              { year: "1934", title: "Founded", body: "A small circle of Italian expats and Hong Kong enthusiasts gather to teach Italian in private homes." },
               { year: "1975", title: "Moved to Wanchai", body: "A permanent classroom opens at the Hong Kong Arts Centre — where we still are today." },
               { year: "2010s", title: "PLIDA accreditation", body: "We become an official PLIDA examination centre for Hong Kong, offering A1–C2 certification." },
               { year: "2020", title: "Online", body: "Rapid shift to live online classes during the pandemic expands our reach across Asia." },
@@ -57,19 +57,61 @@ export default function About() {
 
       <section id="team" className="bg-sole py-16 md:py-24">
         <div className="container-xl">
-          <p className="eyebrow">Team & board</p>
+          <p className="eyebrow">Our team</p>
           <h2 className="mt-3 text-3xl md:text-5xl">Faces you&apos;ll meet.</h2>
-          <div className="mt-10 grid sm:grid-cols-2 md:grid-cols-4 gap-6">
+
+          <h3 className="mt-10 font-heading font-bold text-xl">Staff</h3>
+          <div className="mt-6 grid sm:grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { name: "Giulia Marchetti", role: "Director" },
-              { name: "Marco Rossi",      role: "Lead teacher" },
-              { name: "Sofia Bianchi",    role: "PLIDA coordinator" },
-              { name: "Elena Conti",      role: "Culture programme" },
+              { name: "Giulia Capasso", role: "School Coordinator", email: "giulia@ladante.cc" },
+              { name: "Alice Agostini", role: "Office Manager",     email: "alice@ladante.cc" },
+              { name: "Bill Chen",      role: "Administrative & IT", email: "bill@ladante.cc" },
+              { name: "Johnny Yuen",    role: "Marketing Officer",   email: "johnny@ladante.cc" },
             ].map((p) => (
               <div key={p.name} className="text-center">
-                <div className="w-40 h-40 mx-auto rounded-full bg-ink text-cream font-heading font-extrabold text-5xl inline-flex items-center justify-center">{p.name.split(" ").map((x) => x[0]).join("")}</div>
+                <div className="w-32 h-32 md:w-36 md:h-36 mx-auto rounded-full bg-ink text-cream font-heading font-extrabold text-4xl inline-flex items-center justify-center">{p.name.split(" ").map((x) => x[0]).join("")}</div>
                 <p className="mt-4 font-semibold">{p.name}</p>
                 <p className="text-sm text-ink-muted">{p.role}</p>
+                {p.email && <a href={`mailto:${p.email}`} className="text-xs text-azzurro-deep hover:underline break-all">{p.email}</a>}
+              </div>
+            ))}
+          </div>
+
+          <h3 className="mt-14 font-heading font-bold text-xl">Teachers</h3>
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+            {[
+              "Francesca Coppeta",
+              "Clelia Marinucci",
+              "Giorgia Zecchinato",
+              "Raffaella Iaconeta",
+              "Jacopo Gorini",
+            ].map((name) => (
+              <div key={name} className="text-center">
+                <div className="w-24 h-24 md:w-28 md:h-28 mx-auto rounded-full bg-azzurro-deep text-cream font-heading font-extrabold text-2xl inline-flex items-center justify-center">{name.split(" ").map((x) => x[0]).join("")}</div>
+                <p className="mt-3 font-semibold text-sm">{name}</p>
+                <p className="text-xs text-ink-muted">Italian teacher</p>
+              </div>
+            ))}
+          </div>
+
+          <h3 className="mt-14 font-heading font-bold text-xl">Board &amp; patrons</h3>
+          <div className="mt-6 grid sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-3">
+            {[
+              { name: "Dr. Richard Lee", role: "Patron" },
+              { name: "Andrea Croci", role: "Honorary Member" },
+              { name: "Bruno Feltracco", role: "President" },
+              { name: "Alessandra Cocchi-Joynt", role: "Vice President" },
+              { name: "Francesco Rinaldi", role: "Treasurer" },
+              { name: "Manoj Kumar Motwani", role: "Board Member" },
+              { name: "Anna Romagnoli", role: "Board Member" },
+              { name: "Averardo Borghini Baldovinetti", role: "Board Member" },
+              { name: "Francesca Biroli", role: "Board Member" },
+              { name: "Giuseppe Randazzo", role: "Board Member" },
+              { name: "Giovanni Angelini", role: "Board Member" },
+            ].map((p) => (
+              <div key={p.name} className="flex items-baseline justify-between gap-3 border-b border-ink/10 py-2">
+                <span className="font-medium">{p.name}</span>
+                <span className="text-sm text-ink-muted whitespace-nowrap">{p.role}</span>
               </div>
             ))}
           </div>

@@ -12,7 +12,7 @@ export const defaultBranding: Branding = {
   logo: "/logo.png",
   favicon: "",
   siteTitle: "La Dante HK",
-  tagline: "Italian & Latin in Hong Kong since 1935",
+  tagline: "Italian & Latin in Hong Kong since 1934",
 };
 
 // Merge stored/partial values over the defaults so a missing field never blanks
