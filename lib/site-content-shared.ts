@@ -20,7 +20,7 @@ export type SectionPhotos = { workshops: string[]; mosaic: string[] };
 export type SiteContent = { hero: HeroContent; carousel: CarouselSlide[]; sectionPhotos: SectionPhotos };
 
 export const defaultHero: HeroContent = {
-  eyebrow: "Italiano · Latino · Hong Kong · 1935",
+  eyebrow: "Italiano · Latino · Hong Kong · 1934",
   line1: "Impara",
   line2: "l'italiano",
   line3: "a Hong Kong",
@@ -28,7 +28,7 @@ export const defaultHero: HeroContent = {
     "Certified native teachers, CEFR-aligned courses, and a 90-year tradition of Italian culture in the heart of Wanchai.",
   cta1: { label: "Take the placement test", href: "/placement-test" },
   cta2: { label: "See September courses", href: "/courses/italian/adult-groups" },
-  trust: ["4.9 rating", "1,500+ students", "Wanchai & online", "PLIDA certified"],
+  trust: ["Courses", "Events", "Workshops", "Community"],
 };
 
 export const defaultCarousel: CarouselSlide[] = [

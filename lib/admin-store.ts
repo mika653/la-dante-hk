@@ -37,7 +37,7 @@ export function resetDemo() {
 const SETTINGS_KEY = "ladante-settings";
 export type SiteSettings = { banner: string; popup: string };
 export const defaultSettings: SiteSettings = {
-  banner: "Early-bird 10% off September term · University students −20% year-round",
+  banner: "Early-bird discount on now · University students & seniors 10% off year-round",
   popup: "Introducing our new ScuolaSemplice student portal.",
 };
 export function getSettings(): SiteSettings { return read<SiteSettings>(SETTINGS_KEY, defaultSettings); }

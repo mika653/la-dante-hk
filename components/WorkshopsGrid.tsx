@@ -12,7 +12,7 @@ export default function WorkshopsGrid() {
   const { sectionPhotos } = useSiteContent();
   const photos = sectionPhotos.workshops;
   return (
-    <section className="bg-cream py-16 md:py-24">
+    <section className="bg-paper py-16 md:py-24">
       <div className="container-xl">
         <div className="flex items-end justify-between gap-4 mb-10">
           <div>

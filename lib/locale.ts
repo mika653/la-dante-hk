@@ -6,10 +6,10 @@ export type Locale = "en" | "zh";
 const en = {
   announce: {
     parts: [
-      "Early-bird 10% off September term",
-      "University students −20% year-round",
+      "Early-bird discount — new term now open",
+      "University students & seniors 10% off",
     ],
-    cta: "See courses →",
+    cta: "See all offers →",
   },
   nav: {
     home: "Home",
@@ -25,14 +25,14 @@ const en = {
     enrol: "Enrol →",
   },
   hero: {
-    eyebrow: "Italiano · Latino · Hong Kong · 1935",
+    eyebrow: "Italiano · Latino · Hong Kong · 1934",
     line1: "Impara",
     line2: "l'italiano",
     line3: "a Hong Kong",
     subhead: "Certified native teachers, CEFR-aligned courses, and a 90-year tradition of Italian culture in the heart of Wanchai.",
     cta1: "Take the placement test",
     cta2: "See September courses",
-    trust: ["4.9 rating", "1,500+ students", "Wanchai & online", "PLIDA certified"],
+    trust: ["Courses", "Events", "Workshops", "Community"],
   },
   trustBand: [
     { label: "Official PLIDA centre", detail: "For A1–C2 certification" },
@@ -129,7 +129,7 @@ const en = {
     small: "We'll never share your email. Unsubscribe anytime.",
   },
   footer: {
-    blurb: "The Dante Alighieri Society of Hong Kong. Italian and Latin language, culture, and community — since 1935.",
+    blurb: "The Dante Alighieri Society of Hong Kong. Italian and Latin language, culture, and community — since 1934.",
     learn: "Learn",
     italianGroups: "Italian groups",
     latin: "Latin",
@@ -170,10 +170,10 @@ const en = {
 const zh: typeof en = {
   announce: {
     parts: [
-      "9–12 月課程早鳥 9 折優惠",
-      "大學生全年 8 折",
+      "新學期早鳥優惠開始了",
+      "大學生及長者 9 折",
     ],
-    cta: "查看課程 →",
+    cta: "查看所有優惠 →",
   },
   nav: {
     home: "首頁",
@@ -189,14 +189,14 @@ const zh: typeof en = {
     enrol: "立即報名 →",
   },
   hero: {
-    eyebrow: "意大利文 · 拉丁文 · 香港 · 1935",
+    eyebrow: "意大利文 · 拉丁文 · 香港 · 1934",
     line1: "Impara",
     line2: "l'italiano",
     line3: "於香港",
     subhead: "認證意大利籍導師、CEFR 標準課程,以及紮根灣仔、傳承九十年的意大利文化。",
     cta1: "做分班測試",
     cta2: "查看 9–12 月課程",
-    trust: ["4.9 評分", "1,500+ 學員", "灣仔及網上授課", "PLIDA 認證中心"],
+    trust: ["課程", "活動", "工作坊", "社群"],
   },
   trustBand: [
     { label: "官方 PLIDA 考試中心", detail: "A1–C2 全級別認證" },
@@ -293,7 +293,7 @@ const zh: typeof en = {
     small: "我們不會分享你的電郵。可隨時取消訂閱。",
   },
   footer: {
-    blurb: "香港但丁.阿利吉耶里協會。意大利文、拉丁文語言、文化與社群 — 始於 1935 年。",
+    blurb: "香港但丁.阿利吉耶里協會。意大利文、拉丁文語言、文化與社群 — 始於 1934 年。",
     learn: "學習",
     italianGroups: "意大利文小組班",
     latin: "拉丁文",

@@ -35,30 +35,49 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "Culture",
-    href: "/culture",
-    columns: [
-      { title: "Programs", items: [
-        { label: "Events",   href: "/culture" },
-        { label: "Workshops",href: "/culture#workshops" },
-        { label: "Library", href: "/culture#library" },
+    label: "Culture",   // dropdown only — no landing page
+    menu: [
+      { label: "Events", href: "/culture" },
+      { label: "Workshops", href: "/culture#workshops" },
+      { label: "Library", submenu: [
+        { label: "Borrow a book", href: "/culture#library" },
+        { label: "Il Salotto di Dante Bookclub", href: "/culture#library" },
+        { label: "Presidio Letterario", href: "/culture#library" },
       ]},
     ],
   },
   {
     label: "PLIDA",
-    href: "/plida",
-    columns: [
-      { title: "Certification", items: [
-        { label: "Sessions & applications", href: "/plida" },
-        { label: "PLIDA FAQ",               href: "/plida#faq" },
-        { label: "Prepare for PLIDA",       href: "/plida#prepare" },
-      ]},
+    href: "/plida",   // lands on Sessions & Application
+    menu: [
+      { label: "Sessions & Application", href: "/plida" },
+      { label: "Prepare for PLIDA", href: "/plida#prepare" },
+      { label: "PLIDA FAQ", href: "/plida#faq" },
     ],
   },
-  { label: "Join Us", href: "/membership" },
-  { label: "Translation", href: "/services/translation" },
-  { label: "About", href: "/about" },
+  {
+    label: "Join Us",
+    href: "/membership",   // lands on Membership
+    menu: [
+      { label: "Membership", href: "/membership" },
+      { label: "Donate", href: "/donate" },
+    ],
+  },
+  {
+    label: "Translation",   // dropdown only — no landing page
+    menu: [
+      { label: "Interpreting & Translations", href: "/services/translation" },
+    ],
+  },
+  {
+    label: "About",
+    href: "/about",   // lands on History
+    menu: [
+      { label: "History", href: "/about" },
+      { label: "Our Team", href: "/about#team" },
+      { label: "Scuola Semplice", href: "/about/scuola-semplice" },
+    ],
+  },
   { label: "Contact", href: "/contact" },
 ];
 

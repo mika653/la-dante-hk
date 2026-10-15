@@ -6,12 +6,13 @@ import { useT, localizePath } from "@/lib/locale";
 export default function MembershipBand() {
   const { t, locale } = useT();
   return (
-    <section className="relative bg-paper text-ink py-20 md:py-28 overflow-hidden">
-      {/* Decorative brand-blue + yellow circles on the light gray */}
-      <div className="absolute -top-24 -left-20 w-80 h-80 rounded-full bg-azzurro opacity-55 blur-[2px]" aria-hidden />
-      <div className="absolute -bottom-20 -right-10 w-80 h-80 rounded-full bg-sole/40" aria-hidden />
-      <div className="absolute top-10 right-[20%] w-3 h-3 rounded-full bg-sole" aria-hidden />
-      <div className="absolute bottom-16 left-[18%] w-2 h-2 rounded-full bg-azzurro" aria-hidden />
+    <section className="relative bg-azzurro text-ink py-20 md:py-28 overflow-hidden">
+      {/* Murales shadow — a faint silhouette of the mural instead of circles */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-44 md:h-64 opacity-[0.14] bg-no-repeat bg-bottom bg-contain mix-blend-multiply"
+        style={{ backgroundImage: "url('/mural.png')" }}
+        aria-hidden
+      />
 
       <div className="container-xl relative z-10 text-center">
         <p className="eyebrow !text-azzurro-deep">{t.membership.eyebrow}</p>

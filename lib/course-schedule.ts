@@ -101,9 +101,11 @@ export function hasStarted(c: Course, today = todayISO()): boolean {
 export function isUpcoming(c: Course, today = todayISO()): boolean {
   return !c.archived && c.startISO >= today;
 }
-/** Public site: only published, upcoming, non-archived courses. */
-export function publicUpcoming(courses: Course[], today = todayISO()): Course[] {
-  return courses.filter((c) => c.status === "Published" && isUpcoming(c, today));
+/** Public site: every published, non-archived course (regardless of date) — a
+ * published course shows on the catalogue immediately, and only drops off once
+ * it's archived (e.g. via roll-over). */
+export function publicUpcoming(courses: Course[]): Course[] {
+  return courses.filter((c) => c.status === "Published" && !c.archived);
 }
 
 // ---- continuation title / code helpers ----

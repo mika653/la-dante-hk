@@ -6,7 +6,7 @@ import { useT } from "@/lib/locale";
 export default function SponsorsStrip() {
   const { t } = useT();
   return (
-    <section className="bg-cream py-16 md:py-24 border-t border-line">
+    <section className="bg-paper py-16 md:py-24 border-t border-line">
       <div className="container-xl text-center">
         <p className="eyebrow">{t.sponsors.eyebrow}</p>
         <h2 className="mt-3 text-3xl md:text-4xl text-balance">{t.sponsors.title}</h2>

@@ -8,7 +8,6 @@ import FeaturedCarousel from "@/components/FeaturedCarousel";
 import MembershipBand from "@/components/MembershipBand";
 import WorkshopsGrid from "@/components/WorkshopsGrid";
 import WordOfTheDay from "@/components/WordOfTheDay";
-import InstagramStrip from "@/components/InstagramStrip";
 import SponsorsStrip from "@/components/SponsorsStrip";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import VisitUs from "@/components/VisitUs";
@@ -31,23 +30,20 @@ export default function HomeZh() {
       <PlidaTeaser />
       <WaveDivider from="white" to="sole" />
       <FeaturedCarousel />
-      <WaveDivider from="sole" to="paper" />
+      <WaveDivider from="sole" to="azzurro" />
       <MembershipBand />
-      <WaveDivider from="paper" to="cream" />
+      <WaveDivider from="azzurro" to="paper" />
       <WorkshopsGrid />
-      <WaveDivider from="cream" to="white" />
+      <WaveDivider from="paper" to="white" />
       <WordOfTheDay />
-      <WaveDivider from="white" to="sole" />
-      <InstagramStrip />
-      <WaveDivider from="sole" to="cream" />
+      <WaveDivider from="white" to="paper" />
       <SponsorsStrip />
-      <WaveDivider from="cream" to="paper" />
       <ReviewsCarousel />
       <WaveDivider from="paper" to="cream" />
       <VisitUs />
       <WaveDivider from="cream" to="ink" />
       <ClosingCta />
-      <WaveDivider from="ink" to="cream" />
+      <WaveDivider from="ink" to="white" />
       <Newsletter />
     </>
   );
