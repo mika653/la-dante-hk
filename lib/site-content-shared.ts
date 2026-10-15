@@ -31,11 +31,14 @@ export const defaultHero: HeroContent = {
   trust: ["Courses", "Events", "Workshops", "Community"],
 };
 
+// Stock photos (placeholders) downloaded locally for reliability — swap for real
+// La Dante photos anytime via Admin → Content → Hero carousel.
 export const defaultCarousel: CarouselSlide[] = [
-  { id: "s1", src: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=2000&q=80&auto=format&fit=crop", alt: "A group of friends seen from behind walking together.", caption: "Students at Dante · 2024" },
-  { id: "s2", src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=2000&q=80&auto=format&fit=crop", alt: "A group of people studying together around a table.", caption: "A1 Beginner class · Wanchai" },
-  { id: "s3", src: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=2000&q=80&auto=format&fit=crop", alt: "Students working together in a modern classroom environment.", caption: "B1 conversation practice" },
-  { id: "s4", src: "/mural.png", alt: "The La Dante mural — Hong Kong skyline merged with Italian landmarks.", caption: "Il nostro murales — where Hong Kong meets Italy" },
+  { id: "s1", src: "/carousel/1.jpg", alt: "A group of friends seen from behind walking together.", caption: "Students at Dante" },
+  { id: "s2", src: "/carousel/2.jpg", alt: "A group of people studying together around a table.", caption: "A1 Beginner class · Wanchai" },
+  { id: "s3", src: "/carousel/3.jpg", alt: "Students working together in a modern classroom environment.", caption: "B1 conversation practice" },
+  { id: "s4", src: "/carousel/4.jpg", alt: "A bright study space with notes and a laptop.", caption: "Learning together" },
+  { id: "s5", src: "/mural.png", alt: "The La Dante mural — Hong Kong skyline merged with Italian landmarks.", caption: "Il nostro murales — where Hong Kong meets Italy" },
 ];
 
 export const defaultSectionPhotos: SectionPhotos = {

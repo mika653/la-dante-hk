@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Trash2, Pencil, CheckCircle2, ExternalLink, X, CalendarPlus, Archive, Download } from "lucide-react";
+import { Plus, Search, Trash2, Pencil, CheckCircle2, ExternalLink, X, CalendarPlus, Archive, Download, Copy } from "lucide-react";
 import { getCourses, removeCourse, addCourse, updateCourse } from "@/lib/admin-store";
 import { setSeatsLeft } from "@/lib/course-actions";
 import type { Course, Language, CourseType } from "@/lib/data";
@@ -109,6 +109,26 @@ export default function AdminCoursesList() {
       sessionStorage.setItem("ladante-admin-flash",
         `Generated the ${cont.level} continuation of “${c.title}” as a draft — review the dates, then confirm and publish.`);
       router.push(`/admin/courses/${cont.id}/edit`);
+    } catch (e) { setErr(errText(e)); }
+  }
+
+  // Duplicate a course as a fresh draft (new id + auto course code, empty enrolment).
+  async function duplicate(c: Course) {
+    setErr(null);
+    const copy: Course = {
+      ...c,
+      id: `copy-${Date.now()}`,
+      title: `${c.title} (copy)`,
+      status: "Draft",
+      enrolled: 0,
+      archived: false,
+      courseCode: undefined,
+      continuationOf: undefined,
+    };
+    try {
+      await addCourse(copy);
+      sessionStorage.setItem("ladante-admin-flash", `Duplicated “${c.title}” as a draft — edit the details and publish when ready.`);
+      router.push(`/admin/courses/${copy.id}/edit`);
     } catch (e) { setErr(errText(e)); }
   }
 
@@ -297,6 +317,7 @@ export default function AdminCoursesList() {
                             <button type="button" onClick={() => createNext(c)} title="Create the next-level continuation" className="w-8 h-8 rounded-lg hover:bg-azzurro/15 inline-flex items-center justify-center text-azzurro-deep"><CalendarPlus size={14} /></button>
                           )
                         )}
+                        <button type="button" onClick={() => duplicate(c)} title="Duplicate as a draft" className="w-8 h-8 rounded-lg hover:bg-cream-2 inline-flex items-center justify-center text-ink-muted"><Copy size={14} /></button>
                         <Link href={`/admin/courses/${c.id}/edit`} title="Edit course" className="w-8 h-8 rounded-lg hover:bg-cream-2 inline-flex items-center justify-center text-ink-muted"><Pencil size={14} /></Link>
                         <button type="button" onClick={() => del(c.id)} title="Delete" className="w-8 h-8 rounded-lg hover:bg-rosso/10 hover:text-rosso inline-flex items-center justify-center text-ink-muted"><Trash2 size={14} /></button>
                       </div>

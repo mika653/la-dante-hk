@@ -7,7 +7,7 @@ import PlidaTeaser from "@/components/PlidaTeaser";
 import FeaturedCarousel from "@/components/FeaturedCarousel";
 import MembershipBand from "@/components/MembershipBand";
 import WorkshopsGrid from "@/components/WorkshopsGrid";
-import WordOfTheDay from "@/components/WordOfTheDay";
+import WordOfTheWeekFloat from "@/components/WordOfTheWeekFloat";
 import SponsorsStrip from "@/components/SponsorsStrip";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import VisitUs from "@/components/VisitUs";
@@ -34,9 +34,6 @@ export default function HomeZh() {
       <MembershipBand />
       <WaveDivider from="azzurro" to="paper" />
       <WorkshopsGrid />
-      <WaveDivider from="paper" to="white" />
-      <WordOfTheDay />
-      <WaveDivider from="white" to="paper" />
       <SponsorsStrip />
       <ReviewsCarousel />
       <WaveDivider from="paper" to="cream" />
@@ -45,6 +42,7 @@ export default function HomeZh() {
       <ClosingCta />
       <WaveDivider from="ink" to="white" />
       <Newsletter />
+      <WordOfTheWeekFloat />
     </>
   );
 }
