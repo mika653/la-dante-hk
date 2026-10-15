@@ -1,10 +1,12 @@
 "use client";
 import Image from "next/image";
-import { sponsors, classroomSponsors } from "@/lib/data";
 import { useT } from "@/lib/locale";
+import { useSiteContent } from "@/lib/site-content";
 
 export default function SponsorsStrip() {
   const { t } = useT();
+  const { sponsors } = useSiteContent();
+  const classroomSponsors = sponsors.classroom;
   return (
     <section className="bg-paper py-16 md:py-24 border-t border-line">
       <div className="container-xl text-center">

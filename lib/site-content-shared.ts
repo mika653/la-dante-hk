@@ -1,5 +1,6 @@
 // Homepage content types + defaults, shared by the client hook, the admin
 // editors, and the server actions. No "use client" / "use server" directive.
+import { classroomSponsors as seedClassroom, sponsors as seedSponsors } from "@/lib/data";
 
 export type HeroContent = {
   eyebrow: string;
@@ -17,7 +18,11 @@ export type CarouselSlide = { id: string; src: string; alt: string; caption: str
 // Editable photo sets for homepage sections (swappable from the Media Library).
 export type SectionPhotos = { workshops: string[]; mosaic: string[] };
 
-export type SiteContent = { hero: HeroContent; carousel: CarouselSlide[]; sectionPhotos: SectionPhotos };
+// Editable sponsors (classroom A–G, gold, silver tiers).
+export type SponsorItem = { name: string; logo: string; room?: string };
+export type Sponsors = { classroom: SponsorItem[]; gold: SponsorItem[]; silver: SponsorItem[] };
+
+export type SiteContent = { hero: HeroContent; carousel: CarouselSlide[]; sectionPhotos: SectionPhotos; sponsors: Sponsors };
 
 export const defaultHero: HeroContent = {
   eyebrow: "Italiano · Latino · Hong Kong · 1934",
@@ -46,15 +51,29 @@ export const defaultSectionPhotos: SectionPhotos = {
   mosaic: ["/mosaic/1.jpg", "/mosaic/2.jpg", "/mosaic/3.jpg", "/mosaic/4.jpg", "/mosaic/5.jpg", "/mosaic/6.jpg", "/mosaic/7.jpg", "/mosaic/8.jpg", "/mosaic/9.jpg", "/mosaic/10.jpg"],
 };
 
-export const defaultSiteContent: SiteContent = { hero: defaultHero, carousel: defaultCarousel, sectionPhotos: defaultSectionPhotos };
+export const defaultSponsors: Sponsors = {
+  classroom: seedClassroom.map((s) => ({ room: s.room, name: s.name, logo: s.logo })),
+  gold: seedSponsors.gold.map((s) => ({ name: s.name, logo: s.logo })),
+  silver: seedSponsors.silver.map((s) => ({ name: s.name, logo: s.logo })),
+};
+
+export const defaultSiteContent: SiteContent = { hero: defaultHero, carousel: defaultCarousel, sectionPhotos: defaultSectionPhotos, sponsors: defaultSponsors };
 
 // Merge stored/partial content over the defaults so a missing field never blanks the page.
 export function normaliseSiteContent(parsed: unknown): SiteContent {
   const p = (parsed ?? {}) as Partial<SiteContent>;
   const sp = (p.sectionPhotos ?? {}) as Partial<SectionPhotos>;
+  const sponsors = (p.sponsors ?? {}) as Partial<Sponsors>;
   const nonEmpty = (a: unknown, fallback: string[]) =>
     Array.isArray(a) && a.filter((x) => typeof x === "string" && x.trim()).length > 0
       ? (a as string[]).filter((x) => typeof x === "string" && x.trim())
+      : fallback;
+  // Sponsors: keep a saved list (even if emptied) but clean rows; fall back to
+  // defaults only when the tier was never saved.
+  const tier = (a: unknown, fallback: SponsorItem[]): SponsorItem[] =>
+    Array.isArray(a)
+      ? (a as SponsorItem[]).filter((s) => s && typeof s.logo === "string" && s.logo.trim())
+          .map((s) => ({ name: String(s.name ?? ""), logo: s.logo, ...(s.room ? { room: String(s.room) } : {}) }))
       : fallback;
   return {
     hero: { ...defaultHero, ...(p.hero ?? {}) },
@@ -62,6 +81,11 @@ export function normaliseSiteContent(parsed: unknown): SiteContent {
     sectionPhotos: {
       workshops: nonEmpty(sp.workshops, defaultSectionPhotos.workshops),
       mosaic: nonEmpty(sp.mosaic, defaultSectionPhotos.mosaic),
+    },
+    sponsors: {
+      classroom: tier(sponsors.classroom, defaultSponsors.classroom),
+      gold: tier(sponsors.gold, defaultSponsors.gold),
+      silver: tier(sponsors.silver, defaultSponsors.silver),
     },
   };
 }
