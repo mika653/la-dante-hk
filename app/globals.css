@@ -6,7 +6,7 @@
   --color-cream-2: #fef6e0;
   --color-paper: #f1f1f1;          /* Official off-white #F1F1F1 */
   --color-sole: #ffed4e;           /* Official Dante yellow #FFED4E */
-  --color-sole-soft: #fff6a8;
+  --color-sole-soft: #ffed4e;      /* Per client: use the bold Dante yellow everywhere (pale #FFF6A8 read as "too light") */
   --color-azzurro: #a6e4f8;        /* Official Dante sky blue #A6E4F8 */
   --color-azzurro-soft: #dff3fc;
   --color-azzurro-deep: #075985;   /* Derived deeper blue for text-on-light contrast */
