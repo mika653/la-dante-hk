@@ -33,7 +33,7 @@ export default function WhyLaDante() {
               {isZh ? "5 分鐘找到你的意大利文程度。" : "Find your Italian level in 5 minutes."}
             </h2>
             <p className="mt-1.5 text-[13px] text-ink-muted">
-              {isZh ? "15 條適應性題目 · 免費 · 即時結果" : "15 adaptive questions · Free · Instant result"}
+              {isZh ? "免費 · 對應 CEFR · 即時結果" : "Free · CEFR-aligned · Instant result"}
             </p>
           </div>
 

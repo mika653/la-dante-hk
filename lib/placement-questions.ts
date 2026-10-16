@@ -62,3 +62,38 @@ export const levelInfo: Record<CEFR, { name: string; blurb: string }> = {
   B2: { name: "Upper-Intermediate",  blurb: "You discuss abstract topics, understand films, and can work or study in Italian with minimal barriers." },
   C1: { name: "Proficient",          blurb: "You express yourself fluently on any topic — academic, professional, literary. Dante's Italy is yours." },
 };
+
+// -------------------- Scoring (Giulia's placement rubric) --------------------
+// The placement test runs as a single ordered list of questions in increasing
+// difficulty (the full set is 46). The student answers in order, stops when the
+// questions get too hard, and submits. The score is simply the number answered
+// correctly (x), mapped to a sub-level below.
+//
+// These bands come from Giulia's "Results rules for placement test" sheet. The
+// source bands overlapped/were non-monotonic, so the thresholds here have been
+// normalised into a clean ascending ladder for a 46-question test. GIULIA: to
+// adjust, just change the `minCorrect` numbers — nothing else needs touching.
+export type ScoreBand = { minCorrect: number; label: string; cefr: CEFR };
+
+export const SCORE_BANDS: ScoreBand[] = [
+  { minCorrect: 0,  label: "A1.1",      cefr: "A1" },
+  { minCorrect: 14, label: "A1.2",      cefr: "A1" },
+  { minCorrect: 17, label: "A1.3",      cefr: "A1" },
+  { minCorrect: 20, label: "A2.1",      cefr: "A2" },
+  { minCorrect: 23, label: "A2.1–A2.2", cefr: "A2" },
+  { minCorrect: 25, label: "A2.3",      cefr: "A2" },
+  { minCorrect: 27, label: "A2.3–A2.4", cefr: "A2" },
+  { minCorrect: 29, label: "B1.1",      cefr: "B1" },
+  { minCorrect: 31, label: "B1.1–B1.2", cefr: "B1" },
+  { minCorrect: 33, label: "B1.3",      cefr: "B1" },
+  { minCorrect: 35, label: "B1.3–B1.4", cefr: "B1" },
+  { minCorrect: 37, label: "B2.1",      cefr: "B2" },
+  { minCorrect: 41, label: "C1–C2",     cefr: "C1" },
+];
+
+// The highest band whose threshold the score meets.
+export function scoreToSubLevel(correct: number): { label: string; cefr: CEFR } {
+  let band: ScoreBand = SCORE_BANDS[0];
+  for (const b of SCORE_BANDS) if (correct >= b.minCorrect) band = b;
+  return { label: band.label, cefr: band.cefr };
+}

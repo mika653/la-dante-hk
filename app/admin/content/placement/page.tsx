@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Check, Plus, Trash2, GripVertical } from "lucide-react";
+import { ArrowLeft, Check, Plus, Trash2, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { questionBank, type Question, type CEFR, type Section } from "@/lib/placement-questions";
 import { getPlacementQuestions, savePlacementQuestions } from "@/lib/placement-actions";
 
@@ -28,6 +28,15 @@ export default function PlacementEditor() {
     }));
   }
   function removeQ(i: number) { setList((l) => l.filter((_, n) => n !== i)); }
+  function moveQ(i: number, dir: -1 | 1) {
+    setList((l) => {
+      const j = i + dir;
+      if (j < 0 || j >= l.length) return l;
+      const copy = [...l];
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+      return copy;
+    });
+  }
   function addQ() {
     setList((l) => [...l, { id: `q-${Date.now()}`, level: "A1", section: "grammar", prompt: "", choices: ["", ""], correctIndex: 0 }]);
   }
@@ -42,7 +51,6 @@ export default function PlacementEditor() {
   }
 
   const sel = "h-9 px-2 rounded-lg border border-line bg-white text-sm";
-  const byLevel = LEVELS.map((lv) => ({ lv, n: list.filter((q) => q.level === lv).length }));
 
   return (
     <div className="max-w-4xl">
@@ -51,12 +59,12 @@ export default function PlacementEditor() {
         <div>
           <p className="eyebrow">Admin · Content · Placement test</p>
           <h1 className="mt-2 text-3xl md:text-4xl">Placement test questions.</h1>
-          <p className="mt-2 text-ink-muted">Add, edit and remove the questions the free placement test draws from. The test picks adaptively per level, so aim for several questions at each level.</p>
+          <p className="mt-2 text-ink-muted">Add, edit, remove and reorder the placement-test questions. The test runs <b>top-to-bottom, easiest first</b> — the student stops when it gets too hard and submits. The full set is <b>46 questions</b>; the score (number correct) maps to a sub-level (A1.1 … C1–C2). Use the ▲▼ arrows to set the order.</p>
         </div>
       </div>
       <div className="frame bg-cream-2 p-4 mb-6 text-sm flex flex-wrap gap-x-5 gap-y-1">
-        <span className="font-medium">{list.length} questions</span>
-        {byLevel.map(({ lv, n }) => <span key={lv} className={n < 2 ? "text-rosso" : "text-ink-muted"}>{lv}: {n}{n < 2 ? " ⚠" : ""}</span>)}
+        <span className="font-medium">{list.length} of 46 questions{list.length < 46 ? " — add the rest below" : " ✓"}</span>
+        <span className="text-ink-muted">(Level tags below are used only to suggest a matching course.)</span>
       </div>
 
       <div className="space-y-4">
@@ -75,7 +83,11 @@ export default function PlacementEditor() {
                   {SECTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </label>
-              <button type="button" onClick={() => removeQ(i)} aria-label="Remove question" className="ml-auto w-8 h-8 rounded-lg hover:bg-rosso/10 hover:text-rosso inline-flex items-center justify-center text-ink-muted"><Trash2 size={14} /></button>
+              <div className="ml-auto flex items-center gap-1">
+                <button type="button" onClick={() => moveQ(i, -1)} disabled={i === 0} aria-label="Move up" className="w-8 h-8 rounded-lg hover:bg-cream-2 disabled:opacity-30 inline-flex items-center justify-center text-ink-muted"><ChevronUp size={15} /></button>
+                <button type="button" onClick={() => moveQ(i, 1)} disabled={i === list.length - 1} aria-label="Move down" className="w-8 h-8 rounded-lg hover:bg-cream-2 disabled:opacity-30 inline-flex items-center justify-center text-ink-muted"><ChevronDown size={15} /></button>
+                <button type="button" onClick={() => removeQ(i)} aria-label="Remove question" className="w-8 h-8 rounded-lg hover:bg-rosso/10 hover:text-rosso inline-flex items-center justify-center text-ink-muted"><Trash2 size={14} /></button>
+              </div>
             </div>
             <textarea value={q.prompt} onChange={(e) => patch(i, { prompt: e.target.value })} rows={2} placeholder="Question prompt" className="w-full p-3 rounded-lg border border-line bg-white text-sm" />
             <input value={q.sub ?? ""} onChange={(e) => patch(i, { sub: e.target.value })} placeholder="Sub-text / hint (optional)" className="mt-2 w-full h-9 px-3 rounded-lg border border-line bg-white text-sm" />

@@ -1,145 +1,80 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { type Question, type CEFR, levelInfo } from "@/lib/placement-questions";
+import { type CEFR, levelInfo, scoreToSubLevel } from "@/lib/placement-questions";
 import { usePlacementQuestions } from "@/lib/use-placement";
 import { useCourses } from "@/lib/use-courses";
 import { suggestFor, seatsLeft, formatStart } from "@/lib/placement-suggest";
 import { submitEnquiry } from "@/lib/enquiry-actions";
-import { ArrowLeft, ArrowRight, Check, Mail, Sparkles, Clock, CalendarDays, MapPin, User, Phone } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Mail, Sparkles, Clock, CalendarDays, MapPin, User, Phone, Flag } from "lucide-react";
 
 type Stage = "intro" | "testing" | "email" | "result";
 
-const levels: CEFR[] = ["A1", "A2", "B1", "B2", "C1"];
-
-function scoreToCEFR(answers: Record<string, number>, servedIds: string[], bank: Question[]): { level: CEFR; breakdown: Record<string, number> } {
-  const perLevelCorrect: Record<CEFR, number> = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0 };
-  const perLevelTotal:   Record<CEFR, number> = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0 };
-  const perSection = { grammar: 0, vocabulary: 0, reading: 0, listening: 0 } as Record<string, number>;
-  const perSectionTotal = { grammar: 0, vocabulary: 0, reading: 0, listening: 0 } as Record<string, number>;
-  servedIds.forEach((id) => {
-    const q = bank.find((x) => x.id === id);
-    if (!q) return;
-    perLevelTotal[q.level]++;
-    perSectionTotal[q.section]++;
-    if (answers[id] === q.correctIndex) {
-      perLevelCorrect[q.level]++;
-      perSection[q.section]++;
-    }
-  });
-  // Highest level where they scored ≥ 60% and answered at least 2 questions
-  let achieved: CEFR = "A1";
-  for (const lv of levels) {
-    if (perLevelTotal[lv] >= 2 && perLevelCorrect[lv] / perLevelTotal[lv] >= 0.6) achieved = lv;
-  }
-  const breakdown: Record<string, number> = {};
-  Object.keys(perSection).forEach((s) => {
-    breakdown[s] = perSectionTotal[s] ? Math.round((perSection[s] / perSectionTotal[s]) * 100) : 0;
-  });
-  return { level: achieved, breakdown };
-}
-
-function pickNextQuestion(servedIds: string[], currentLevel: CEFR, bank: Question[]): Question | null {
-  // Adaptive: try the current level first, then neighbouring levels
-  const order: CEFR[] = (() => {
-    const i = levels.indexOf(currentLevel);
-    const near = [currentLevel];
-    if (levels[i + 1]) near.push(levels[i + 1]);
-    if (levels[i - 1]) near.push(levels[i - 1]);
-    for (const l of levels) if (!near.includes(l)) near.push(l);
-    return near;
-  })();
-
-  for (const lv of order) {
-    const pool = bank.filter((q) => q.level === lv && !servedIds.includes(q.id));
-    if (pool.length) return pool[Math.floor(Math.random() * pool.length)];
-  }
-  return null;
-}
+const ladder: CEFR[] = ["A1", "A2", "B1", "B2", "C1"];
 
 export default function TestClient() {
   const courses = useCourses();
-  const bank = usePlacementQuestions();
+  const bank = usePlacementQuestions(); // ordered easy → hard; the full set is 46
+  const total = bank.length;
+
   const [stage, setStage] = useState<Stage>("intro");
+  const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [served, setServed] = useState<Question[]>([]);
-  const [currentLevel, setCurrentLevel] = useState<CEFR>("A1");
   const [selected, setSelected] = useState<number | null>(null);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const MAX_Q = 15;
-  const MIN_Q = 10;
 
-  const result = useMemo(() => (stage === "result" ? scoreToCEFR(answers, served.map((q) => q.id), bank) : null), [stage, answers, served, bank]);
+  // Score = how many ANSWERED questions are correct (Giulia's rubric is scored
+  // on the raw number correct, mapped to a sub-level in scoreToSubLevel).
+  const score = useMemo(() => {
+    let correct = 0;
+    for (const q of bank) if (answers[q.id] === q.correctIndex) correct++;
+    return correct;
+  }, [answers, bank]);
+  const answeredCount = Object.keys(answers).length;
+  const result = useMemo(() => scoreToSubLevel(score), [score]);
 
-  function begin() {
-    const first = pickNextQuestion([], "A1", bank)!;
-    setServed([first]);
-    setStage("testing");
-    setSelected(null);
+  function begin() { setStage("testing"); setIndex(0); setAnswers({}); setSelected(null); }
+
+  // Persist the current question's selection into `answers`.
+  function recordCurrent() {
+    const q = bank[index];
+    if (q && selected != null) setAnswers((a) => ({ ...a, [q.id]: selected }));
   }
 
-  function commitAnswer() {
-    const q = served[served.length - 1];
-    if (!q || selected == null) return;
-
-    const correct = selected === q.correctIndex;
-    const nextAnswers = { ...answers, [q.id]: selected };
-    setAnswers(nextAnswers);
-
-    // adapt level: if correct go up one, if wrong go down one (stay in [0,4])
-    const i = levels.indexOf(q.level);
-    const nextLvl = correct ? levels[Math.min(i + 1, 4)] : levels[Math.max(i - 1, 0)];
-    setCurrentLevel(nextLvl);
-
-    if (served.length >= MAX_Q) {
-      setStage("email");
-      return;
-    }
-    // Stop early if we have enough evidence (8+ with consistent level)
-    if (served.length >= MIN_Q) {
-      // simple check: if last 3 answers were all correct OR all wrong at the same level, stop
-      const last3 = served.slice(-3);
-      const allSameLevel = last3.every((x) => x.level === q.level);
-      const last3Correct = last3.every((x) => nextAnswers[x.id] === x.correctIndex);
-      const last3Wrong = last3.every((x) => nextAnswers[x.id] !== x.correctIndex);
-      if (allSameLevel && (last3Correct || last3Wrong)) {
-        setStage("email");
-        return;
-      }
-    }
-
-    const next = pickNextQuestion(served.map((s) => s.id), nextLvl, bank);
-    if (!next) { setStage("email"); return; }
-    setServed([...served, next]);
-    setSelected(null);
+  function goTo(nextIdx: number) {
+    recordCurrent();
+    setIndex(nextIdx);
+    setSelected(answers[bank[nextIdx]?.id] ?? null);
   }
 
-  // Send the finished test to the office as a placement enquiry, so these — the
-  // hottest leads the site produces — actually reach someone. Best-effort: a
-  // failure here never blocks the student from seeing their result.
+  function goNext() {
+    if (index + 1 >= total) { finish(); return; }
+    goTo(index + 1);
+  }
+
+  function goBack() {
+    if (index === 0) return;
+    goTo(index - 1);
+  }
+
+  function finish() {
+    recordCurrent();
+    setStage("email");
+  }
+
+  // Send the finished test to the office as a placement enquiry — the hottest
+  // leads the site produces. Best-effort: a failure never blocks the result.
   function saveLead() {
     if (!email.trim()) return;
-    const { level, breakdown } = scoreToCEFR(answers, served.map((q) => q.id), bank);
     const fd = new FormData();
     fd.set("type", "placement");
     fd.set("name", name.trim() || "Placement test");
     fd.set("email", email.trim());
-    fd.set("level", level);
+    fd.set("level", result.label);
     fd.set("sourcePath", "/placement-test");
-    fd.set("message", `Placement test result: ${level}. ` +
-      Object.entries(breakdown).map(([s, p]) => `${s} ${p}%`).join(", "));
+    fd.set("message", `Placement test: ${score}/${answeredCount} correct → suggested level ${result.label} (${result.cefr}).`);
     submitEnquiry({}, fd).catch(() => { /* best effort */ });
-  }
-
-  function goBack() {
-    if (served.length <= 1) return;
-    const last = served[served.length - 1];
-    const newAnswers = { ...answers };
-    delete newAnswers[last.id];
-    setAnswers(newAnswers);
-    setServed(served.slice(0, -1));
-    setSelected(null);
   }
 
   // -------------- RENDER --------------
@@ -150,21 +85,22 @@ export default function TestClient() {
           <div className="frame p-8 md:p-12 bg-white text-center">
             <div className="flex justify-center mb-6">
               <ol className="flex items-center gap-2">
-                {levels.map((lv, i) => (
+                {ladder.map((lv, i) => (
                   <li key={lv} className="flex items-center gap-2">
                     <span className="w-11 h-11 rounded-full bg-sole text-ink font-heading font-extrabold inline-flex items-center justify-center">{lv}</span>
-                    {i < levels.length - 1 && <span className="w-4 h-px bg-ink-muted" aria-hidden />}
+                    {i < ladder.length - 1 && <span className="w-4 h-px bg-ink-muted" aria-hidden />}
                   </li>
                 ))}
               </ol>
             </div>
             <h2 className="text-3xl md:text-4xl">Ready when you are.</h2>
             <p className="mt-4 text-ink-muted max-w-xl mx-auto">
-              You&apos;ll answer up to 15 adaptive questions. Harder questions unlock higher levels. If you don&apos;t know the answer, that&apos;s fine — just pick your best guess.
+              The questions get progressively harder. Answer in order, and when they start to feel too difficult, just press
+              {" "}<span className="font-medium text-ink">Finish</span> — there&apos;s no need to complete them all. No dictionary, no help: your best honest answers give the most accurate level.
             </p>
             <div className="mt-8 grid grid-cols-3 gap-2 max-w-md mx-auto text-center">
-              <div><Clock size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">~5 minutes</p></div>
-              <div><Sparkles size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">Adaptive</p></div>
+              <div><Clock size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">~10 minutes</p></div>
+              <div><Flag size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">Stop anytime</p></div>
               <div><Mail size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">Office follows up</p></div>
             </div>
             <button type="button" onClick={begin} className="btn btn-primary mt-10">Begin the test <ArrowRight size={16} /></button>
@@ -176,15 +112,17 @@ export default function TestClient() {
   }
 
   if (stage === "testing") {
-    const q = served[served.length - 1];
-    const progress = Math.round((served.length / MAX_Q) * 100);
+    const q = bank[index];
+    const isLast = index + 1 >= total;
+    const progress = total ? Math.round(((index + 1) / total) * 100) : 0;
+    const canFinish = answeredCount >= 1 || selected != null;
     return (
       <section className="bg-cream py-10 md:py-16 min-h-[70vh]">
         <div className="container-xl max-w-2xl">
           <div className="mb-6">
             <div className="flex items-center justify-between text-xs text-ink-muted font-medium uppercase tracking-wider">
-              <span>Question {served.length} · {q.section}</span>
-              <span>Level {q.level}</span>
+              <span>Question {index + 1} of {total}</span>
+              <span>{score} correct so far</span>
             </div>
             <div className="mt-2 h-1.5 bg-line rounded-full overflow-hidden">
               <div className="h-full bg-azzurro transition-all duration-300" style={{ width: `${progress}%` }} />
@@ -215,10 +153,20 @@ export default function TestClient() {
             </div>
 
             <div className="mt-8 flex items-center justify-between gap-3">
-              <button type="button" onClick={goBack} disabled={served.length <= 1} className="btn btn-ghost disabled:opacity-40 disabled:cursor-not-allowed"><ArrowLeft size={16} /> Previous</button>
-              <button type="button" onClick={commitAnswer} disabled={selected == null} className="btn btn-primary disabled:opacity-40 disabled:cursor-not-allowed">Next <ArrowRight size={16} /></button>
+              <button type="button" onClick={goBack} disabled={index === 0} className="btn btn-ghost disabled:opacity-40 disabled:cursor-not-allowed"><ArrowLeft size={16} /> Previous</button>
+              <button type="button" onClick={goNext} disabled={selected == null} className="btn btn-primary disabled:opacity-40 disabled:cursor-not-allowed">
+                {isLast ? "Finish" : "Next"} <ArrowRight size={16} />
+              </button>
             </div>
           </div>
+
+          {canFinish && !isLast && (
+            <div className="mt-4 text-center">
+              <button type="button" onClick={finish} className="text-sm text-ink-muted hover:text-azzurro-deep inline-flex items-center gap-1.5">
+                <Flag size={13} /> Too hard? Finish now &amp; see my level
+              </button>
+            </div>
+          )}
         </div>
       </section>
     );
@@ -248,29 +196,20 @@ export default function TestClient() {
   }
 
   // stage === "result"
-  const r = result!;
-  const info = levelInfo[r.level];
-  const suggestion = suggestFor(courses, r.level);
+  const info = levelInfo[result.cefr];
+  const suggestion = suggestFor(courses, result.cefr);
 
   return (
     <section className="bg-cream py-16 md:py-20">
       <div className="container-xl max-w-3xl">
         <div className="frame p-8 md:p-12 bg-white text-center">
-          <p className="eyebrow">Your result</p>
+          <p className="eyebrow">Your suggested level</p>
           <div className="mt-5 flex justify-center">
-            <span className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-azzurro text-cream font-heading font-extrabold text-5xl md:text-6xl inline-flex items-center justify-center shadow-[var(--shadow-pop)]">{r.level}</span>
+            <span className="min-w-28 h-28 md:min-w-36 md:h-36 px-6 rounded-full bg-azzurro text-cream font-heading font-extrabold text-4xl md:text-5xl inline-flex items-center justify-center shadow-[var(--shadow-pop)]">{result.label}</span>
           </div>
           <h2 className="mt-6 text-3xl md:text-4xl">{info.name}</h2>
           <p className="mt-3 max-w-xl mx-auto text-ink-muted">{info.blurb}</p>
-
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Object.entries(r.breakdown).map(([section, pct]) => (
-              <div key={section} className="p-4 rounded-2xl bg-cream-2 border border-line">
-                <p className="text-xs uppercase tracking-wider text-ink-muted font-medium">{section}</p>
-                <p className="mt-1 text-2xl font-heading font-bold">{pct}%</p>
-              </div>
-            ))}
-          </div>
+          <p className="mt-4 text-sm text-ink-muted">You answered <span className="font-semibold text-ink">{score}</span> of {answeredCount} correctly.</p>
 
           {suggestion.kind === "group" ? (
             <div className="mt-10 text-left">
@@ -309,15 +248,12 @@ export default function TestClient() {
             /* Giulia's rule: no group class at this level → private or the office. */
             <div className="mt-10 text-left p-6 rounded-2xl bg-azzurro-soft border border-azzurro-deep/20">
               <p className="eyebrow !text-azzurro-deep">What&apos;s next</p>
-              {/* Built as one expression: this SWC drops the leading space of a text
-                  chunk that follows an expression when the chunk also holds an entity.
-                    keeps "just now" from breaking across lines. */}
               <h3 className="mt-2 text-xl font-heading font-semibold">
-                {`No ${r.level} group class is on the calendar just now.`}
+                {`No ${result.cefr} group class is on the calendar just now.`}
               </h3>
               <p className="mt-2 text-[15px] text-ink-muted">
                 That happens between terms. Private lessons start whenever suits you and move at your pace — or the
-                office can tell you when the next {r.level} group opens and hold a place for you.
+                office can tell you when the next {result.cefr} group opens and hold a place for you.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link href="/courses/italian/private" className="btn btn-primary">Explore private lessons <ArrowRight size={16} /></Link>
@@ -328,7 +264,7 @@ export default function TestClient() {
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/courses/italian/adult-groups" className="btn btn-ghost">See all courses</Link>
-            <button type="button" onClick={() => { setStage("intro"); setAnswers({}); setServed([]); setCurrentLevel("A1"); }} className="btn btn-ghost">Retake test</button>
+            <button type="button" onClick={() => { setStage("intro"); setAnswers({}); setIndex(0); setSelected(null); }} className="btn btn-ghost">Retake test</button>
           </div>
         </div>
       </div>
