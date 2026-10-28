@@ -156,7 +156,10 @@ function UploadRow({ accept, onUploaded, onList }: { accept: "image" | "all"; on
       if (fileRef.current) fileRef.current.value = "";
     } catch (e2) {
       const m = String((e2 as Error)?.message ?? e2);
-      setErr(/401|Unauthorized|Not authoris/i.test(m) ? "Sign in as owner/manager." : "Upload failed.");
+      if (/401|Unauthorized|Not authoris/i.test(m)) setErr("Sign in as an owner or manager to upload.");
+      else if (/content.?type|not allowed|allowedContentTypes/i.test(m)) setErr("That file type isn't supported — use PNG, JPG, SVG, WEBP, GIF or ICO.");
+      else if (/size|too large|maximum/i.test(m)) setErr("That file is too large (max 25 MB).");
+      else setErr(`Upload failed: ${m}`);
     } finally { setBusy(false); }
   }
 
@@ -165,7 +168,7 @@ function UploadRow({ accept, onUploaded, onList }: { accept: "image" | "all"; on
       <label className="btn btn-ghost cursor-pointer text-xs py-2!">
         <Upload size={14} /> {name ? "Change file" : "Upload new"}
         <input ref={fileRef} type="file"
-          accept={accept === "image" ? "image/*" : "image/png,image/jpeg,image/webp,image/svg+xml,image/gif,image/avif,application/pdf"}
+          accept={accept === "image" ? "image/png,image/jpeg,image/webp,image/svg+xml,image/gif,image/avif,image/x-icon,image/vnd.microsoft.icon" : "image/png,image/jpeg,image/webp,image/svg+xml,image/gif,image/avif,image/x-icon,image/vnd.microsoft.icon,application/pdf"}
           required className="sr-only" onChange={(e) => setName(e.target.files?.[0]?.name ?? null)} />
       </label>
       {name && <span className="text-xs text-ink-muted truncate max-w-[10rem]">{name}</span>}

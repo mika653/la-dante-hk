@@ -14,6 +14,8 @@ const ALLOWED = [
   "image/svg+xml",
   "image/gif",
   "image/avif",
+  "image/x-icon",
+  "image/vnd.microsoft.icon",
   "application/pdf",
 ];
 
@@ -37,6 +39,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     });
     return NextResponse.json(json);
   } catch (err) {
-    return NextResponse.json({ error: (err as Error).message }, { status: 401 });
+    // Only an auth failure is a 401 — other failures (unsupported file type,
+    // size, Blob config) must NOT masquerade as "not signed in".
+    const msg = (err as Error).message || "Upload failed";
+    const isAuth = /not authoris/i.test(msg);
+    return NextResponse.json({ error: msg }, { status: isAuth ? 401 : 400 });
   }
 }
