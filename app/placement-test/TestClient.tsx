@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { type CEFR, levelInfo, scoreToSubLevel } from "@/lib/placement-questions";
+import { type CEFR, levelInfo, scoreToSubLevel, isAnswerCorrect, TF_CHOICES } from "@/lib/placement-questions";
 import { usePlacementQuestions } from "@/lib/use-placement";
 import { useCourses } from "@/lib/use-courses";
 import { suggestFor, seatsLeft, formatStart } from "@/lib/placement-suggest";
@@ -19,8 +19,8 @@ export default function TestClient() {
 
   const [stage, setStage] = useState<Stage>("intro");
   const [index, setIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [selected, setSelected] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<Record<string, number | string>>({});
+  const [response, setResponse] = useState<number | string | null>(null);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
 
@@ -28,24 +28,24 @@ export default function TestClient() {
   // on the raw number correct, mapped to a sub-level in scoreToSubLevel).
   const score = useMemo(() => {
     let correct = 0;
-    for (const q of bank) if (answers[q.id] === q.correctIndex) correct++;
+    for (const q of bank) if (isAnswerCorrect(q, answers[q.id])) correct++;
     return correct;
   }, [answers, bank]);
   const answeredCount = Object.keys(answers).length;
   const result = useMemo(() => scoreToSubLevel(score), [score]);
 
-  function begin() { setStage("testing"); setIndex(0); setAnswers({}); setSelected(null); }
+  function begin() { setStage("testing"); setIndex(0); setAnswers({}); setResponse(null); }
 
-  // Persist the current question's selection into `answers`.
+  // Persist the current question's response into `answers`.
   function recordCurrent() {
     const q = bank[index];
-    if (q && selected != null) setAnswers((a) => ({ ...a, [q.id]: selected }));
+    if (q && response !== null && response !== "") setAnswers((a) => ({ ...a, [q.id]: response }));
   }
 
   function goTo(nextIdx: number) {
     recordCurrent();
     setIndex(nextIdx);
-    setSelected(answers[bank[nextIdx]?.id] ?? null);
+    setResponse(answers[bank[nextIdx]?.id] ?? null);
   }
 
   function goNext() {
@@ -113,9 +113,12 @@ export default function TestClient() {
 
   if (stage === "testing") {
     const q = bank[index];
+    const qType = q.type ?? "choice";
+    const options = qType === "truefalse" ? (q.choices.length >= 2 ? q.choices : TF_CHOICES) : q.choices;
+    const canProceed = qType === "fill" ? (typeof response === "string" && response.trim() !== "") : typeof response === "number";
     const isLast = index + 1 >= total;
     const progress = total ? Math.round(((index + 1) / total) * 100) : 0;
-    const canFinish = answeredCount >= 1 || selected != null;
+    const canFinish = answeredCount >= 1 || canProceed;
     return (
       <section className="bg-cream py-10 md:py-16 min-h-[70vh]">
         <div className="container-xl max-w-2xl">
@@ -133,28 +136,41 @@ export default function TestClient() {
             <p className="text-xl md:text-2xl font-heading font-semibold leading-tight">{q.prompt}</p>
             {q.sub && <p className="mt-2 text-[15px] text-ink-muted">{q.sub}</p>}
 
-            <div className="mt-8 grid gap-3">
-              {q.choices.map((c, i) => {
-                const active = selected === i;
-                return (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setSelected(i)}
-                    className={`text-left border rounded-2xl px-5 py-4 flex items-center gap-4 transition-all ${active ? "border-azzurro-deep bg-azzurro/5" : "border-line hover:border-ink-muted"}`}
-                  >
-                    <span className={`w-6 h-6 rounded-full border inline-flex items-center justify-center shrink-0 ${active ? "border-azzurro-deep bg-azzurro text-cream" : "border-line"}`}>
-                      {active && <Check size={14} />}
-                    </span>
-                    <span className="text-[16px]">{c}</span>
-                  </button>
-                );
-              })}
-            </div>
+            {qType === "fill" ? (
+              <div className="mt-8">
+                <input
+                  type="text"
+                  value={typeof response === "string" ? response : ""}
+                  onChange={(e) => setResponse(e.target.value)}
+                  placeholder="Type your answer…"
+                  className="w-full h-14 px-5 rounded-2xl border border-line bg-white text-lg focus:outline-none focus:border-azzurro-deep"
+                />
+                <p className="mt-2 text-xs text-ink-muted">Type the missing word or phrase, then press Next.</p>
+              </div>
+            ) : (
+              <div className="mt-8 grid gap-3">
+                {options.map((c, i) => {
+                  const active = response === i;
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setResponse(i)}
+                      className={`text-left border rounded-2xl px-5 py-4 flex items-center gap-4 transition-all ${active ? "border-azzurro-deep bg-azzurro/5" : "border-line hover:border-ink-muted"}`}
+                    >
+                      <span className={`w-6 h-6 rounded-full border inline-flex items-center justify-center shrink-0 ${active ? "border-azzurro-deep bg-azzurro text-cream" : "border-line"}`}>
+                        {active && <Check size={14} />}
+                      </span>
+                      <span className="text-[16px]">{c}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             <div className="mt-8 flex items-center justify-between gap-3">
               <button type="button" onClick={goBack} disabled={index === 0} className="btn btn-ghost disabled:opacity-40 disabled:cursor-not-allowed"><ArrowLeft size={16} /> Previous</button>
-              <button type="button" onClick={goNext} disabled={selected == null} className="btn btn-primary disabled:opacity-40 disabled:cursor-not-allowed">
+              <button type="button" onClick={goNext} disabled={!canProceed} className="btn btn-primary disabled:opacity-40 disabled:cursor-not-allowed">
                 {isLast ? "Finish" : "Next"} <ArrowRight size={16} />
               </button>
             </div>
@@ -264,7 +280,7 @@ export default function TestClient() {
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/courses/italian/adult-groups" className="btn btn-ghost">See all courses</Link>
-            <button type="button" onClick={() => { setStage("intro"); setAnswers({}); setIndex(0); setSelected(null); }} className="btn btn-ghost">Retake test</button>
+            <button type="button" onClick={() => { setStage("intro"); setAnswers({}); setIndex(0); setResponse(null); }} className="btn btn-ghost">Retake test</button>
           </div>
         </div>
       </div>

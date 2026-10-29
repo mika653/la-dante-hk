@@ -8,23 +8,35 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { siteConfig } from "@/lib/db/schema";
 import { requireAdminFresh } from "@/lib/auth-guards";
-import { questionBank, type Question } from "@/lib/placement-questions";
+import { questionBank, TF_CHOICES, type Question, type QType } from "@/lib/placement-questions";
 
 const KEY = "placement";
 
 function clean(list: unknown): Question[] {
   if (!Array.isArray(list)) return [];
   return (list as Question[])
-    .filter((q) => q && typeof q.prompt === "string" && Array.isArray(q.choices) && q.choices.length >= 2)
-    .map((q, i) => ({
-      id: String(q.id || `q-${i + 1}`),
-      level: q.level,
-      section: q.section,
-      prompt: String(q.prompt),
-      ...(q.sub ? { sub: String(q.sub) } : {}),
-      choices: q.choices.map((c) => String(c)),
-      correctIndex: Math.max(0, Math.min(q.choices.length - 1, Math.trunc(Number(q.correctIndex) || 0))),
-    }));
+    .filter((q) => q && typeof q.prompt === "string" && q.prompt.trim().length > 0)
+    .map((q, i): Question => {
+      const type: QType = q.type === "fill" || q.type === "truefalse" ? q.type : "choice";
+      const base = {
+        id: String(q.id || `q-${i + 1}`),
+        level: q.level,
+        section: q.section,
+        type,
+        prompt: String(q.prompt),
+        ...(q.sub ? { sub: String(q.sub) } : {}),
+      };
+      if (type === "fill") {
+        return { ...base, choices: [], correctIndex: 0, answer: String(q.answer ?? "") };
+      }
+      if (type === "truefalse") {
+        return { ...base, choices: [...TF_CHOICES], correctIndex: Number(q.correctIndex) === 1 ? 1 : 0 };
+      }
+      const choices = Array.isArray(q.choices) ? q.choices.map((c) => String(c)) : [];
+      return { ...base, choices, correctIndex: Math.max(0, Math.min(choices.length - 1, Math.trunc(Number(q.correctIndex) || 0))) };
+    })
+    // Drop incomplete questions: fill needs an answer; choice/true-false need options.
+    .filter((q) => (q.type === "fill" ? (q.answer ?? "").trim().length > 0 : q.choices.length >= 2));
 }
 
 export async function getPlacementQuestions(): Promise<Question[]> {

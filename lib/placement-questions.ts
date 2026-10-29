@@ -1,15 +1,40 @@
 export type CEFR = "A1" | "A2" | "B1" | "B2" | "C1";
 export type Section = "grammar" | "vocabulary" | "reading" | "listening";
+// How the student answers a question. Defaults to "choice" when unset (so older
+// saved questions keep working).
+export type QType = "choice" | "fill" | "truefalse";
 
 export type Question = {
   id: string;
   level: CEFR;
   section: Section;
+  type?: QType;          // "choice" (default) | "fill" | "truefalse"
   prompt: string;
   sub?: string;
-  choices: string[];
-  correctIndex: number;
+  choices: string[];     // used by "choice"; "truefalse" uses Vero/Falso
+  correctIndex: number;  // index of the correct choice (0 = Vero for true/false)
+  answer?: string;       // "fill": accepted answer(s), "|"-separated alternatives
 };
+
+// True/False always offers these two options, in this order (0 = Vero).
+export const TF_CHOICES = ["Vero", "Falso"];
+
+// Normalise a typed answer for comparison: trim, lowercase, collapse whitespace.
+// (Accents are kept — they're meaningful in Italian.)
+function normAnswer(s: string): string {
+  return s.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+// Whether a student's response is correct, for any question type.
+export function isAnswerCorrect(q: Question, response: number | string | null | undefined): boolean {
+  if (response === null || response === undefined || response === "") return false;
+  if ((q.type ?? "choice") === "fill") {
+    if (typeof response !== "string") return false;
+    const given = normAnswer(response);
+    return given.length > 0 && (q.answer ?? "").split("|").map(normAnswer).filter(Boolean).includes(given);
+  }
+  return Number(response) === q.correctIndex; // "choice" and "truefalse"
+}
 
 // A hand-written pool. Real version would be 120+; for demo we have ~32 across A1–C1.
 export const questionBank: Question[] = [
