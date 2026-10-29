@@ -116,7 +116,7 @@ export default function PlacementEditor() {
           <p className="mt-2 text-ink-muted">Add, edit, remove and reorder the placement-test questions. The test runs <b>top-to-bottom, easiest first</b> — the student stops when it gets too hard and submits. The full set is <b>46 questions</b>; the score (number correct) maps to a sub-level (A1.1 … C1–C2). Use the ▲▼ arrows to set the order.</p>
         </div>
       </div>
-      <div className="frame bg-cream-2 p-4 mb-6 text-sm flex flex-wrap gap-x-5 gap-y-1">
+      <div className="frame bg-sole p-4 mb-6 text-sm flex flex-wrap gap-x-5 gap-y-1">
         <span className="font-medium">{list.length} of 46 questions{list.length < 46 ? " — add the rest below" : " ✓"}</span>
         <span className="text-ink-muted">(Level tags below are used only to suggest a matching course.)</span>
       </div>

@@ -66,7 +66,7 @@ export default function EmailSettings() {
       <h1 className="mt-2 text-3xl md:text-4xl">Email (SMTP).</h1>
       <p className="mt-3 text-ink-muted">Outgoing email settings for notifications and confirmations.</p>
 
-      <div className="mt-5 frame p-4 bg-cream-2 flex items-start gap-3">
+      <div className="mt-5 frame p-4 bg-sole flex items-start gap-3">
         <ShieldAlert size={18} className="text-azzurro-deep shrink-0 mt-0.5" aria-hidden />
         <div className="text-sm space-y-1.5">
           <p><strong>These are sensitive credentials.</strong> They&apos;re stored <strong>encrypted</strong>, only the <strong>owner</strong> can see this page, and the password is <strong>write-only</strong> (never shown again after saving).</p>
