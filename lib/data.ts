@@ -26,10 +26,12 @@ export type Course = {
   status: "Published" | "Draft";
   // --- course-schedule / continuation fields (all optional; legacy courses derive from dayLabel/dates) ---
   courseCode?: string;        // e.g. "ITA-A1.1-WED"
-  weekday?: number;           // 0=Sun … 6=Sat (the weekly class day)
+  weekday?: number;           // 0=Sun … 6=Sat (the first/primary weekly class day)
+  weekdays?: number[];        // ALL weekly class days (e.g. [1,4] for Mon+Thu intensive); falls back to [weekday]
   startTime?: string;         // "18:30"
   endTime?: string;           // "21:30"
-  lessons?: number;           // number of weekly lessons (the course "duration" in weeks)
+  lessons?: number;           // TOTAL number of lessons (across all weekly days)
+  lessonDates?: string[];     // explicit per-lesson dates — overrides the computed schedule when set
   earlyBirdDueISO?: string;   // early-bird deadline
   earlyBirdFeeHKD?: number;   // discounted early-bird fee
   archived?: boolean;         // hidden from the public site (auto once it has started)

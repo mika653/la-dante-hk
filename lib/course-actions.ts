@@ -67,9 +67,11 @@ export async function patchCourse(id: string, patch: Partial<Course>): Promise<v
   if (patch.priceHKD !== undefined) set.priceHKD = num(patch.priceHKD);
   if (patch.hours !== undefined) set.hours = num(patch.hours);
   if (patch.weekday !== undefined) set.weekday = patch.weekday ?? null;
+  if (patch.weekdays !== undefined) set.weekdays = Array.isArray(patch.weekdays) && patch.weekdays.length > 0 ? patch.weekdays.map((n) => Math.max(0, Math.min(6, Math.trunc(Number(n) || 0)))) : null;
   if (patch.startTime !== undefined) set.startTime = patch.startTime ?? null;
   if (patch.endTime !== undefined) set.endTime = patch.endTime ?? null;
   if (patch.lessons !== undefined) set.lessons = patch.lessons ?? null;
+  if (patch.lessonDates !== undefined) set.lessonDates = Array.isArray(patch.lessonDates) && patch.lessonDates.length > 0 ? patch.lessonDates.filter((d) => typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d)).sort() : null;
   if (patch.earlyBirdDueISO !== undefined) set.earlyBirdDueISO = patch.earlyBirdDueISO ?? null;
   if (patch.earlyBirdFeeHKD !== undefined) set.earlyBirdFeeHKD = patch.earlyBirdFeeHKD ?? null;
   if (patch.courseCode !== undefined) set.courseCode = patch.courseCode ?? null;

@@ -248,7 +248,7 @@ export default function AdminCoursesList() {
                 <th className="px-5 py-3 text-left font-medium">Price</th>
                 <th className="px-5 py-3 text-left font-medium">Availability</th>
                 <th className="px-5 py-3 text-left font-medium">Status</th>
-                <th className="px-5 py-3 text-right font-medium">Actions</th>
+                <th className="px-5 py-3 text-right font-medium sticky right-0 bg-cream-2 z-10">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -308,7 +308,7 @@ export default function AdminCoursesList() {
                         <span className="px-2.5 py-1 rounded-full text-xs bg-azzurro/15 text-azzurro-deep">Upcoming</span>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-right">
+                    <td className="px-5 py-4 text-right sticky right-0 bg-white z-10 shadow-[-6px_0_6px_-6px_rgba(25,25,25,0.12)]">
                       <div className="inline-flex items-center gap-1">
                         {canContinue && (
                           nextMade ? (

@@ -63,9 +63,11 @@ export const courses = pgTable("courses", {
   // optional scheduling / continuation fields
   courseCode: text("course_code"),
   weekday: integer("weekday"),
+  weekdays: jsonb("weekdays").$type<number[]>(),           // all weekly class days (twice-a-week/intensive)
   startTime: text("start_time"),
   endTime: text("end_time"),
   lessons: integer("lessons"),
+  lessonDates: jsonb("lesson_dates").$type<string[]>(),    // manual per-lesson date overrides
   earlyBirdDueISO: text("early_bird_due_iso"),
   earlyBirdFeeHKD: integer("early_bird_fee_hkd"),
   archived: boolean("archived").notNull().default(false),

@@ -2,14 +2,17 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Sparkles, RefreshCw } from "lucide-react";
+import { ArrowLeft, Save, Sparkles, RefreshCw, Plus, Trash2, Wand2 } from "lucide-react";
 import { getCourses, updateCourse } from "@/lib/admin-store";
 import type { Course, Language, CourseType } from "@/lib/data";
-import { computeEndDate, parseDayLabel, weekdayOf, daysBetween } from "@/lib/course-schedule";
+import { computeEndDateMulti, computeLessonDatesMulti, parseDayLabel, weekdayOf, daysBetween, dayLabelFromMulti } from "@/lib/course-schedule";
 import { holidaySet } from "@/lib/holidays";
 import { plidaDateSet } from "@/lib/plida-dates";
 import { useClosures } from "@/lib/use-closures";
 import CourseSchedulePreview from "@/components/CourseSchedulePreview";
+
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DOW_IDX: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 
 const TYPES: Array<{ v: CourseType; l: string }> = [
   { v: "adult-group", l: "Adult group" },
@@ -57,6 +60,9 @@ export default function EditCourseClient({ id }: { id: string }) {
   const [earlyBirdDueISO, setEarlyBirdDueISO] = useState("");
   const [earlyBirdFeeHKD, setEarlyBirdFeeHKD] = useState<number | "">("");
   const [skipPlida, setSkipPlida] = useState(false);
+  const [weekdays, setWeekdays] = useState<number[]>([]);       // all class days
+  const [lessonDates, setLessonDates] = useState<string[]>([]); // manual date overrides; [] = auto
+  const [allTeachers, setAllTeachers] = useState<string[]>([]);
   const { holidays: holidayList, plida: plidaList } = useClosures();
 
   useEffect(() => {
@@ -85,6 +91,12 @@ export default function EditCourseClient({ id }: { id: string }) {
       setEarlyBirdDueISO((c.earlyBirdDueISO || "").slice(0, 10));
       setEarlyBirdFeeHKD(typeof c.earlyBirdFeeHKD === "number" ? c.earlyBirdFeeHKD : "");
       setSkipPlida(!!c.skipPlida);
+      const wds = Array.isArray(c.weekdays) && c.weekdays.length > 0
+        ? c.weekdays
+        : (() => { const w = parseDayLabel(c.dayLabel).weekday ?? c.weekday ?? (c.startISO ? weekdayOf(c.startISO) : null); return w === null ? [] : [w]; })();
+      setWeekdays(wds);
+      setLessonDates(Array.isArray(c.lessonDates) ? c.lessonDates : []);
+      setAllTeachers(Array.from(new Set(all.map((x) => x.teacher).filter(Boolean))));
     }).catch(() => { if (alive) setNotFound(true); });
     return () => { alive = false; };
   }, [id]);
@@ -96,33 +108,67 @@ export default function EditCourseClient({ id }: { id: string }) {
     return s;
   }
 
+  // Effective class days — fall back to the label's day so legacy courses still work.
+  function effWeekdays(wds: number[] = weekdays): number[] {
+    if (wds.length > 0) return wds;
+    const w = parseDayLabel(dayLabel).weekday ?? (startISO ? weekdayOf(startISO) : null);
+    return w === null ? [] : [w];
+  }
+
   // Toggle the PLIDA skip and refresh the end date with the new setting.
   function toggleSkipPlida(checked: boolean) {
     setSkipPlida(checked);
-    if (!startISO) return;
-    const weekday = parseDayLabel(dayLabel).weekday ?? weekdayOf(startISO);
+    const wds = effWeekdays();
+    if (!startISO || wds.length === 0) return;
     const n = lessons === "" ? 10 : Number(lessons);
-    setEndISO(computeEndDate(startISO, weekday, n, skipDates(checked)));
+    setEndISO(computeEndDateMulti(startISO, wds, n, skipDates(checked)));
   }
 
-  // Recompute the end date weekly from the start, weeks, and weekday — skipping closures.
+  // Recompute the end date from the start, total lessons, and class days — skipping closures.
   function recomputeEnd() {
-    if (!startISO) return;
-    const weekday = parseDayLabel(dayLabel).weekday ?? weekdayOf(startISO);
+    const wds = effWeekdays();
+    if (!startISO || wds.length === 0) return;
     const n = lessons === "" ? 10 : Number(lessons);
-    setEndISO(computeEndDate(startISO, weekday, n, skipDates()));
+    setEndISO(computeEndDateMulti(startISO, wds, n, skipDates()));
   }
 
-  // Auto-fill the end date when the start date or duration (weeks) changes.
-  function autoEnd(startVal: string, weeksVal: number | "") {
-    if (!startVal || weeksVal === "") return;
-    const weekday = parseDayLabel(dayLabel).weekday ?? weekdayOf(startVal);
-    setEndISO(computeEndDate(startVal, weekday, Number(weeksVal), skipDates()));
+  // Auto-fill the end date when the start date or total lessons changes.
+  function autoEnd(startVal: string, totalVal: number | "", wds: number[] = weekdays) {
+    const days = effWeekdays(wds);
+    if (!startVal || totalVal === "" || days.length === 0) return;
+    setEndISO(computeEndDateMulti(startVal, days, Number(totalVal), skipDates()));
+  }
+
+  // Day-of-week picker (keeps the display label's day portion in sync).
+  function toggleDay(d: string) {
+    const wd = DOW_IDX[d];
+    const next = (weekdays.includes(wd) ? weekdays.filter((x) => x !== wd) : [...weekdays, wd]).sort((a, b) => a - b);
+    setWeekdays(next);
+    const { startTime, endTime } = parseDayLabel(dayLabel);
+    if (startTime && endTime && next.length > 0) setDayLabel(dayLabelFromMulti(next, startTime, endTime));
+    autoEnd(startISO, lessons, next);
+  }
+
+  // #5b — manual lesson dates. "Customise" seeds the list from the computed
+  // schedule so the admin can tweak individual dates; "Reset" clears it to auto.
+  function customiseDates() {
+    const wds = effWeekdays();
+    const n = lessons === "" ? 10 : Number(lessons);
+    const computed = computeLessonDatesMulti(startISO, wds, n, skipDates());
+    if (computed.length > 0) setLessonDates(computed);
+  }
+  function setOneDate(i: number, v: string) { setLessonDates((l) => l.map((d, n) => (n === i ? v : d))); }
+  function removeDate(i: number) { setLessonDates((l) => l.filter((_, n) => n !== i)); }
+  function addDate() {
+    const last = lessonDates[lessonDates.length - 1] || startISO || new Date().toISOString().slice(0, 10);
+    setLessonDates((l) => [...l, last]);
   }
 
   async function save() {
     setSaveErr(null);
     try {
+    const sortedDates = lessonDates.length > 0 ? [...lessonDates].sort() : [];
+    const finalEnd = sortedDates.length > 0 ? sortedDates[sortedDates.length - 1] : endISO;
     await updateCourse(id, {
       title: title.trim() || course?.title || "Untitled course",
       status,
@@ -133,13 +179,16 @@ export default function EditCourseClient({ id }: { id: string }) {
       location,
       dayLabel,
       startISO,
-      endISO,
+      endISO: finalEnd,
       hours,
       priceHKD,
       seats,
       enrolled,
       courseCode: courseCode.trim() || undefined,
       lessons: lessons === "" ? undefined : Number(lessons),
+      weekday: weekdays.length > 0 ? weekdays[0] : undefined,
+      weekdays: weekdays.length > 0 ? weekdays : undefined,
+      lessonDates: sortedDates.length > 0 ? sortedDates : undefined,
       earlyBirdDueISO: earlyBirdDueISO || undefined,
       earlyBirdFeeHKD: earlyBirdFeeHKD === "" ? undefined : Number(earlyBirdFeeHKD),
       skipPlida,
@@ -212,8 +261,8 @@ export default function EditCourseClient({ id }: { id: string }) {
           <label className="block text-sm font-medium">Course code <span className="text-ink-muted font-normal">(optional)</span>
             <input value={courseCode} onChange={(e) => setCourseCode(e.target.value)} placeholder="e.g. ITA-A1.1-WED" className={field} />
           </label>
-          <label className="block text-sm font-medium">Course duration <span className="text-ink-muted font-normal">(weeks — auto-fills the end date)</span>
-            <input type="number" min={1} value={lessons} onChange={(e) => { const w = e.target.value === "" ? "" : Number(e.target.value); setLessons(w); autoEnd(startISO, w); }} placeholder="e.g. 11" className={field} />
+          <label className="block text-sm font-medium">Total lessons <span className="text-ink-muted font-normal">(auto-fills the end date)</span>
+            <input type="number" min={1} value={lessons} onChange={(e) => { const w = e.target.value === "" ? "" : Number(e.target.value); setLessons(w); autoEnd(startISO, w); }} placeholder="e.g. 15" className={field} />
           </label>
         </div>
 
@@ -242,7 +291,8 @@ export default function EditCourseClient({ id }: { id: string }) {
             </select>
           </label>
           <label className="block text-sm font-medium">Teacher
-            <input value={teacher} onChange={(e) => setTeacher(e.target.value)} className={field} />
+            <input list="edit-teacher-options" value={teacher} onChange={(e) => setTeacher(e.target.value)} placeholder="Pick or type a teacher" className={field} />
+            <datalist id="edit-teacher-options">{allTeachers.map((t) => <option key={t} value={t} />)}</datalist>
           </label>
         </div>
 
@@ -256,6 +306,17 @@ export default function EditCourseClient({ id }: { id: string }) {
           <label className="block text-sm font-medium">Schedule label
             <input value={dayLabel} onChange={(e) => setDayLabel(e.target.value)} placeholder="e.g. Wed 18:30–21:30" className={field} />
           </label>
+        </div>
+
+        {/* Class days */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Class days <span className="text-ink-muted font-normal">(pick two for twice-a-week / intensive courses)</span></label>
+          <div className="flex flex-wrap gap-2">
+            {DAYS.map((d) => {
+              const on = weekdays.includes(DOW_IDX[d]);
+              return <button key={d} type="button" onClick={() => toggleDay(d)} className={`px-4 py-2 rounded-full border ${on ? "bg-ink text-cream border-ink" : "border-line hover:border-ink-muted"}`}>{d}</button>;
+            })}
+          </div>
         </div>
 
         {/* Dates */}
@@ -289,10 +350,40 @@ export default function EditCourseClient({ id }: { id: string }) {
           <label className="block text-sm font-medium mb-3">Schedule preview</label>
           <CourseSchedulePreview
             startISO={startISO}
-            weekday={parseDayLabel(dayLabel).weekday ?? (startISO ? weekdayOf(startISO) : null)}
+            weekdays={effWeekdays()}
             lessons={lessons !== "" ? Number(lessons) : (startISO && endISO ? Math.max(1, Math.floor(daysBetween(startISO, endISO) / 7) + 1) : 0)}
+            lessonDates={lessonDates.length > 0 ? lessonDates : undefined}
             holidays={skipPlida ? [...holidayList, ...plidaList] : holidayList}
           />
+        </div>
+
+        {/* Individual lesson dates — manual overrides (#5b) */}
+        <div className="rounded-2xl border border-line bg-cream-2/40 p-4 md:p-5">
+          <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
+            <label className="block text-sm font-medium">Individual lesson dates</label>
+            {lessonDates.length === 0 ? (
+              <button type="button" onClick={customiseDates} className="text-xs text-azzurro-deep hover:underline inline-flex items-center gap-1"><Wand2 size={12} /> Edit dates by hand</button>
+            ) : (
+              <button type="button" onClick={() => setLessonDates([])} className="text-xs text-ink-muted hover:text-rosso inline-flex items-center gap-1"><RefreshCw size={12} /> Reset to automatic</button>
+            )}
+          </div>
+          {lessonDates.length === 0 ? (
+            <p className="text-xs text-ink-muted">Dates are calculated automatically from the start date, class days and holidays. Click <b>Edit dates by hand</b> to move, add or remove individual lessons — e.g. a one-off holiday or a make-up class.</p>
+          ) : (
+            <>
+              <p className="text-xs text-ink-muted mb-2">These exact dates are used for this course (automatic calculation is off). {lessonDates.length} lesson{lessonDates.length === 1 ? "" : "s"} — the end date follows the last one.</p>
+              <div className="grid sm:grid-cols-2 gap-2">
+                {lessonDates.map((d, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-xs text-ink-muted w-6 shrink-0">#{i + 1}</span>
+                    <input type="date" value={d} onChange={(e) => setOneDate(i, e.target.value)} className="flex-1 h-9 px-3 rounded-lg border border-line bg-white text-sm" />
+                    <button type="button" onClick={() => removeDate(i)} aria-label="Remove date" className="w-8 h-8 rounded-lg hover:bg-rosso/10 hover:text-rosso inline-flex items-center justify-center text-ink-muted shrink-0"><Trash2 size={13} /></button>
+                  </div>
+                ))}
+              </div>
+              <button type="button" onClick={addDate} className="mt-2 text-xs text-azzurro-deep hover:underline inline-flex items-center gap-1"><Plus size={12} /> Add a date</button>
+            </>
+          )}
         </div>
 
         {/* Early bird */}

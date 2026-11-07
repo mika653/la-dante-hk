@@ -1,13 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, Calendar, Users, MapPin, User } from "lucide-react";
 import { addCourse } from "@/lib/admin-store";
 import { levelOutcomes } from "@/lib/data";
 import type { Course, Language, CourseType, CEFRLevel } from "@/lib/data";
-import { generateContinuation, nextLevel, daysBetween, computeEndDate } from "@/lib/course-schedule";
-import { previewCourseCode } from "@/lib/course-code";
+import { generateContinuation, nextLevel, daysBetween, computeEndDateMulti } from "@/lib/course-schedule";
+import { generateCourseCode } from "@/lib/course-code";
+import { listAllCourses } from "@/lib/course-actions";
 import { holidaySet } from "@/lib/holidays";
 import { plidaDateSet } from "@/lib/plida-dates";
 import { useClosures } from "@/lib/use-closures";
@@ -23,7 +24,11 @@ type Step = 1 | 2 | 3 | 4;
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const DOW_IDX: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 const LOCATIONS = ["Wanchai", "Online", "Corporate"] as const;
-const TEACHERS = ["Giulia Marchetti", "Marco Rossi", "Sofia Bianchi", "Elena Conti", "Anna De Luca", "Dr. Paolo Venturi"];
+// Known teachers, used to seed the picker. The field is a free-type combobox, so
+// a teacher not in this list can simply be typed in and will then appear for the
+// next course too (see the datalist below, which also includes teachers already
+// on existing courses).
+const TEACHERS = ["Francesca Coppeta", "Clelia Marinucci", "Giorgia Zecchinato", "Raffaella Iaconeta", "Jacopo Gorini"];
 const LEVELS: CEFRLevel[] = [
   "A1.1", "A1.2", "A1.3",
   "A2.1", "A2.2", "A2.3", "A2.4",
@@ -56,6 +61,16 @@ export default function NewCoursePage() {
   const [weeks, setWeeks] = useState<number | "">("");
   const [skipPlida, setSkipPlida] = useState(false);
   const { holidays: holidayList, plida: plidaList } = useClosures();
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
+  useEffect(() => { listAllCourses().then(setAllCourses).catch(() => {}); }, []);
+  // Teacher picker options: known teachers plus anyone already on a course (so a
+  // newly-typed teacher shows up next time). Live course-code preview: the real
+  // next code, computed from the codes already in use (finalised on save).
+  const teacherOptions = Array.from(new Set([...TEACHERS, ...allCourses.map((c) => c.teacher).filter(Boolean)]));
+  const codePreview = generateCourseCode(
+    { language: lang, type, startISO: startDate || new Date().toISOString().slice(0, 10) },
+    allCourses.map((c) => c.courseCode),
+  );
 
   // The dates the scheduler skips: always public holidays, plus PLIDA exam days
   // when this class is set to pause for them. Both come from the shared list.
@@ -65,10 +80,12 @@ export default function NewCoursePage() {
     return s;
   }
 
-  // Auto-fill the end date from start + duration (weeks) on the class day, skipping closures.
+  // Auto-fill the end date from start + duration (weeks) across ALL class days,
+  // skipping closures. Total lessons = weeks × days-per-week.
   function autoEndFor(start: string, wk: number | "", dys: string[], skip: boolean = skipPlida) {
-    if (!start || wk === "" || dys[0] === undefined) return;
-    setEndDate(computeEndDate(start, DOW_IDX[dys[0]], Number(wk), skipDates(skip)));
+    if (!start || wk === "" || dys.length === 0) return;
+    const wds = dys.map((d) => DOW_IDX[d]);
+    setEndDate(computeEndDateMulti(start, wds, Number(wk) * dys.length, skipDates(skip)));
   }
 
   function toggleDay(d: string) {
@@ -112,9 +129,10 @@ export default function NewCoursePage() {
       enrolled: 0,
       status,
       weekday: days[0] !== undefined ? DOW_IDX[days[0]] : undefined,
+      weekdays: days.length > 0 ? days.map((d) => DOW_IDX[d]) : undefined,
       startTime,
       endTime,
-      lessons: weeks !== "" ? Number(weeks) : (startDate && endDate ? Math.max(1, Math.floor(daysBetween(startDate, endDate) / 7) + 1) : undefined),
+      lessons: weeks !== "" ? Number(weeks) * Math.max(1, days.length) : (startDate && endDate ? Math.max(1, (Math.floor(daysBetween(startDate, endDate) / 7) + 1) * Math.max(1, days.length)) : undefined),
       skipPlida,
     };
   }
@@ -266,9 +284,8 @@ export default function NewCoursePage() {
           <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-4">
               <label className="text-sm font-medium">Teacher
-                <select value={teacher} onChange={(e) => setTeacher(e.target.value)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white">
-                  {TEACHERS.map((t) => <option key={t}>{t}</option>)}
-                </select>
+                <input list="teacher-options" value={teacher} onChange={(e) => setTeacher(e.target.value)} placeholder="Pick or type a teacher" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" />
+                <datalist id="teacher-options">{teacherOptions.map((t) => <option key={t} value={t} />)}</datalist>
               </label>
               <label className="text-sm font-medium">Max students<input type="number" value={maxStudents} onChange={(e) => setMaxStudents(Number(e.target.value))} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" /></label>
               <label className="text-sm font-medium">Price (HKD)<input type="number" value={priceHKD} onChange={(e) => setPriceHKD(Number(e.target.value))} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" /></label>
@@ -293,9 +310,9 @@ export default function NewCoursePage() {
             <div className="frame p-5 md:p-6 bg-cream-2/50">
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro-deep">{level}</p>
-                <span className="text-[11px] font-mono uppercase tracking-widest text-ink-muted">· {previewCourseCode({ language: lang, type, startISO: startDate || new Date().toISOString().slice(0, 10) })}</span>
+                <span className="text-[11px] font-mono uppercase tracking-widest text-ink-muted">· {codePreview}</span>
               </div>
-              <p className="mt-1 text-[11px] text-ink-muted">Course code is assigned automatically — the last two digits are set when you save.</p>
+              <p className="mt-1 text-[11px] text-ink-muted">Course code <b className="font-mono not-italic">{codePreview}</b> (auto-generated, shown before saving). It&apos;s finalised on save — if someone else saves a course in the same batch first, the last two digits bump.</p>
               <h3 className="mt-2 text-lg md:text-xl font-semibold">{title || autoTitle()}</h3>
               <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 text-[13px] text-ink-muted">
                 <span className="inline-flex items-center gap-1.5"><Calendar size={13} aria-hidden />{startDate || "—"} → {endDate || "—"}</span>
@@ -312,8 +329,8 @@ export default function NewCoursePage() {
                 <p className="text-sm font-medium mb-3">Schedule preview</p>
                 <CourseSchedulePreview
                   startISO={startDate}
-                  weekday={DOW_IDX[days[0]]}
-                  lessons={weeks !== "" ? Number(weeks) : Math.max(1, Math.floor(daysBetween(startDate, endDate) / 7) + 1)}
+                  weekdays={days.map((d) => DOW_IDX[d])}
+                  lessons={(weeks !== "" ? Number(weeks) : Math.max(1, Math.floor(daysBetween(startDate, endDate) / 7) + 1)) * Math.max(1, days.length)}
                   holidays={skipPlida ? [...holidayList, ...plidaList] : holidayList}
                 />
               </div>

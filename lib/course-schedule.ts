@@ -59,12 +59,22 @@ export function parseDayLabel(dayLabel: string): { weekday: number | null; start
 export function dayLabelFrom(weekday: number, startTime: string, endTime: string): string {
   return `${DAY_ABBR[weekday]} ${startTime}–${endTime}`;
 }
+export function dayLabelFromMulti(weekdays: number[], startTime: string, endTime: string): string {
+  const days = [...new Set(weekdays)].sort((a, b) => a - b).map((w) => DAY_ABBR[w]).join("/");
+  return `${days} ${startTime}–${endTime}`;
+}
 
 // ---- derive structured schedule from a course (explicit fields, else the label/dates) ----
 export function courseWeekday(c: Course): number | null {
   if (typeof c.weekday === "number") return c.weekday;
   const p = parseDayLabel(c.dayLabel).weekday;
   return p ?? (c.startISO ? weekdayOf(c.startISO) : null);
+}
+// Every weekly class day (for twice-a-week / intensive). Falls back to the single weekday.
+export function courseWeekdays(c: Course): number[] {
+  if (Array.isArray(c.weekdays) && c.weekdays.length > 0) return [...new Set(c.weekdays)].sort((a, b) => a - b);
+  const w = courseWeekday(c);
+  return w === null ? [] : [w];
 }
 export function courseTimes(c: Course): { startTime: string | null; endTime: string | null } {
   if (c.startTime && c.endTime) return { startTime: c.startTime, endTime: c.endTime };
@@ -77,21 +87,37 @@ export function courseLessons(c: Course): number {
   return 10;
 }
 
-// ---- lesson-date computation: weekly, skipping holidays (a holiday week bumps the lesson on) ----
-export function computeLessonDates(firstISO: string, weekday: number, lessons: number, holidays: Set<string>): string[] {
+// ---- lesson-date computation: lessons land on ANY of the weekly class days,
+// skipping holidays (a holiday just drops that session and the course runs on). ----
+export function computeLessonDatesMulti(firstISO: string, weekdays: number[], totalLessons: number, holidays: Set<string>): string[] {
   const out: string[] = [];
+  const set = new Set(weekdays);
+  if (set.size === 0 || totalLessons <= 0) return out;
   let cur = firstISO;
-  // align to the target weekday if the given start is off-day
-  for (let g = 0; weekdayOf(cur) !== weekday && g < 7; g++) cur = addDays(cur, 1);
-  for (let g = 0; out.length < lessons && g < 520; g++) {
-    if (!holidays.has(cur)) out.push(cur);
-    cur = addDays(cur, 7);
+  for (let g = 0; out.length < totalLessons && g < 520 * 7; g++) {
+    if (set.has(weekdayOf(cur)) && !holidays.has(cur)) out.push(cur);
+    cur = addDays(cur, 1);
   }
   return out;
+}
+export function computeEndDateMulti(firstISO: string, weekdays: number[], totalLessons: number, holidays: Set<string>): string {
+  const d = computeLessonDatesMulti(firstISO, weekdays, totalLessons, holidays);
+  return d[d.length - 1] ?? firstISO;
+}
+// Back-compat single-weekday wrappers (one lesson per week).
+export function computeLessonDates(firstISO: string, weekday: number, lessons: number, holidays: Set<string>): string[] {
+  return computeLessonDatesMulti(firstISO, [weekday], lessons, holidays);
 }
 export function computeEndDate(firstISO: string, weekday: number, lessons: number, holidays: Set<string>): string {
   const d = computeLessonDates(firstISO, weekday, lessons, holidays);
   return d[d.length - 1] ?? firstISO;
+}
+// The actual lesson dates for a course: manual overrides when set, else computed.
+export function courseLessonDates(c: Course, holidays: Set<string>): string[] {
+  if (Array.isArray(c.lessonDates) && c.lessonDates.length > 0) return [...c.lessonDates].sort();
+  const weekdays = courseWeekdays(c);
+  if (weekdays.length === 0) return [];
+  return computeLessonDatesMulti(c.startISO, weekdays, courseLessons(c), holidays);
 }
 
 // ---- upcoming / started (archiving) ----
@@ -133,20 +159,23 @@ export function generateContinuation(
 ): Course | null {
   const next = nextLevel(parent.level);
   if (!next) return null;
-  const weekday = courseWeekday(parent);
-  if (weekday === null) return null;
+  const weekdays = courseWeekdays(parent);
+  if (weekdays.length === 0) return null;
 
   // Callers pass the loaded closures set; default to none if not provided.
   const holidays = opts?.holidays ?? new Set<string>();
   const gapWeeks = opts?.gapWeeks ?? 1;
   const { startTime, endTime } = courseTimes(parent);
-  const lessons = courseLessons(parent);
+  const lessons = courseLessons(parent); // TOTAL lessons across all weekly days
 
-  const parentLast = computeEndDate(parent.startISO, weekday, lessons, holidays);
-  // first lesson of the next course: gapWeeks break after the last lesson, same weekday, off holidays
-  let firstISO = addDays(parentLast, (gapWeeks + 1) * 7);
-  for (let g = 0; holidays.has(firstISO) && g < 20; g++) firstISO = addDays(firstISO, 7);
-  const endISO = computeEndDate(firstISO, weekday, lessons, holidays);
+  const parentLast = computeEndDateMulti(parent.startISO, weekdays, lessons, holidays);
+  // First lesson of the next course: a gap after the parent's last lesson, then the
+  // next class day — computeLessonDatesMulti aligns to a class day and skips holidays,
+  // and lays out ALL weekly days (so a twice-a-week course stays twice a week).
+  const candidate = addDays(parentLast, (gapWeeks + 1) * 7);
+  const dates = computeLessonDatesMulti(candidate, weekdays, lessons, holidays);
+  const firstISO = dates[0] ?? candidate;
+  const endISO = dates[dates.length - 1] ?? firstISO;
 
   let earlyBirdDueISO = parent.earlyBirdDueISO;
   if (parent.earlyBirdDueISO) {
@@ -161,11 +190,13 @@ export function generateContinuation(
     title: titleForContinuation(parent, next),
     startISO: firstISO,
     endISO,
-    dayLabel: startTime && endTime ? dayLabelFrom(weekday, startTime, endTime) : parent.dayLabel,
-    weekday,
+    dayLabel: startTime && endTime ? dayLabelFromMulti(weekdays, startTime, endTime) : parent.dayLabel,
+    weekday: weekdays[0],
+    weekdays,
     startTime: startTime ?? undefined,
     endTime: endTime ?? undefined,
     lessons,
+    lessonDates: undefined, // recompute for the new term; don't carry manual date overrides
     earlyBirdDueISO,
     earlyBirdFeeHKD: parent.earlyBirdFeeHKD,
     courseCode: continuationCode(parent.courseCode, String(parent.level), next),
