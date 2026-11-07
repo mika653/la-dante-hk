@@ -1,5 +1,6 @@
 import PageHeader from "@/components/PageHeader";
-import CourseListClient from "@/components/CourseListClient";
+import EnquiryForm from "@/components/EnquiryForm";
+import LatinGroupsClient from "./LatinGroupsClient";
 
 export default function LatinGroupsPage() {
   return (
@@ -21,8 +22,15 @@ export default function LatinGroupsPage() {
           <p className="eyebrow">Group Classes · 小組課堂</p>
           <p className="mt-1 text-[13px] text-ink-muted">2026 課程列表</p>
           <div className="mt-6">
-            <CourseListClient language="latin" />
+            <LatinGroupsClient />
           </div>
+        </div>
+      </section>
+
+      {/* Can't find the right level → capture the enquiry */}
+      <section id="enquire" className="bg-white py-14 md:py-20 scroll-mt-24 border-t border-line">
+        <div className="container-xl max-w-2xl">
+          <EnquiryForm type="course" />
         </div>
       </section>
     </>

@@ -103,7 +103,7 @@ export default function TestClient() {
               <div><Flag size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">Stop anytime</p></div>
               <div><Mail size={18} className="mx-auto text-azzurro-deep" aria-hidden /><p className="mt-2 text-xs uppercase tracking-wider text-ink-muted">Office follows up</p></div>
             </div>
-            <button type="button" onClick={begin} className="btn btn-primary mt-10">Begin the test <ArrowRight size={16} /></button>
+            <button type="button" onClick={begin} className="btn btn-blue mt-10">Begin the test <ArrowRight size={16} /></button>
             <p className="mt-4 text-xs text-ink-muted">No account needed. You can stop anytime.</p>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function TestClient() {
           <div className="mb-6">
             <div className="flex items-center justify-between text-xs text-ink-muted font-medium uppercase tracking-wider">
               <span>Question {index + 1} of {total}</span>
-              <span>{score} correct so far</span>
+              <span>{answeredCount} answered</span>
             </div>
             <div className="mt-2 h-1.5 bg-line rounded-full overflow-hidden">
               <div className="h-full bg-azzurro transition-all duration-300" style={{ width: `${progress}%` }} />

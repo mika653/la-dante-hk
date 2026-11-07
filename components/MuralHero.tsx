@@ -75,7 +75,7 @@ export default function MuralHero() {
           <p className="mt-5 max-w-[520px] text-base md:text-xl text-ink-muted">{hero.subhead}</p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href={localizePath("/placement-test", locale)} className="btn btn-primary">
+            <Link href={localizePath("/placement-test", locale)} className="btn btn-blue">
               {hero.cta1} <ArrowRight size={16} />
             </Link>
             <Link href={localizePath("/courses/italian/adult-groups", locale)} className="btn btn-yellow">

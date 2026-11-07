@@ -1,5 +1,6 @@
 import PageHeader from "@/components/PageHeader";
 import MembershipClient from "./MembershipClient";
+import SponsorshipSection from "./SponsorshipSection";
 import PerksDirectory, { type Perk } from "./PerksDirectory";
 import { memberPerks } from "@/lib/data";
 import { listActivePrivileges } from "@/lib/privilege-actions";
@@ -40,6 +41,9 @@ export default async function MembershipPage() {
         tone="azzurro"
       />
       <MembershipClient />
+
+      {/* Sponsorship — tiers + classroom add-on */}
+      <SponsorshipSection />
 
       {/* Perks */}
       <section id="perks" className="bg-white py-16 md:py-24 border-t border-line">

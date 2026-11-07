@@ -1,18 +1,55 @@
 "use client";
 import { useState } from "react";
-import { membershipPlans, type MembershipPlan } from "@/lib/data";
 import { formatHKD } from "@/lib/utils";
 import { Check, ArrowLeft, ArrowRight, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 
 type Step = 1 | 2 | 3 | 4;
+type PlanId = "individual" | "student";
+
+type Plan = {
+  id: PlanId;
+  name: string;
+  priceHKD: number;
+  cadence: string; // shown after the price, e.g. "first year" / "one-time"
+  renewal?: string; // optional second line, e.g. "then HKD 600 / year"
+  blurb: string;
+  perks: string[];
+  highlight?: boolean;
+  badge?: string;
+};
+
+// Membership fees per Giulia. Individual is the headline plan; the student rate
+// is a one-time fee. Sponsorship tiers live in the SponsorshipSection below.
+const membershipPlans: Plan[] = [
+  {
+    id: "individual",
+    name: "Individual",
+    priceHKD: 800,
+    cadence: "first year",
+    renewal: `then ${formatHKD(600)} / year`,
+    blurb: "Full access to Dante life in Hong Kong.",
+    perks: ["Course discounts", "Library & bookclub", "Cultural events", "50+ member perks across HK", "PLIDA exam discount"],
+    highlight: true,
+    badge: "Most popular",
+  },
+  {
+    id: "student",
+    name: "Student",
+    priceHKD: 150,
+    cadence: "one-time",
+    blurb: "Under 25, or with a full-time student ID.",
+    perks: ["Course discounts", "Library & bookclub", "Student-only events", "50+ member perks across HK"],
+    badge: "One-time fee",
+  },
+];
 
 const interestOptions = ["Adult courses", "Latin", "Kids & teens", "Culture events", "Wine & food", "Cinema", "PLIDA", "Bookclub"];
 const heardOptions = ["Instagram", "Friend referral", "Google search", "Work / colleague", "Italian Consulate", "Other"];
 
 export default function MembershipClient() {
   const [step, setStep] = useState<Step>(1);
-  const [planId, setPlanId] = useState<MembershipPlan["id"] | null>("ordinary");
+  const [planId, setPlanId] = useState<PlanId | null>("individual");
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
   const [email, setEmail] = useState("");
@@ -75,25 +112,39 @@ export default function MembershipClient() {
 
         {step === 1 && (
           <div>
-            <h2 className="text-2xl md:text-3xl">Choose your plan.</h2>
-            <p className="mt-2 text-ink-muted">One year. Cancel or upgrade anytime.</p>
-            <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <h2 className="text-2xl md:text-3xl text-balance">Choose your membership.</h2>
+            <p className="mt-2 text-ink-muted">Join as an individual, or at the student rate. Looking to partner as a company? <a href="#sponsorship" className="underline hover:text-azzurro-deep">See sponsorship</a>.</p>
+            <div className="mt-8 grid sm:grid-cols-2 gap-5 max-w-3xl">
               {membershipPlans.map((p) => {
                 const selected = planId === p.id;
                 return (
                   <button
                     key={p.id}
                     type="button"
+                    aria-pressed={selected}
                     onClick={() => setPlanId(p.id)}
-                    className={`text-left frame p-6 transition-all ${selected ? "ring-2 ring-azzurro-deep bg-white -translate-y-1" : "bg-white"}`}
+                    className={`relative text-left frame p-6 transition-all ${selected ? "ring-2 ring-azzurro-deep bg-white -translate-y-1" : "bg-white hover:-translate-y-0.5"}`}
                   >
-                    {p.highlight && <span className="inline-block px-2.5 py-1 rounded-full bg-sole text-ink text-xs font-medium uppercase tracking-wider"><Star size={10} className="inline -mt-0.5 mr-1" /> Most popular</span>}
+                    {/* Selected check badge */}
+                    <span
+                      aria-hidden
+                      className={`absolute top-4 right-4 w-7 h-7 rounded-full inline-flex items-center justify-center transition-all ${selected ? "bg-azzurro-deep text-cream scale-100" : "bg-transparent border border-line text-transparent scale-90"}`}
+                    >
+                      <Check size={15} />
+                    </span>
+                    {p.badge && (
+                      <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium uppercase tracking-wider ${p.highlight ? "bg-sole text-ink" : "bg-sole-soft text-ink-muted"}`}>
+                        {p.highlight && <Star size={10} className="inline -mt-0.5 mr-1" />}{p.badge}
+                      </span>
+                    )}
                     <h3 className="mt-3 text-xl font-heading font-bold">{p.name}</h3>
                     <p className="mt-2 text-ink-muted text-sm">{p.blurb}</p>
-                    <p className="mt-4 text-3xl font-heading font-extrabold">
-                      {p.priceHKD == null ? "Custom" : formatHKD(p.priceHKD)}
-                      {p.priceHKD != null && <span className="text-sm font-medium text-ink-muted"> /yr</span>}
-                    </p>
+                    <div className="mt-4">
+                      <p className="text-3xl font-heading font-extrabold">
+                        {formatHKD(p.priceHKD)}<span className="text-sm font-medium text-ink-muted"> {p.cadence}</span>
+                      </p>
+                      {p.renewal && <p className="text-xs text-ink-muted mt-1">{p.renewal}</p>}
+                    </div>
                     <ul className="mt-4 space-y-1.5 text-sm">
                       {p.perks.map((x) => (
                         <li key={x} className="flex gap-2"><Check size={14} className="text-azzurro-deep mt-1 shrink-0" />{x}</li>
@@ -154,10 +205,11 @@ export default function MembershipClient() {
             <div className="mt-8 grid md:grid-cols-[2fr_1fr] gap-6">
               <div className="frame p-6 bg-white">
                 <p className="eyebrow">Membership</p>
-                <div className="mt-2 flex items-center justify-between">
+                <div className="mt-2 flex items-center justify-between gap-3">
                   <h3 className="text-xl font-semibold">{plan.name}</h3>
-                  <span className="text-lg font-heading font-bold">{plan.priceHKD == null ? "Custom quote" : `${formatHKD(plan.priceHKD)}/yr`}</span>
+                  <span className="text-lg font-heading font-bold text-right">{formatHKD(plan.priceHKD)} <span className="text-sm font-medium text-ink-muted">{plan.cadence}</span></span>
                 </div>
+                {plan.renewal && <p className="text-xs text-ink-muted text-right">{plan.renewal}</p>}
                 <ul className="mt-4 grid grid-cols-2 gap-y-1.5 text-sm">
                   {plan.perks.map((p) => <li key={p} className="flex gap-2"><Check size={13} className="text-azzurro-deep mt-1 shrink-0" />{p}</li>)}
                 </ul>
@@ -170,7 +222,8 @@ export default function MembershipClient() {
               </div>
               <div className="frame p-6 bg-sole-soft">
                 <p className="eyebrow">Total today</p>
-                <p className="mt-2 text-3xl font-heading font-extrabold">{plan.priceHKD == null ? "—" : formatHKD(plan.priceHKD)}</p>
+                <p className="mt-2 text-3xl font-heading font-extrabold">{formatHKD(plan.priceHKD)}</p>
+                <p className="text-xs text-ink-muted">{plan.renewal ?? `${plan.cadence} fee`}</p>
                 <label className="flex items-start gap-2 mt-5 text-sm cursor-pointer">
                   <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} className="mt-1 accent-azzurro" />
                   <span>I agree to the <Link className="underline" href="/terms">Terms</Link> and <Link className="underline" href="/privacy">Privacy policy</Link>.</span>

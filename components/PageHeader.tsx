@@ -16,11 +16,13 @@ export default function PageHeader({
   crumbs?: Crumb[];
   tone?: "cream" | "sole-soft" | "azzurro";
 }) {
-  const bg = tone === "azzurro" ? "bg-paper text-ink" : tone === "sole-soft" ? "bg-sole-soft" : "bg-cream";
-  const sub = "text-ink-muted";
-  const eb = tone === "azzurro" ? "!text-azzurro-deep" : "";
+  // Per Giulia: a standard yellow banner on every landing page. The `tone` prop is
+  // kept for backwards-compatibility but no longer changes the banner colour.
+  void tone;
+  const sub = "text-ink/70";
+  const eb = "";
   return (
-    <section className={`${bg} pt-12 pb-16 md:pt-20 md:pb-24 border-b border-line/50`}>
+    <section className={`bg-sole text-ink pt-12 pb-16 md:pt-20 md:pb-24 border-b border-ink/10`}>
       <div className="container-xl">
         {crumbs && (
           <nav aria-label="Breadcrumb" className={`text-[13px] ${sub} flex items-center gap-1.5 mb-4 flex-wrap`}>

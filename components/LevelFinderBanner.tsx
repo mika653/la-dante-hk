@@ -29,7 +29,7 @@ export default function LevelFinderBanner() {
         </div>
 
         <div className="relative flex justify-center md:justify-end">
-          <Link href={localizePath("/placement-test", locale)} className="btn btn-primary uppercase tracking-wide text-[13px] relative z-10">
+          <Link href={localizePath("/placement-test", locale)} className="btn btn-blue uppercase tracking-wide text-[13px] relative z-10">
             {isZh ? "開始測試" : "Find My Level"}
           </Link>
           <svg width="72" height="44" viewBox="0 0 72 44" className="absolute -bottom-9 right-2 text-ink-soft hidden md:block" aria-hidden>

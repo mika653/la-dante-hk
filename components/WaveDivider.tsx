@@ -6,7 +6,7 @@ const toneHex: Record<Tone, string> = {
   "cream": "#FFFBF0",
   "white": "#FFFFFF",
   "sole": "#FFED4E",
-  "sole-soft": "#FFF6A8",
+  "sole-soft": "#e1e1e1",
   "azzurro": "#A6E4F8",
   "azzurro-soft": "#DFF3FC",
   "azzurro-deep": "#075985",

@@ -2,6 +2,54 @@ import PageHeader from "@/components/PageHeader";
 import Image from "next/image";
 
 export default function About() {
+  // --- Team section data (Giulia's structure: Board → Management → Teachers) ---
+  const initials = (name: string) =>
+    name
+      .replace(/^(?:Dr|Prof)\.?\s+/i, "")
+      .split(/[\s-]+/)
+      .filter(Boolean)
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+
+  const avatarColors = [
+    "bg-ink text-cream",
+    "bg-azzurro-deep text-cream",
+    "bg-azzurro text-ink",
+  ];
+
+  const board = [
+    { name: "Bruno Feltracco", role: "President" },
+    { name: "Alessandra Cocchi-Joynt", role: "Vice President" },
+    { name: "Francesco Rinaldi", role: "Treasurer" },
+    { name: "Manoj Kumar Motwani", role: "Board Member" },
+    { name: "Anna Romagnoli", role: "Board Member" },
+    { name: "Averardo Borghini Baldovinetti", role: "Board Member" },
+    { name: "Francesca Biroli", role: "Board Member" },
+    { name: "Giuseppe Randazzo", role: "Board Member" },
+    { name: "Giovanni Angelini", role: "Board Member" },
+    { name: "Dr. Richard Lee", role: "Patron" },
+    { name: "Andrea Croci", role: "Honorary Member" },
+  ];
+
+  const staff = [
+    { name: "Giulia Capasso", role: "School Coordinator", email: "giulia@ladante.cc" },
+    { name: "Alice Agostini", role: "Office Manager", email: "alice@ladante.cc" },
+    { name: "Bill Chen", role: "Administrative & IT", email: "bill@ladante.cc" },
+    { name: "Johnny Yuen", role: "Marketing Officer", email: "johnny@ladante.cc" },
+  ];
+
+  const teachers = [
+    "Francesca Coppeta",
+    "Clelia Marinucci",
+    "Giorgia Zecchinato",
+    "Raffaella Iaconeta",
+    "Jacopo Gorini",
+  ];
+
+  const everyone = [...board, ...staff, ...teachers.map((name) => ({ name }))];
+
   return (
     <>
       <PageHeader
@@ -58,62 +106,72 @@ export default function About() {
       <section id="team" className="bg-sole py-16 md:py-24">
         <div className="container-xl">
           <p className="eyebrow">Our team</p>
-          <h2 className="mt-3 text-3xl md:text-5xl">Faces you&apos;ll meet.</h2>
+          <h2 className="mt-3 text-3xl md:text-5xl text-balance">Faces you&apos;ll meet.</h2>
+          <p className="mt-4 max-w-2xl text-ink-muted">
+            A board of directors, a small management team, and the teachers who bring
+            Italian to life every day &mdash; the people behind La&nbsp;Dante.
+          </p>
 
-          <h3 className="mt-10 font-heading font-bold text-xl">Staff</h3>
-          <div className="mt-6 grid sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { name: "Giulia Capasso", role: "School Coordinator", email: "giulia@ladante.cc" },
-              { name: "Alice Agostini", role: "Office Manager",     email: "alice@ladante.cc" },
-              { name: "Bill Chen",      role: "Administrative & IT", email: "bill@ladante.cc" },
-              { name: "Johnny Yuen",    role: "Marketing Officer",   email: "johnny@ladante.cc" },
-            ].map((p) => (
-              <div key={p.name} className="text-center">
-                <div className="w-32 h-32 md:w-36 md:h-36 mx-auto rounded-full bg-ink text-cream font-heading font-extrabold text-4xl inline-flex items-center justify-center">{p.name.split(" ").map((x) => x[0]).join("")}</div>
-                <p className="mt-4 font-semibold">{p.name}</p>
-                <p className="text-sm text-ink-muted">{p.role}</p>
-                {p.email && <a href={`mailto:${p.email}`} className="text-xs text-azzurro-deep hover:underline break-all">{p.email}</a>}
+          {/* Collage — a montage of monogram avatars for the whole team */}
+          <div
+            aria-hidden="true"
+            className="mt-10 flex flex-wrap justify-center gap-y-3"
+          >
+            {everyone.map((p, i) => (
+              <div
+                key={`collage-${p.name}`}
+                title={p.name}
+                className={`-ml-3 first:ml-0 w-14 h-14 md:w-16 md:h-16 rounded-full ring-4 ring-sole ${avatarColors[i % avatarColors.length]} font-heading font-extrabold text-base md:text-lg inline-flex items-center justify-center`}
+              >
+                {initials(p.name)}
               </div>
             ))}
           </div>
 
-          <h3 className="mt-14 font-heading font-bold text-xl">Teachers</h3>
-          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
-            {[
-              "Francesca Coppeta",
-              "Clelia Marinucci",
-              "Giorgia Zecchinato",
-              "Raffaella Iaconeta",
-              "Jacopo Gorini",
-            ].map((name) => (
-              <div key={name} className="text-center">
-                <div className="w-24 h-24 md:w-28 md:h-28 mx-auto rounded-full bg-azzurro-deep text-cream font-heading font-extrabold text-2xl inline-flex items-center justify-center">{name.split(" ").map((x) => x[0]).join("")}</div>
-                <p className="mt-3 font-semibold text-sm">{name}</p>
-                <p className="text-xs text-ink-muted">Italian teacher</p>
-              </div>
-            ))}
+          {/* 1. Board of Directors */}
+          <div className="mt-16 pt-12 border-t border-ink/10">
+            <h3 className="font-heading font-bold text-2xl md:text-3xl text-balance">Board of Directors</h3>
+            <p className="mt-2 text-sm text-ink-muted">Governance, patrons &amp; honorary members.</p>
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
+              {board.map((p) => (
+                <div key={p.name} className="text-center">
+                  <div className="w-24 h-24 md:w-28 md:h-28 mx-auto rounded-full bg-ink text-cream font-heading font-extrabold text-2xl md:text-3xl inline-flex items-center justify-center">{initials(p.name)}</div>
+                  <p className="mt-4 font-semibold leading-tight text-balance">{p.name}</p>
+                  <p className="text-sm text-ink-muted">{p.role}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <h3 className="mt-14 font-heading font-bold text-xl">Board &amp; patrons</h3>
-          <div className="mt-6 grid sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-3">
-            {[
-              { name: "Dr. Richard Lee", role: "Patron" },
-              { name: "Andrea Croci", role: "Honorary Member" },
-              { name: "Bruno Feltracco", role: "President" },
-              { name: "Alessandra Cocchi-Joynt", role: "Vice President" },
-              { name: "Francesco Rinaldi", role: "Treasurer" },
-              { name: "Manoj Kumar Motwani", role: "Board Member" },
-              { name: "Anna Romagnoli", role: "Board Member" },
-              { name: "Averardo Borghini Baldovinetti", role: "Board Member" },
-              { name: "Francesca Biroli", role: "Board Member" },
-              { name: "Giuseppe Randazzo", role: "Board Member" },
-              { name: "Giovanni Angelini", role: "Board Member" },
-            ].map((p) => (
-              <div key={p.name} className="flex items-baseline justify-between gap-3 border-b border-ink/10 py-2">
-                <span className="font-medium">{p.name}</span>
-                <span className="text-sm text-ink-muted whitespace-nowrap">{p.role}</span>
-              </div>
-            ))}
+          {/* 2. Management & Administration */}
+          <div className="mt-16 pt-12 border-t border-ink/10">
+            <h3 className="font-heading font-bold text-2xl md:text-3xl text-balance">Management &amp; Administration</h3>
+            <p className="mt-2 text-sm text-ink-muted">The team running the school day to day.</p>
+            <div className="mt-8 grid sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10">
+              {staff.map((p) => (
+                <div key={p.name} className="text-center">
+                  <div className="w-28 h-28 md:w-32 md:h-32 mx-auto rounded-full bg-azzurro-deep text-cream font-heading font-extrabold text-3xl md:text-4xl inline-flex items-center justify-center">{initials(p.name)}</div>
+                  <p className="mt-4 font-semibold">{p.name}</p>
+                  <p className="text-sm text-ink-muted">{p.role}</p>
+                  <a href={`mailto:${p.email}`} className="text-xs text-azzurro-deep hover:underline break-all">{p.email}</a>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 3. Teachers */}
+          <div className="mt-16 pt-12 border-t border-ink/10">
+            <h3 className="font-heading font-bold text-2xl md:text-3xl text-balance">Teachers</h3>
+            <p className="mt-2 text-sm text-ink-muted">Our Italian teachers, A1 to C2.</p>
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-x-6 gap-y-10">
+              {teachers.map((name) => (
+                <div key={name} className="text-center">
+                  <div className="w-24 h-24 md:w-28 md:h-28 mx-auto rounded-full bg-azzurro text-ink font-heading font-extrabold text-2xl md:text-3xl inline-flex items-center justify-center">{initials(name)}</div>
+                  <p className="mt-3 font-semibold text-sm">{name}</p>
+                  <p className="text-xs text-ink-muted">Italian teacher</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

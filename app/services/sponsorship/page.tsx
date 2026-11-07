@@ -1,5 +1,7 @@
 import PageHeader from "@/components/PageHeader";
-import Link from "next/link";
+import SponsorshipSection from "@/app/membership/SponsorshipSection";
+
+export const metadata = { title: "Sponsorship — La Dante HK" };
 
 export default function Sponsorship() {
   return (
@@ -7,13 +9,11 @@ export default function Sponsorship() {
       <PageHeader
         eyebrow="Services"
         title="Become a sponsor."
-        subtitle="Align your brand with 90 years of Italian culture in Hong Kong. Classroom, silver, and gold sponsorship tiers available."
+        subtitle="Align your brand with 90 years of Italian culture in Hong Kong — Silver, Gold, and Diamond tiers, plus classroom sponsorship."
         crumbs={[{ label: "Home", href: "/" }, { label: "Services" }, { label: "Sponsorship" }]}
-        tone="sole-soft"
+        tone="azzurro"
       />
-      <section className="bg-cream py-14">
-        <div className="container-xl text-center"><Link href="/contact" className="btn btn-primary">Become a sponsor</Link></div>
-      </section>
+      <SponsorshipSection />
     </>
   );
 }
