@@ -6,9 +6,8 @@ import { pickForDate, type DailyItem } from "@/lib/daily-word";
 import { todayISO } from "@/lib/course-schedule";
 import { useT, localizePath } from "@/lib/locale";
 
-// Small dismissible "Word of the week" box that floats at the bottom-left of the
-// landing page (clear of the chat bubble on the right). Dismissal is remembered
-// for the session.
+// Small dismissible "Word / phrase of the week" box that floats in the upper-right
+// corner of the landing page (per Giulia). Dismissal is remembered for the session.
 export default function WordOfTheWeekFloat() {
   const { t, locale } = useT();
   const isZh = locale === "zh";
@@ -17,8 +16,6 @@ export default function WordOfTheWeekFloat() {
 
   useEffect(() => {
     try { if (sessionStorage.getItem("ladante-wotw") === "closed") return; } catch {}
-    // Let the cookie notice own the bottom-left corner until it's accepted.
-    try { if (localStorage.getItem("ladante-cookie-consent") !== "accepted") return; } catch {}
     setItem(pickForDate(todayISO()));
     const tm = setTimeout(() => setShow(true), 1500);
     return () => clearTimeout(tm);
@@ -33,7 +30,7 @@ export default function WordOfTheWeekFloat() {
   const label = item.kind === "phrase" ? t.daily.phrase : t.daily.word;
 
   return (
-    <div className="fixed bottom-4 left-4 z-40 w-[260px] sm:w-[280px] animate-in" role="complementary" aria-label={label}>
+    <div className="fixed top-28 md:top-32 right-4 z-30 w-[260px] sm:w-[280px] animate-in" role="complementary" aria-label={label}>
       <div className="relative frame bg-white p-4 pr-8 shadow-[var(--shadow-pop)]">
         <button type="button" onClick={close} aria-label="Close" className="absolute top-2 right-2 w-6 h-6 rounded-full hover:bg-ink/10 inline-flex items-center justify-center text-ink-muted">
           <X size={14} />

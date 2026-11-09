@@ -9,7 +9,7 @@ export default function MembershipBand() {
     <section className="relative bg-azzurro text-ink py-20 md:py-28 overflow-hidden">
       {/* Murales shadow — a faint silhouette of the mural instead of circles */}
       <div
-        className="absolute inset-x-0 bottom-0 h-44 md:h-64 opacity-[0.14] bg-no-repeat bg-bottom bg-contain mix-blend-multiply"
+        className="absolute inset-x-0 bottom-0 h-72 md:h-[28rem] lg:h-[34rem] opacity-[0.18] bg-no-repeat bg-bottom bg-contain mix-blend-multiply"
         style={{ backgroundImage: "url('/mural.png')" }}
         aria-hidden
       />
