@@ -17,6 +17,8 @@ export default function WordOfTheWeekFloat() {
 
   useEffect(() => {
     try { if (sessionStorage.getItem("ladante-wotw") === "closed") return; } catch {}
+    // Let the cookie notice own the bottom-left corner until it's accepted.
+    try { if (localStorage.getItem("ladante-cookie-consent") !== "accepted") return; } catch {}
     setItem(pickForDate(todayISO()));
     const tm = setTimeout(() => setShow(true), 1500);
     return () => clearTimeout(tm);

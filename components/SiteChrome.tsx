@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import WhatsAppButton from "./WhatsAppButton";
 import EntryPopup from "./EntryPopup";
 import ViewSwitcher from "./ViewSwitcher";
+import CookieNotice from "./CookieNotice";
 
 // Renders on every public page, but:
 //   - suppressed under /admin
@@ -33,6 +34,7 @@ export default function SiteChrome() {
     <>
       <EntryPopup />
       <WhatsAppButton />
+      <CookieNotice />
       {showTools && <ViewSwitcher />}
     </>
   );
