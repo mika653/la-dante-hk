@@ -46,12 +46,19 @@ export function todayISO(): string {
   return toISO(new Date());
 }
 
-// ---- parse legacy "Wed 18:30–21:30" day labels ----
-export function parseDayLabel(dayLabel: string): { weekday: number | null; startTime: string | null; endTime: string | null } {
-  const day = dayLabel.match(/\b(Sun|Mon|Tue|Wed|Thu|Fri|Sat)\b/);
-  const time = dayLabel.match(/(\d{1,2}:\d{2})\s*[–\-—]\s*(\d{1,2}:\d{2})/);
+// ---- parse legacy "Wed 18:30–21:30" / "Mon/Wed 18:30–20:30" day labels ----
+// `weekdays` lists EVERY day in the label (Mon/Wed, Mon & Thu, Tuesday …) so a
+// twice-a-week course whose days were never stored separately is still read as
+// twice a week. `weekday` is the first one (back-compat).
+export function parseDayLabel(dayLabel: string): { weekday: number | null; weekdays: number[]; startTime: string | null; endTime: string | null } {
+  const label = dayLabel || "";
+  const found = [...label.matchAll(/\b(Sun|Mon|Tue|Wed|Thu|Fri|Sat)[a-z]*\b/gi)]
+    .map((m) => DAY_ABBR.findIndex((d) => d.toLowerCase() === m[1].toLowerCase()))
+    .filter((n) => n >= 0);
+  const time = label.match(/(\d{1,2}:\d{2})\s*[–\-—]\s*(\d{1,2}:\d{2})/);
   return {
-    weekday: day ? DAY_ABBR.indexOf(day[1]) : null,
+    weekday: found.length > 0 ? found[0] : null,
+    weekdays: [...new Set(found)].sort((a, b) => a - b),
     startTime: time ? time[1] : null,
     endTime: time ? time[2] : null,
   };
@@ -70,20 +77,44 @@ export function courseWeekday(c: Course): number | null {
   const p = parseDayLabel(c.dayLabel).weekday;
   return p ?? (c.startISO ? weekdayOf(c.startISO) : null);
 }
-// Every weekly class day (for twice-a-week / intensive). Falls back to the single weekday.
+// Every weekly class day (for twice-a-week / intensive). Order of trust:
+// stored weekdays → every day named in the label (+ the stored single weekday) →
+// the weekdays of hand-set lesson dates → the start date's weekday.
 export function courseWeekdays(c: Course): number[] {
   if (Array.isArray(c.weekdays) && c.weekdays.length > 0) return [...new Set(c.weekdays)].sort((a, b) => a - b);
-  const w = courseWeekday(c);
-  return w === null ? [] : [w];
+  const set = new Set(parseDayLabel(c.dayLabel).weekdays);
+  if (typeof c.weekday === "number") set.add(c.weekday);
+  if (set.size === 0 && Array.isArray(c.lessonDates)) for (const d of c.lessonDates) set.add(weekdayOf(d));
+  if (set.size === 0 && c.startISO) set.add(weekdayOf(c.startISO));
+  return [...set].sort((a, b) => a - b);
+}
+
+/** How many class-day sessions fall between two dates (inclusive), skipping closures. */
+export function countClassDays(startISO: string, endISO: string, weekdays: number[], holidays: Set<string> = new Set()): number {
+  if (!startISO || !endISO || endISO < startISO || weekdays.length === 0) return 0;
+  const set = new Set(weekdays);
+  let n = 0;
+  for (let cur = startISO, g = 0; cur <= endISO && g < 520 * 7; cur = addDays(cur, 1), g++) {
+    if (set.has(weekdayOf(cur)) && !holidays.has(cur)) n++;
+  }
+  return n;
 }
 export function courseTimes(c: Course): { startTime: string | null; endTime: string | null } {
   if (c.startTime && c.endTime) return { startTime: c.startTime, endTime: c.endTime };
   const p = parseDayLabel(c.dayLabel);
   return { startTime: p.startTime, endTime: p.endTime };
 }
-export function courseLessons(c: Course): number {
+// TOTAL lessons across all weekly class days. Hand-set dates win; then the
+// stored count; else count the real class-day sessions between start and end
+// (so a twice-a-week course isn't mistaken for once a week).
+export function courseLessons(c: Course, holidays: Set<string> = new Set()): number {
+  if (Array.isArray(c.lessonDates) && c.lessonDates.length > 0) return c.lessonDates.length;
   if (typeof c.lessons === "number" && c.lessons > 0) return c.lessons;
-  if (c.startISO && c.endISO) return Math.max(1, Math.floor(daysBetween(c.startISO, c.endISO) / 7) + 1);
+  if (c.startISO && c.endISO) {
+    const n = countClassDays(c.startISO, c.endISO, courseWeekdays(c), holidays);
+    if (n > 0) return n;
+    return Math.max(1, Math.floor(daysBetween(c.startISO, c.endISO) / 7) + 1);
+  }
   return 10;
 }
 
@@ -117,7 +148,7 @@ export function courseLessonDates(c: Course, holidays: Set<string>): string[] {
   if (Array.isArray(c.lessonDates) && c.lessonDates.length > 0) return [...c.lessonDates].sort();
   const weekdays = courseWeekdays(c);
   if (weekdays.length === 0) return [];
-  return computeLessonDatesMulti(c.startISO, weekdays, courseLessons(c), holidays);
+  return computeLessonDatesMulti(c.startISO, weekdays, courseLessons(c, holidays), holidays);
 }
 
 // ---- upcoming / started (archiving) ----
@@ -166,9 +197,12 @@ export function generateContinuation(
   const holidays = opts?.holidays ?? new Set<string>();
   const gapWeeks = opts?.gapWeeks ?? 1;
   const { startTime, endTime } = courseTimes(parent);
-  const lessons = courseLessons(parent); // TOTAL lessons across all weekly days
+  const lessons = courseLessons(parent, holidays); // TOTAL lessons across all weekly days
 
-  const parentLast = computeEndDateMulti(parent.startISO, weekdays, lessons, holidays);
+  // The parent's real last lesson (hand-set dates included), so the new term
+  // starts after it rather than after a recomputed date.
+  const parentDates = courseLessonDates({ ...parent, weekdays }, holidays);
+  const parentLast = parentDates[parentDates.length - 1] ?? computeEndDateMulti(parent.startISO, weekdays, lessons, holidays);
   // First lesson of the next course: a gap after the parent's last lesson, then the
   // next class day — computeLessonDatesMulti aligns to a class day and skips holidays,
   // and lays out ALL weekly days (so a twice-a-week course stays twice a week).

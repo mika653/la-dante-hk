@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Trash2, Pencil, CheckCircle2, ExternalLink, X, CalendarPlus, Archive, Download, Copy } from "lucide-react";
+import { Plus, Search, Trash2, Pencil, CheckCircle2, ExternalLink, X, CalendarPlus, Archive, Download, Copy, SlidersHorizontal } from "lucide-react";
 import { getCourses, removeCourse, addCourse, updateCourse } from "@/lib/admin-store";
 import { setSeatsLeft } from "@/lib/course-actions";
 import type { Course, Language, CourseType } from "@/lib/data";
@@ -53,6 +53,7 @@ export default function AdminCoursesList() {
   const [flashUrl, setFlashUrl] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
+  const [highlightId, setHighlightId] = useState<string | null>(null);
 
   const reload = () => getCourses().then(setCoursesState).catch((e) => setErr(String(e?.message ?? e)));
 
@@ -61,11 +62,20 @@ export default function AdminCoursesList() {
     try {
       const msg = sessionStorage.getItem("ladante-admin-flash");
       if (msg) { setFlash(msg); sessionStorage.removeItem("ladante-admin-flash"); }
-      const url = new URLSearchParams(window.location.search).get("view");
+      const params = new URLSearchParams(window.location.search);
+      const url = params.get("view");
       if (url) setFlashUrl(url);
+      // Just-created course: highlight its row and scroll to it once loaded.
+      const hl = params.get("highlight");
+      if (hl) setHighlightId(hl);
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!highlightId || !courses.some((c) => c.id === highlightId)) return;
+    document.getElementById(`course-${highlightId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [highlightId, courses]);
 
   const { holidays: holidayList, plida: plidaList } = useClosures();
   // The skip-set for a course's continuation: shared holidays, plus PLIDA days
@@ -198,10 +208,11 @@ export default function AdminCoursesList() {
           <p className="eyebrow">Admin · Courses</p>
           <h1 className="mt-2 text-3xl md:text-4xl">All courses.</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button type="button" onClick={() => downloadCoursesCSV(filtered)} disabled={!filtered.length} className="btn btn-ghost disabled:opacity-40" title="Download the courses shown as a spreadsheet">
             <Download size={16} /> Export CSV
           </button>
+          <Link href="/admin/courses/defaults" className="btn btn-ghost" title="Default fees, teacher list and auto-fill descriptions"><SlidersHorizontal size={16} /> Course defaults</Link>
           <Link href="/admin/courses/new" className="btn btn-primary"><Plus size={16} /> New course</Link>
         </div>
       </div>
@@ -234,49 +245,55 @@ export default function AdminCoursesList() {
         </select>
       </div>
 
-      {/* Table */}
+      {/* Table — compact columns (code + level live under the title, dates under
+          the schedule) so the action icons fit on screen; the Actions column is
+          also pinned to the right edge if the window is narrow. */}
       <div className="mt-6 frame bg-white overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-cream-2 text-xs uppercase tracking-wider text-ink-muted">
               <tr>
-                <th className="px-5 py-3 text-left font-medium">Code</th>
-                <th className="px-5 py-3 text-left font-medium">Title</th>
-                <th className="px-5 py-3 text-left font-medium">Level</th>
-                <th className="px-5 py-3 text-left font-medium">Schedule</th>
-                <th className="px-5 py-3 text-left font-medium">Teacher</th>
-                <th className="px-5 py-3 text-left font-medium">Price</th>
-                <th className="px-5 py-3 text-left font-medium">Availability</th>
-                <th className="px-5 py-3 text-left font-medium">Status</th>
-                <th className="px-5 py-3 text-right font-medium sticky right-0 bg-cream-2 z-10">Actions</th>
+                <th className="px-4 py-3 text-left font-medium">Course</th>
+                <th className="px-4 py-3 text-left font-medium">Schedule</th>
+                <th className="px-4 py-3 text-left font-medium">Teacher</th>
+                <th className="px-4 py-3 text-left font-medium">Fee</th>
+                <th className="px-4 py-3 text-left font-medium">Seats left</th>
+                <th className="px-4 py-3 text-left font-medium">Status</th>
+                <th className="px-3 py-3 text-right font-medium sticky right-0 bg-cream-2 z-10">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={9} className="p-10 text-center text-ink-muted">No courses match your filters.</td></tr>
+                <tr><td colSpan={7} className="p-10 text-center text-ink-muted">No courses match your filters.</td></tr>
               )}
               {filtered.map((c) => {
                 const started = hasStarted(c, today);
                 const canContinue = nextLevel(c.level) !== null;
                 const nextMade = hasContinuation(c.id);
+                const isNew = highlightId === c.id;
                 return (
-                  <tr key={c.id} className={`border-t border-line hover:bg-cream-2/30 ${c.archived ? "opacity-60" : ""}`}>
-                    <td className="px-5 py-4">
-                      {c.courseCode
-                        ? <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-azzurro-soft text-azzurro-deep whitespace-nowrap">{c.courseCode}</span>
-                        : <span className="text-ink-soft">—</span>}
+                  <tr key={c.id} id={`course-${c.id}`} className={`border-t border-line ${isNew ? "bg-sole" : "hover:bg-cream-2/30"} ${c.archived ? "opacity-60" : ""}`}>
+                    <td className="px-4 py-3.5 min-w-[220px]">
+                      <p className="font-medium leading-snug">
+                        {c.title}
+                        {c.status === "Draft" && (
+                          <span className="ml-2 align-middle px-2 py-0.5 rounded-full text-[11px] font-medium bg-cream-2 border border-line text-ink-muted">Draft</span>
+                        )}
+                      </p>
+                      <p className="mt-1 flex items-center gap-2 flex-wrap">
+                        {c.courseCode
+                          ? <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-azzurro-soft text-azzurro-deep whitespace-nowrap">{c.courseCode}</span>
+                          : <span className="text-[11px] text-ink-soft">No code</span>}
+                        <span className="font-mono text-[11px] uppercase tracking-widest text-azzurro-deep">{c.level}</span>
+                      </p>
                     </td>
-                    <td className="px-5 py-4 font-medium">
-                      {c.title}
-                      {c.status === "Draft" && (
-                        <span className="ml-2 align-middle px-2 py-0.5 rounded-full text-[11px] font-medium bg-cream-2 border border-line text-ink-muted">Draft</span>
-                      )}
+                    <td className="px-4 py-3.5 text-ink-muted">
+                      <p className="whitespace-nowrap">{c.dayLabel}</p>
+                      <p className="text-[11px] whitespace-nowrap">{c.startISO} → {c.endISO}</p>
                     </td>
-                    <td className="px-5 py-4 font-mono text-xs uppercase tracking-widest text-azzurro-deep">{c.level}</td>
-                    <td className="px-5 py-4 text-ink-muted">{c.dayLabel}</td>
-                    <td className="px-5 py-4 text-ink-muted">{c.teacher}</td>
-                    <td className="px-5 py-4">{formatHKD(c.priceHKD)}</td>
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-3.5 text-ink-muted">{c.teacher || "—"}</td>
+                    <td className="px-4 py-3.5 whitespace-nowrap">{formatHKD(c.priceHKD)}</td>
+                    <td className="px-4 py-3.5">
                       {(() => {
                         const left = Math.max(0, c.seats - c.enrolled);
                         const open = left > 0;
@@ -299,27 +316,27 @@ export default function AdminCoursesList() {
                         );
                       })()}
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-3.5">
                       {c.archived ? (
                         <span className="px-2.5 py-1 rounded-full text-xs bg-ink/5 text-ink-muted">Archived</span>
                       ) : started ? (
-                        <span className="px-2.5 py-1 rounded-full text-xs bg-sole/40 text-ink">Started</span>
+                        <span className="px-2.5 py-1 rounded-full text-xs bg-sole text-ink">Started</span>
                       ) : (
                         <span className="px-2.5 py-1 rounded-full text-xs bg-azzurro/15 text-azzurro-deep">Upcoming</span>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-right sticky right-0 bg-white z-10 shadow-[-6px_0_6px_-6px_rgba(25,25,25,0.12)]">
-                      <div className="inline-flex items-center gap-1">
+                    <td className={`px-3 py-3.5 text-right sticky right-0 z-10 shadow-[-6px_0_6px_-6px_rgba(25,25,25,0.12)] ${isNew ? "bg-sole" : "bg-white"}`}>
+                      <div className="inline-flex items-center gap-0.5">
+                        <Link href={`/admin/courses/${c.id}/edit`} title="Edit course" aria-label="Edit course" className="w-9 h-9 rounded-lg hover:bg-cream-2 inline-flex items-center justify-center text-ink"><Pencil size={15} /></Link>
                         {canContinue && (
                           nextMade ? (
-                            <span title="Continuation already created" className="w-8 h-8 rounded-lg inline-flex items-center justify-center text-azzurro-deep/50"><CalendarPlus size={14} /></span>
+                            <span title="Continuation already created" className="w-9 h-9 rounded-lg inline-flex items-center justify-center text-azzurro-deep/50"><CalendarPlus size={15} /></span>
                           ) : (
-                            <button type="button" onClick={() => createNext(c)} title="Create the next-level continuation" className="w-8 h-8 rounded-lg hover:bg-azzurro/15 inline-flex items-center justify-center text-azzurro-deep"><CalendarPlus size={14} /></button>
+                            <button type="button" onClick={() => createNext(c)} title="Create the next-level continuation" aria-label="Create the next-level continuation" className="w-9 h-9 rounded-lg hover:bg-azzurro/15 inline-flex items-center justify-center text-azzurro-deep"><CalendarPlus size={15} /></button>
                           )
                         )}
-                        <button type="button" onClick={() => duplicate(c)} title="Duplicate as a draft" className="w-8 h-8 rounded-lg hover:bg-cream-2 inline-flex items-center justify-center text-ink-muted"><Copy size={14} /></button>
-                        <Link href={`/admin/courses/${c.id}/edit`} title="Edit course" className="w-8 h-8 rounded-lg hover:bg-cream-2 inline-flex items-center justify-center text-ink-muted"><Pencil size={14} /></Link>
-                        <button type="button" onClick={() => del(c.id)} title="Delete" className="w-8 h-8 rounded-lg hover:bg-rosso/10 hover:text-rosso inline-flex items-center justify-center text-ink-muted"><Trash2 size={14} /></button>
+                        <button type="button" onClick={() => duplicate(c)} title="Duplicate as a draft" aria-label="Duplicate as a draft" className="w-9 h-9 rounded-lg hover:bg-cream-2 inline-flex items-center justify-center text-ink-muted"><Copy size={15} /></button>
+                        <button type="button" onClick={() => del(c.id)} title="Delete" aria-label="Delete course" className="w-9 h-9 rounded-lg hover:bg-rosso/10 hover:text-rosso inline-flex items-center justify-center text-ink-muted"><Trash2 size={15} /></button>
                       </div>
                     </td>
                   </tr>

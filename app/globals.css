@@ -2,8 +2,8 @@
 
 @theme inline {
   /* Official Dante brand — from Codici colori guidelines, Release 1.1 Marzo 2021 */
-  --color-cream: #fffbf0;
-  --color-cream-2: #fef6e0;
+  --color-cream: #fafafa;          /* Per Giulia: no pale yellow anywhere — neutral off-white */
+  --color-cream-2: #f1f1f1;        /* Per Giulia: light grey instead of pale yellow */
   --color-paper: #f1f1f1;          /* Official off-white #F1F1F1 */
   --color-sole: #ffed4e;           /* Official Dante yellow #FFED4E */
   --color-sole-soft: #e1e1e1;      /* Per Giulia: remove the pale yellow — use the brand light grey #E1E1E1 instead. (Bold brand yellow `sole` stays for banners/accents.) */

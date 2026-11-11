@@ -46,13 +46,13 @@ export default function AdultGroupsPage() {
             <div className="frame p-6 bg-cream-2">
               <p className="font-semibold text-ink">Already studied Italian?</p>
               <p className="text-[14px] text-ink-muted mt-1">Try our placement test.</p>
-              <Link href="/placement-test" className="btn btn-primary mt-4 text-sm h-11">Placement test</Link>
+              <Link href="/placement-test" className="btn btn-blue mt-4 text-sm h-11">Placement test</Link>
             </div>
             <div className="frame p-6 bg-cream-2">
               <p className="text-[14px] text-ink-muted leading-relaxed">
                 Group classes are held Monday to Saturday, ranging from A1 to C2. We offer courses in person, online, and blended mode. Check the syllabus.
               </p>
-              <Link href="#A1" className="btn btn-yellow mt-4 text-sm h-11">Syllabus</Link>
+              <a href="#A1" className="btn btn-yellow mt-4 text-sm h-11">Syllabus</a>
             </div>
           </div>
         </div>
@@ -67,7 +67,7 @@ export default function AdultGroupsPage() {
             <p className="eyebrow">Not sure which level?</p>
             <h2 className="mt-2 text-3xl md:text-4xl max-w-xl">Take our free placement test. Five minutes, CEFR-aligned.</h2>
           </div>
-          <Link href="/placement-test" className="btn btn-primary">Start the test <ArrowRight size={16} /></Link>
+          <Link href="/placement-test" className="btn btn-blue">Start the test <ArrowRight size={16} /></Link>
         </div>
       </section>
 

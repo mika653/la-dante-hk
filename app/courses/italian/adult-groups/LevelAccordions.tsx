@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import Link from "next/link";
 import { Calendar, Clock, MapPin, User } from "lucide-react";
 import { useCourses } from "@/lib/use-courses";
@@ -24,27 +25,50 @@ export default function LevelAccordions() {
   const all = useCourses();
   const adultCourses = all.filter((c) => c.language === "italian" && c.type === "adult-group");
 
+  // Open the level's accordion and bring it into view. Also used for links that
+  // arrive with a hash (e.g. /courses/italian/adult-groups#B1 or the Syllabus button).
+  function openLevel(key: string, smooth = true) {
+    const el = document.getElementById(key);
+    if (!(el instanceof HTMLDetailsElement)) return;
+    el.open = true;
+    el.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+    if (window.location.hash !== `#${key}`) history.replaceState(null, "", `#${key}`);
+  }
+  useEffect(() => {
+    const fromHash = () => {
+      const key = decodeURIComponent(window.location.hash.slice(1));
+      if (LEVEL_ORDER.some((l) => l.key === key)) openLevel(key, false);
+    };
+    fromHash();
+    window.addEventListener("hashchange", fromHash);
+    return () => window.removeEventListener("hashchange", fromHash);
+  }, []);
+
   return (
     <>
-      {/* CEFR journey strip */}
+      {/* CEFR journey strip — six equal columns on one connector line, so the
+          circles and labels always line up (per Giulia). Clicking a level opens
+          its accordion and scrolls to it. */}
       <section className="bg-white py-10 border-b border-line">
         <div className="container-xl">
           <p className="eyebrow">Your journey</p>
-          <ol className="mt-5 flex items-center justify-between gap-2 md:gap-4 overflow-x-auto no-scrollbar">
-            {LEVEL_ORDER.map((l, i) => (
-              <li key={l.key} className="flex-1 min-w-[80px] flex items-center gap-2 md:gap-4">
-                <a href={`#${l.key}`} className="group flex flex-col items-center flex-1">
-                  <span className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-azzurro-deep text-azzurro-deep font-heading font-bold inline-flex items-center justify-center group-hover:bg-azzurro group-hover:text-cream transition-colors">
-                    {l.key}
-                  </span>
-                  <span className="mt-2 text-xs md:text-sm font-medium text-ink-muted group-hover:text-azzurro-deep">
-                    {levelOutcomes[l.key]?.label}
-                  </span>
-                </a>
-                {i < LEVEL_ORDER.length - 1 && <span className="flex-1 h-px bg-line" aria-hidden />}
-              </li>
-            ))}
-          </ol>
+          <div className="mt-5 overflow-x-auto no-scrollbar">
+            <ol className="relative grid grid-cols-6 min-w-[480px]">
+              <span className="absolute top-5 md:top-6 left-[8.333%] right-[8.333%] h-px bg-line" aria-hidden />
+              {LEVEL_ORDER.map((l) => (
+                <li key={l.key} className="relative flex justify-center">
+                  <a href={`#${l.key}`} onClick={(e) => { e.preventDefault(); openLevel(l.key); }} className="group flex flex-col items-center text-center">
+                    <span className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-azzurro-deep bg-white text-azzurro-deep font-heading font-bold inline-flex items-center justify-center group-hover:bg-azzurro-deep group-hover:text-cream transition-colors">
+                      {l.key}
+                    </span>
+                    <span className="mt-2 text-xs md:text-sm font-medium text-ink-muted group-hover:text-azzurro-deep leading-tight">
+                      {levelOutcomes[l.key]?.label}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
       </section>
 
@@ -55,7 +79,7 @@ export default function LevelAccordions() {
             const matching = adultCourses.filter((c) => cefrMatch(c, l.prefix));
             const info = levelOutcomes[l.key];
             return (
-              <details key={l.key} id={l.key} open={l.key === "A1"} className="frame bg-white overflow-hidden group">
+              <details key={l.key} id={l.key} open={l.key === "A1"} className="frame bg-white overflow-hidden group scroll-mt-28">
                 <summary className="list-none cursor-pointer p-6 md:p-8 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4 md:gap-6">
                     <span className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-sole text-ink font-heading font-extrabold text-xl inline-flex items-center justify-center shrink-0">{l.key}</span>

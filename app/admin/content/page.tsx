@@ -5,7 +5,7 @@ import { ArrowRight, Image as ImageIcon, Images, Megaphone, Newspaper, PaintBuck
 const sections = [
   { href: "/admin/content/hero",      icon: Type,        title: "Hero section",         blurb: "Headline, subhead, CTAs, and the trust strip on the homepage." },
   { href: "/admin/content/carousel",  icon: ImageIcon,   title: "Hero carousel",        blurb: "Add, remove, and reorder the slides behind the hero." },
-  { href: "/admin/content/photos",    icon: Images,      title: "Section photos",       blurb: "Workshop card photos and the collage behind the Events & Library sections." },
+  { href: "/admin/content/photos",    icon: Images,      title: "Section & banner photos", blurb: "Workshop card photos, the photo collage, and the circle photo on each landing-page banner." },
   { href: "/admin/settings",          icon: Megaphone,   title: "Announcement & pop-up", blurb: "Top banner text and the entry pop-up on first visit." },
   { href: "/admin/content/featured",  icon: Sparkles,    title: "Featured cards",       blurb: "The five “Happening at Dante” cards (coming soon)", disabled: true },
   { href: "/admin/content/sponsors",  icon: PaintBucket, title: "Sponsors",             blurb: "Classroom, gold & silver sponsor logos — add, edit and reorder." },

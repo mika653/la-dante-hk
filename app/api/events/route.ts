@@ -15,7 +15,7 @@ export async function GET() {
     return NextResponse.json({
       events: rows.map((r) => ({
         id: r.id, date: r.date, title: r.title, kind: r.kind, location: r.location,
-        description: r.description ?? undefined, bookingUrl: r.bookingUrl ?? undefined, published: r.published,
+        description: r.description ?? undefined, bookingUrl: r.bookingUrl ?? undefined, image: r.image ?? undefined, published: r.published,
       })),
     });
   } catch {

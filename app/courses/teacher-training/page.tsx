@@ -19,7 +19,7 @@ export default function TeacherTraining() {
             Full course details, topics and dates are coming soon. Leave your details below and the office will be in touch as soon as the CEDILS and DITALS programmes are confirmed.
           </p>
           <div className="mt-8">
-            <EnquiryForm type="general" />
+            <EnquiryForm type="training" />
           </div>
         </div>
       </section>

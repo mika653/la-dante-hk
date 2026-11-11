@@ -16,6 +16,7 @@ function rowToEvent(r: EventRow): EventItem {
     kind: r.kind as EventItem["kind"], location: r.location,
     description: r.description ?? undefined,
     bookingUrl: r.bookingUrl ?? undefined,
+    image: r.image ?? undefined,
     published: r.published,
   };
 }
@@ -40,6 +41,7 @@ export async function createEvent(e: Omit<EventItem, "id">): Promise<EventItem> 
   await db.insert(events).values({
     id, date: e.date, title: e.title, kind: e.kind, location: e.location,
     description: e.description ?? null, bookingUrl: e.bookingUrl ?? null,
+    image: e.image ?? null,
     published: e.published,
   });
   refresh();
@@ -55,6 +57,7 @@ export async function patchEvent(id: string, patch: Partial<EventItem>): Promise
   if (patch.location !== undefined) set.location = String(patch.location);
   if (patch.description !== undefined) set.description = patch.description || null;
   if (patch.bookingUrl !== undefined) set.bookingUrl = patch.bookingUrl || null;
+  if (patch.image !== undefined) set.image = patch.image || null;
   if (patch.published !== undefined) set.published = !!patch.published;
   if (Object.keys(set).length === 0) return;
   set.updatedAt = new Date();

@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { useT, localizePath } from "@/lib/locale";
 import { useSiteContent } from "@/lib/site-content";
 import PhotoMosaic from "@/components/PhotoMosaic";
+import WaveEdge from "@/components/WaveEdge";
+import type { Tone } from "@/components/WaveDivider";
 
 // Events / "What's on" — the team's "New term" mockup: a Dante-yellow band with
 // a tilted photo collage behind white tiles. The first tile is the section title;
@@ -17,7 +19,7 @@ const EVENTS: { type: L; title: L; when: L; place: L }[] = [
   { type: { en: "Lecture", zh: "講座" }, title: { en: "Caravaggio in 30 Minutes", zh: "30分鐘看懂卡拉瓦喬" }, when: { en: "Thu 20 Nov · 7:00pm", zh: "11月20日(四) · 晚上 7:00" }, place: { en: "Online", zh: "網上" } },
 ];
 
-export default function FeaturedCarousel() {
+export default function FeaturedCarousel({ above = "white", below = "white" }: { above?: Tone; below?: Tone } = {}) {
   const { t, locale } = useT();
   const { sectionPhotos } = useSiteContent();
   const isZh = locale === "zh";
@@ -64,7 +66,11 @@ export default function FeaturedCarousel() {
   );
 
   return (
-    <section className="relative overflow-hidden bg-sole py-14 md:py-20">
+    <section className="relative overflow-hidden bg-sole pt-24 pb-24 md:pt-32 md:pb-32">
+      {/* Waves drawn over the collage so the photos meet the wave line exactly */}
+      <WaveEdge edge="top" tone={above} />
+      <WaveEdge edge="bottom" tone={below} />
+
       {/* Tilted photo collage bleeding off the right edge, behind the tiles */}
       <div className="hidden lg:block absolute top-0 right-0 bottom-0 w-[52%] overflow-hidden" aria-hidden>
         <div className="absolute inset-0 flex items-center justify-end -mr-10">

@@ -1,61 +1,51 @@
 import MuralHero from "@/components/MuralHero";
-import WhyLaDante from "@/components/WhyLaDante";
 import CourseCircles from "@/components/CourseCircles";
 import LibraryTrio from "@/components/LibraryTrio";
 import PlidaTeaser from "@/components/PlidaTeaser";
 import FeaturedCarousel from "@/components/FeaturedCarousel";
 import MembershipBand from "@/components/MembershipBand";
 import WorkshopsGrid from "@/components/WorkshopsGrid";
-import WordOfTheWeekFloat from "@/components/WordOfTheWeekFloat";
 import SponsorsStrip from "@/components/SponsorsStrip";
-import ReviewsCarousel from "@/components/ReviewsCarousel";
 import Newsletter from "@/components/Newsletter";
 import WaveDivider from "@/components/WaveDivider";
 
-// Section order per Giulia's doc: Find Your Course → Happening at Dante →
-// Our Workshops → PLIDA → Il Salotto di Dante → Join the Comunità (+ reviews) →
-// Sponsors → Newsletter. Upcoming Courses, Visit Us and the black closing band
-// removed; opening hours live in the footer.
+// Section order per Giulia's doc:
+//   1 Find Your Course (+ placement-test box + "Why Dante HK" strip)
+//   2 Happening at Dante   3 Our Workshops   4 PLIDA   5 Il Salotto di Dante
+//   6 Join the Comunità (+ reviews)   7 Sponsors   8 Newsletter
+// Word of the week lives inside the hero; opening hours live in the footer.
+// The two collage sections draw their own waves so the photos meet the wave line.
 export default function Home() {
   return (
     <>
       <MuralHero />
 
-      {/* Find Your Course (course grid + why La Dante) */}
+      {/* 1. Find Your Course */}
       <CourseCircles />
-      <WaveDivider from="white" to="sole" />
-      <WhyLaDante />
 
-      {/* Happening at Dante */}
-      <WaveDivider from="sole" to="white" />
-      <FeaturedCarousel />
+      {/* 2. Happening at Dante */}
+      <FeaturedCarousel above="white" below="paper" />
 
-      {/* Our Workshops */}
-      <WaveDivider from="white" to="paper" />
+      {/* 3. Our Workshops */}
       <WorkshopsGrid />
 
-      {/* PLIDA */}
+      {/* 4. PLIDA */}
       <WaveDivider from="paper" to="white" />
       <PlidaTeaser />
 
-      {/* Il Salotto di Dante (library) */}
-      <WaveDivider from="white" to="sole" />
-      <LibraryTrio />
+      {/* 5. Il Salotto di Dante */}
+      <LibraryTrio above="white" below="azzurro" />
 
-      {/* Join the Comunità + reviews */}
-      <WaveDivider from="sole" to="azzurro" />
+      {/* 6. Join the Comunità + reviews */}
       <MembershipBand />
-      <WaveDivider from="azzurro" to="paper" />
-      <ReviewsCarousel />
 
-      {/* Sponsors */}
+      {/* 7. Sponsors */}
+      <WaveDivider from="azzurro" to="paper" />
       <SponsorsStrip />
 
-      {/* Newsletter */}
+      {/* 8. Newsletter */}
       <WaveDivider from="paper" to="white" />
       <Newsletter />
-
-      <WordOfTheWeekFloat />
     </>
   );
 }

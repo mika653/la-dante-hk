@@ -28,7 +28,8 @@ export async function listAllCourses(): Promise<Course[]> {
   return rows.map(rowToCourse);
 }
 
-export async function createCourse(course: Course): Promise<void> {
+/** Creates the course and returns the course code it was saved with. */
+export async function createCourse(course: Course): Promise<string> {
   await requireAdmin();
 
   // Auto-assign the house course code (e.g. DA032601) when the form didn't set
@@ -43,6 +44,7 @@ export async function createCourse(course: Course): Promise<void> {
 
   await db.insert(courses).values(courseToRow(toInsert)).onConflictDoNothing();
   refresh();
+  return toInsert.courseCode ?? "";
 }
 
 export async function patchCourse(id: string, patch: Partial<Course>): Promise<void> {
@@ -75,6 +77,7 @@ export async function patchCourse(id: string, patch: Partial<Course>): Promise<v
   if (patch.earlyBirdDueISO !== undefined) set.earlyBirdDueISO = patch.earlyBirdDueISO ?? null;
   if (patch.earlyBirdFeeHKD !== undefined) set.earlyBirdFeeHKD = patch.earlyBirdFeeHKD ?? null;
   if (patch.courseCode !== undefined) set.courseCode = patch.courseCode ?? null;
+  if (patch.description !== undefined) set.description = typeof patch.description === "string" && patch.description.trim() ? patch.description : null;
 
   if (Object.keys(set).length === 0) return;
   set.updatedAt = new Date();

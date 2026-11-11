@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Save, Sparkles, RefreshCw, Plus, Trash2, Wand2 } from "lucide-react";
 import { getCourses, updateCourse } from "@/lib/admin-store";
 import type { Course, Language, CourseType } from "@/lib/data";
-import { computeEndDateMulti, computeLessonDatesMulti, parseDayLabel, weekdayOf, daysBetween, dayLabelFromMulti } from "@/lib/course-schedule";
+import { computeEndDateMulti, computeLessonDatesMulti, parseDayLabel, weekdayOf, dayLabelFromMulti, countClassDays, courseLessons } from "@/lib/course-schedule";
+import { generateCourseCode } from "@/lib/course-code";
+import { getCourseDefaults, listTeacherNames } from "@/lib/course-defaults-actions";
+import { descriptionFor, mergeTeacherNames, DEFAULT_COURSE_DEFAULTS, type CourseDefaults } from "@/lib/course-defaults-shared";
 import { holidaySet } from "@/lib/holidays";
 import { plidaDateSet } from "@/lib/plida-dates";
 import { useClosures } from "@/lib/use-closures";
@@ -63,6 +66,9 @@ export default function EditCourseClient({ id }: { id: string }) {
   const [weekdays, setWeekdays] = useState<number[]>([]);       // all class days
   const [lessonDates, setLessonDates] = useState<string[]>([]); // manual date overrides; [] = auto
   const [allTeachers, setAllTeachers] = useState<string[]>([]);
+  const [allCodes, setAllCodes] = useState<string[]>([]);
+  const [description, setDescription] = useState("");
+  const [defaults, setDefaults] = useState<CourseDefaults>(DEFAULT_COURSE_DEFAULTS);
   const { holidays: holidayList, plida: plidaList } = useClosures();
 
   useEffect(() => {
@@ -87,17 +93,31 @@ export default function EditCourseClient({ id }: { id: string }) {
       setSeats(c.seats);
       setEnrolled(c.enrolled);
       setCourseCode(c.courseCode ?? "");
-      setLessons(typeof c.lessons === "number" ? c.lessons : "");
+      // Legacy courses have no stored count — pre-fill the real number of sessions
+      // (all class days between start and end), not a once-a-week guess.
+      setLessons(typeof c.lessons === "number" ? c.lessons : (c.startISO && c.endISO ? courseLessons(c) : ""));
       setEarlyBirdDueISO((c.earlyBirdDueISO || "").slice(0, 10));
       setEarlyBirdFeeHKD(typeof c.earlyBirdFeeHKD === "number" ? c.earlyBirdFeeHKD : "");
       setSkipPlida(!!c.skipPlida);
+      // All class days: stored, else every day named in the label (so a legacy
+      // "Mon/Wed" intensive opens as twice a week), else the start date's day.
       const wds = Array.isArray(c.weekdays) && c.weekdays.length > 0
         ? c.weekdays
-        : (() => { const w = parseDayLabel(c.dayLabel).weekday ?? c.weekday ?? (c.startISO ? weekdayOf(c.startISO) : null); return w === null ? [] : [w]; })();
+        : (() => {
+            const fromLabel = parseDayLabel(c.dayLabel).weekdays;
+            if (fromLabel.length > 0) return fromLabel;
+            const w = c.weekday ?? (c.startISO ? weekdayOf(c.startISO) : null);
+            return w === null ? [] : [w];
+          })();
       setWeekdays(wds);
       setLessonDates(Array.isArray(c.lessonDates) ? c.lessonDates : []);
-      setAllTeachers(Array.from(new Set(all.map((x) => x.teacher).filter(Boolean))));
+      setDescription(c.description ?? "");
+      setAllCodes(all.map((x) => x.courseCode ?? "").filter(Boolean));
+      setAllTeachers((prev) => mergeTeacherNames(prev, all.map((x) => x.teacher)));
     }).catch(() => { if (alive) setNotFound(true); });
+    // Teacher picker: Course defaults list + teacher logins + teachers on courses.
+    listTeacherNames().then((names) => { if (alive) setAllTeachers((prev) => mergeTeacherNames(prev, names)); }).catch(() => {});
+    getCourseDefaults().then((d) => { if (alive) setDefaults(d); }).catch(() => {});
     return () => { alive = false; };
   }, [id]);
 
@@ -111,7 +131,9 @@ export default function EditCourseClient({ id }: { id: string }) {
   // Effective class days — fall back to the label's day so legacy courses still work.
   function effWeekdays(wds: number[] = weekdays): number[] {
     if (wds.length > 0) return wds;
-    const w = parseDayLabel(dayLabel).weekday ?? (startISO ? weekdayOf(startISO) : null);
+    const fromLabel = parseDayLabel(dayLabel).weekdays;
+    if (fromLabel.length > 0) return fromLabel;
+    const w = startISO ? weekdayOf(startISO) : null;
     return w === null ? [] : [w];
   }
 
@@ -192,6 +214,7 @@ export default function EditCourseClient({ id }: { id: string }) {
       earlyBirdDueISO: earlyBirdDueISO || undefined,
       earlyBirdFeeHKD: earlyBirdFeeHKD === "" ? undefined : Number(earlyBirdFeeHKD),
       skipPlida,
+      description,
     });
     const msg = status === "Draft"
       ? `Saved changes to "${title}". It's a draft — not live yet.`
@@ -258,9 +281,16 @@ export default function EditCourseClient({ id }: { id: string }) {
 
         {/* Course code + Weeks */}
         <div className="grid md:grid-cols-2 gap-4">
-          <label className="block text-sm font-medium">Course code <span className="text-ink-muted font-normal">(optional)</span>
-            <input value={courseCode} onChange={(e) => setCourseCode(e.target.value)} placeholder="e.g. ITA-A1.1-WED" className={field} />
-          </label>
+          <div>
+            <label className="block text-sm font-medium">Course code
+              <input value={courseCode} onChange={(e) => setCourseCode(e.target.value)} placeholder="e.g. DA032601" className={`${field} font-mono`} />
+            </label>
+            {!courseCode.trim() && startISO && (
+              <button type="button" onClick={() => setCourseCode(generateCourseCode({ language: lang, type, startISO }, allCodes))} className="mt-1.5 text-xs text-azzurro-deep hover:underline">
+                Use the next code: <b className="font-mono">{generateCourseCode({ language: lang, type, startISO }, allCodes)}</b>
+              </button>
+            )}
+          </div>
           <label className="block text-sm font-medium">Total lessons <span className="text-ink-muted font-normal">(auto-fills the end date)</span>
             <input type="number" min={1} value={lessons} onChange={(e) => { const w = e.target.value === "" ? "" : Number(e.target.value); setLessons(w); autoEnd(startISO, w); }} placeholder="e.g. 15" className={field} />
           </label>
@@ -351,10 +381,14 @@ export default function EditCourseClient({ id }: { id: string }) {
           <CourseSchedulePreview
             startISO={startISO}
             weekdays={effWeekdays()}
-            lessons={lessons !== "" ? Number(lessons) : (startISO && endISO ? Math.max(1, Math.floor(daysBetween(startISO, endISO) / 7) + 1) : 0)}
+            lessons={lessons !== "" ? Number(lessons) : (startISO && endISO ? countClassDays(startISO, endISO, effWeekdays(), skipDates()) : 0)}
             lessonDates={lessonDates.length > 0 ? lessonDates : undefined}
             holidays={skipPlida ? [...holidayList, ...plidaList] : holidayList}
+            onChangeDates={(d) => { setLessonDates(d); if (d.length > 0) setEndISO(d[d.length - 1]); }}
           />
+          {lessonDates.length > 0 && (
+            <button type="button" onClick={() => setLessonDates([])} className="mt-3 text-xs text-ink-muted hover:text-rosso inline-flex items-center gap-1"><RefreshCw size={12} /> Undo date changes (back to automatic)</button>
+          )}
         </div>
 
         {/* Individual lesson dates — manual overrides (#5b) */}
@@ -384,6 +418,16 @@ export default function EditCourseClient({ id }: { id: string }) {
               <button type="button" onClick={addDate} className="mt-2 text-xs text-azzurro-deep hover:underline inline-flex items-center gap-1"><Plus size={12} /> Add a date</button>
             </>
           )}
+        </div>
+
+        {/* Description */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-sm font-medium" htmlFor="course-description">Course description <span className="text-ink-muted font-normal">(shown on the website)</span></label>
+            <button type="button" onClick={() => setDescription(descriptionFor(defaults, lang, level as Course["level"]))} className="text-xs text-azzurro-deep underline">Auto-fill from level</button>
+          </div>
+          <textarea id="course-description" value={description} onChange={(e) => setDescription(e.target.value)} rows={5} className="w-full p-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" placeholder="Learning outcomes, who it's for, what to bring..." />
+          <p className="mt-1 text-xs text-ink-muted">The auto-fill text is edited in <Link href="/admin/courses/defaults" className="text-azzurro-deep underline">Course defaults</Link>.</p>
         </div>
 
         {/* Early bird */}

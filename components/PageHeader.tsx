@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import PageHeaderArt from "./PageHeaderArt";
 
 type Crumb = { label: string; href?: string };
 
@@ -16,14 +17,17 @@ export default function PageHeader({
   crumbs?: Crumb[];
   tone?: "cream" | "sole-soft" | "azzurro";
 }) {
-  // Per Giulia: a standard yellow banner on every landing page. The `tone` prop is
-  // kept for backwards-compatibility but no longer changes the banner colour.
+  // Per Giulia: a standard yellow banner on every landing page, with either the
+  // homepage photo collage or a circle photo frame on the right (PageHeaderArt).
+  // The `tone` prop is kept for backwards-compatibility but no longer changes the colour.
   void tone;
   const sub = "text-ink/70";
   const eb = "";
   return (
-    <section className={`bg-sole text-ink pt-12 pb-16 md:pt-20 md:pb-24 border-b border-ink/10`}>
-      <div className="container-xl">
+    <section className="relative overflow-hidden bg-sole text-ink pt-12 pb-16 md:pt-20 md:pb-24 lg:min-h-[400px] border-b border-ink/10">
+      <PageHeaderArt />
+      <div className="container-xl relative z-10">
+        <div className="lg:max-w-[56%]">
         {crumbs && (
           <nav aria-label="Breadcrumb" className={`text-[13px] ${sub} flex items-center gap-1.5 mb-4 flex-wrap`}>
             {crumbs.map((c, i) => (
@@ -37,6 +41,7 @@ export default function PageHeader({
         {eyebrow && <p className={`eyebrow ${eb}`}>{eyebrow}</p>}
         <h1 className="mt-3 text-4xl md:text-6xl max-w-3xl text-ink">{title}</h1>
         {subtitle && <p className={`mt-5 max-w-2xl text-lg ${sub}`}>{subtitle}</p>}
+        </div>
       </div>
     </section>
   );

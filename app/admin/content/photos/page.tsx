@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Check, RotateCcw, ExternalLink, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
-import { defaultSectionPhotos, type SectionPhotos } from "@/lib/site-content";
+import { defaultSectionPhotos, CIRCLE_BANNER_PAGES, defaultPageHeaderPhoto, type SectionPhotos, type PageHeaderPhotos } from "@/lib/site-content";
 import { getSiteContent, saveSiteContent } from "@/lib/site-content-actions";
 import MediaPicker from "@/components/MediaPicker";
 
@@ -13,12 +13,13 @@ import MediaPicker from "@/components/MediaPicker";
 export default function SectionPhotosEditor() {
   const [workshops, setWorkshops] = useState<string[]>(defaultSectionPhotos.workshops);
   const [mosaic, setMosaic] = useState<string[]>(defaultSectionPhotos.mosaic);
+  const [banners, setBanners] = useState<PageHeaderPhotos>({});
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    getSiteContent().then((c) => { setWorkshops(c.sectionPhotos.workshops); setMosaic(c.sectionPhotos.mosaic); }).catch(() => {});
+    getSiteContent().then((c) => { setWorkshops(c.sectionPhotos.workshops); setMosaic(c.sectionPhotos.mosaic); setBanners(c.pageHeaders ?? {}); }).catch(() => {});
   }, []);
 
   async function save() {
@@ -29,7 +30,7 @@ export default function SectionPhotosEditor() {
         workshops: workshops.map((s) => s.trim()).filter(Boolean),
         mosaic: mosaic.map((s) => s.trim()).filter(Boolean),
       };
-      const res = await saveSiteContent({ ...current, sectionPhotos });
+      const res = await saveSiteContent({ ...current, sectionPhotos, pageHeaders: banners });
       if (!res.ok) { setErr(res.error === "Not authorised" ? "You need to be signed in as an owner or manager to save." : (res.error ?? "Couldn't save.")); return; }
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -42,7 +43,7 @@ export default function SectionPhotosEditor() {
       <div className="flex items-end justify-between flex-wrap gap-3 mb-6">
         <div>
           <p className="eyebrow">Admin · Content · Section photos</p>
-          <h1 className="mt-2 text-3xl md:text-4xl">Homepage section photos.</h1>
+          <h1 className="mt-2 text-3xl md:text-4xl">Section & banner photos.</h1>
           <p className="mt-2 text-ink-muted">Pick images from your Media Library (or paste a URL) for the workshop cards and the photo collage behind the Events &amp; Library sections.</p>
         </div>
         <Link href="/" target="_blank" rel="noopener" className="btn btn-ghost text-sm">View site <ExternalLink size={13} /></Link>
@@ -60,12 +61,43 @@ export default function SectionPhotosEditor() {
       <div className="mt-12">
         <PhotoList
           title="Collage photos (Events & Library)"
-          hint="The tilted photo collage behind the yellow Events and Library sections. Portrait images look best; 8–10 works well."
+          hint="The tilted photo collage behind the yellow Events and Library sections, and on the Italian Courses, Events and About banners. Portrait images look best; 8–10 works well."
           items={mosaic}
           setItems={setMosaic}
           onReset={() => setMosaic(defaultSectionPhotos.mosaic)}
           thumbClass="w-20 h-28"
         />
+      </div>
+
+      {/* Landing-page banner photos — the circle frame on each yellow banner */}
+      <div className="mt-12">
+        <div className="mb-3">
+          <h2 className="text-xl font-semibold">Landing-page banner photos</h2>
+          <p className="text-sm text-ink-muted">The circle picture on each page&apos;s yellow banner. Square images look best. Pages left blank show a placeholder photo. (Italian Courses, Events and About use the collage above instead.)</p>
+        </div>
+        <div className="grid md:grid-cols-2 gap-3">
+          {CIRCLE_BANNER_PAGES.map(({ path, label }) => {
+            const custom = banners[path] ?? "";
+            const shown = custom || defaultPageHeaderPhoto(path);
+            return (
+              <div key={path} className="frame p-4 bg-white flex items-center gap-4">
+                <div className={`relative w-16 h-16 rounded-full overflow-hidden border border-line shrink-0 ${custom ? "" : "opacity-50"}`}>
+                  <Image src={shown} alt="" fill sizes="64px" unoptimized={shown.startsWith("http")} className="object-cover" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-sm">{label}</p>
+                  <p className="text-xs text-ink-muted font-mono truncate">{path}{custom ? "" : " · placeholder"}</p>
+                  <div className="mt-1.5 flex items-center gap-3">
+                    <MediaPicker accept="image" label={custom ? "Change" : "Upload photo"} onChange={(url) => setBanners((b) => ({ ...b, [path]: url }))} />
+                    {custom && (
+                      <button type="button" onClick={() => setBanners((b) => { const n = { ...b }; delete n[path]; return n; })} className="text-xs text-ink-muted hover:text-rosso">Remove</button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="mt-8 flex items-center justify-end gap-3 sticky bottom-4">

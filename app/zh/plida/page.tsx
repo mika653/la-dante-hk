@@ -67,7 +67,7 @@ export default function PLIDA() {
 
           <div id="prepare" className="mt-16 frame p-8 md:p-10 bg-paper text-ink relative overflow-hidden">
             <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-azzurro opacity-50 blur-[2px]" aria-hidden />
-            <div className="absolute -bottom-10 -left-10 w-24 h-24 rounded-full bg-sole/40" aria-hidden />
+            <div className="absolute -bottom-10 -left-10 w-24 h-24 rounded-full bg-sole" aria-hidden />
             <p className="eyebrow !text-azzurro-deep relative">備考</p>
             <h2 className="mt-3 text-3xl max-w-xl">PLIDA 備考工作坊。</h2>
             <p className="mt-3 max-w-xl text-ink-muted">六週的密集備考,涵蓋歷屆試題、計時練習,以及來自認證 PLIDA 考官的回饋。會員及非會員均歡迎參加。</p>

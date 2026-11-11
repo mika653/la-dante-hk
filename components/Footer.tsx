@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import Wordmark from "./Wordmark";
-import { MapPin, Phone, Mail, MessageCircle, ChevronRight } from "lucide-react";
+import { MapPin, Phone, Mail, MessageCircle, ChevronRight, Clock } from "lucide-react";
 import { IconInstagram, IconFacebook, IconYoutube, IconLinkedin } from "./SocialIcons";
 import { useT, localizePath } from "@/lib/locale";
 
@@ -44,7 +44,7 @@ export default function Footer() {
         aria-hidden
         style={{
           background:
-            "linear-gradient(to bottom, rgba(255,251,240,0) 0%, rgba(255,251,240,0.55) 38%, rgba(255,251,240,0.9) 100%)",
+            "linear-gradient(to bottom, rgba(250,250,250,0) 0%, rgba(250,250,250,0.55) 38%, rgba(250,250,250,0.9) 100%)",
         }}
       />
 
@@ -89,6 +89,15 @@ export default function Footer() {
                 <span>{t.footer.address}</span>
               </li>
             </ul>
+
+            {/* Opening hours — moved here from the old "Visit us" section (per Giulia) */}
+            <p className="eyebrow mt-7 mb-3">{t.footer.openingHours}</p>
+            <div className="flex gap-3 text-[14px]">
+              <Clock size={16} className="shrink-0 mt-0.5 text-azzurro-deep" aria-hidden />
+              <ul className="space-y-1">
+                {t.footer.hours.split(" · ").map((line) => <li key={line}>{line}</li>)}
+              </ul>
+            </div>
           </div>
 
           {/* Explore */}

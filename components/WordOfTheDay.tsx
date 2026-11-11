@@ -25,7 +25,7 @@ export default function WordOfTheDay() {
         <div className="frame bg-cream-2 max-w-2xl mx-auto px-7 py-8 md:px-10 md:py-9 relative overflow-hidden min-h-[248px] md:min-h-[268px]">
           {/* La Dante's circles */}
           <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-azzurro/15" aria-hidden />
-          <div className="absolute bottom-4 -left-5 w-14 h-14 rounded-full bg-sole/50" aria-hidden />
+          <div className="absolute bottom-4 -left-5 w-14 h-14 rounded-full bg-sole" aria-hidden />
 
           <div className="relative">
             <p className="eyebrow inline-flex items-center gap-1.5">

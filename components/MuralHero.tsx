@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles, Star, Users, MapPin, Award } from "lucide-react";
 import HeroCarousel from "./HeroCarousel";
+import WordOfTheWeekCard from "./WordOfTheWeekCard";
 import { useSiteContent } from "@/lib/site-content";
 import { useT, localizePath } from "@/lib/locale";
 
@@ -36,7 +37,7 @@ export default function MuralHero() {
         aria-hidden
         style={{
           background:
-            "linear-gradient(90deg, rgba(255,251,240,0.97) 0%, rgba(255,251,240,0.9) 30%, rgba(255,251,240,0.55) 50%, rgba(255,251,240,0.08) 70%, rgba(255,251,240,0) 88%)",
+            "linear-gradient(90deg, rgba(250,250,250,0.97) 0%, rgba(250,250,250,0.9) 30%, rgba(250,250,250,0.55) 50%, rgba(250,250,250,0.08) 70%, rgba(250,250,250,0) 88%)",
         }}
       />
       <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-ink/25 z-[5]" aria-hidden />
@@ -100,6 +101,9 @@ export default function MuralHero() {
               );
             })}
           </div>
+
+          {/* Word / phrase of the week — integrated into the slideshow (per Giulia) */}
+          <WordOfTheWeekCard />
         </div>
       </div>
     </section>

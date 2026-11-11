@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, Trash2, Eye, EyeOff, Check, ExternalLink, Calendar, MapPin } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, Check, ExternalLink, Calendar, MapPin, ImageIcon, X } from "lucide-react";
+import MediaPicker from "@/components/MediaPicker";
 import { getEvents, addEvent, updateEvent, removeEvent, type EventItem, type EventKind } from "@/lib/use-events";
 
 const KINDS: EventKind[] = ["Bookclub", "Film", "Aperitivo", "Workshop", "Culture", "Trip", "Other"];
@@ -24,6 +25,7 @@ export default function AdminEventsPage() {
   const [description, setDescription] = useState("");
   const [bookingUrl, setBookingUrl] = useState("");
   const [published, setPublished] = useState(true);
+  const [image, setImage] = useState("");
 
   const refresh = () => getEvents().then((l) => setList(l.slice().sort((a, b) => a.date.localeCompare(b.date)))).catch((e) => setErr(errText(e)));
   useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
@@ -32,8 +34,8 @@ export default function AdminEventsPage() {
     e.preventDefault();
     setErr(null);
     try {
-      const ev = await addEvent({ date, title, kind, location, description: description || undefined, bookingUrl: bookingUrl || undefined, published });
-      setDate(""); setTitle(""); setKind("Workshop"); setLocation("Wanchai"); setDescription(""); setBookingUrl(""); setPublished(true);
+      const ev = await addEvent({ date, title, kind, location, description: description || undefined, bookingUrl: bookingUrl || undefined, image: image || undefined, published });
+      setDate(""); setTitle(""); setKind("Workshop"); setLocation("Wanchai"); setDescription(""); setBookingUrl(""); setPublished(true); setImage("");
       setShowForm(false);
       setJustAdded(ev.title);
       setTimeout(() => setJustAdded(null), 6000);
@@ -45,6 +47,10 @@ export default function AdminEventsPage() {
     if (!confirm("Remove this event from the site? You can re-seed the demo events to restore them.")) return;
     setErr(null);
     try { await removeEvent(id); await refresh(); } catch (e) { setErr(errText(e)); }
+  }
+  async function setEventImage(e: EventItem, url: string) {
+    setErr(null);
+    try { await updateEvent(e.id, { image: url }); await refresh(); } catch (e) { setErr(errText(e)); }
   }
   async function togglePublish(e: EventItem) {
     setErr(null);
@@ -90,6 +96,17 @@ export default function AdminEventsPage() {
             <label className="text-sm font-medium md:col-span-2">Title<input required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Italian Wine & Language" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
             <label className="text-sm font-medium">Location<input required value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Wanchai, HK Arts Centre…" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
             <label className="text-sm font-medium">Booking URL <span className="text-ink-muted font-normal">(optional)</span><input value={bookingUrl} onChange={(e) => setBookingUrl(e.target.value)} placeholder="https://..." className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink font-mono text-sm" /></label>
+            <div className="md:col-span-2">
+              <p className="text-sm font-medium">Event graphic <span className="text-ink-muted font-normal">(optional — shown left of the date on the Events page; square works best)</span></p>
+              <div className="mt-1 flex items-center gap-3">
+                <div className="w-20 h-20 rounded-xl overflow-hidden bg-paper border border-dashed border-ink/20 inline-flex items-center justify-center text-ink-soft shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {image ? <img src={image} alt="" className="w-full h-full object-cover" /> : <ImageIcon size={22} aria-hidden />}
+                </div>
+                <MediaPicker accept="image" onChange={(url) => setImage(url)} />
+                {image && <button type="button" onClick={() => setImage("")} className="text-xs text-ink-muted hover:text-rosso inline-flex items-center gap-1"><X size={12} /> Remove</button>}
+              </div>
+            </div>
             <label className="text-sm font-medium md:col-span-2">Description <span className="text-ink-muted font-normal">(optional)</span><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="A sentence or two about what guests can expect." className="mt-1 w-full p-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
           </div>
           <label className="flex items-center gap-2 text-sm cursor-pointer">
@@ -110,7 +127,15 @@ export default function AdminEventsPage() {
           const mon = d.toLocaleDateString("en-GB", { month: "short" });
           const day = d.getDate();
           return (
-            <div key={e.id} className={`frame p-5 md:p-6 grid md:grid-cols-[auto_1fr_auto] gap-4 items-center ${e.published ? "bg-white" : "bg-cream-2/60 opacity-75"}`}>
+            <div key={e.id} className={`frame p-5 md:p-6 grid md:grid-cols-[auto_auto_1fr_auto] gap-4 items-center ${e.published ? "bg-white" : "bg-cream-2/60 opacity-75"}`}>
+              <div className="flex flex-col items-center gap-1 shrink-0">
+                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-paper border border-dashed border-ink/20 inline-flex items-center justify-center text-ink-soft">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {e.image ? <img src={e.image} alt="" className="w-full h-full object-cover" /> : <ImageIcon size={18} aria-hidden />}
+                </div>
+                <MediaPicker accept="image" label={e.image ? "Change" : "Add graphic"} onChange={(url) => setEventImage(e, url)} />
+                {e.image && <button type="button" onClick={() => setEventImage(e, "")} className="text-[11px] text-ink-muted hover:text-rosso">Remove</button>}
+              </div>
               <span className="inline-flex flex-col items-center justify-center w-16 h-16 rounded-2xl bg-sole-soft font-heading font-bold shrink-0 leading-tight">
                 <span className="text-xs uppercase tracking-wider">{mon}</span>
                 <span className="text-xl">{day}</span>

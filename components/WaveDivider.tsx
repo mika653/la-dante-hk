@@ -1,9 +1,9 @@
 // A soft SVG wave divider between two section colours.
 // `from` is the section ABOVE the wave, `to` is the section BELOW.
-type Tone = "cream" | "white" | "sole" | "sole-soft" | "azzurro" | "azzurro-soft" | "azzurro-deep" | "paper" | "ink";
+export type Tone = "cream" | "white" | "sole" | "sole-soft" | "azzurro" | "azzurro-soft" | "azzurro-deep" | "paper" | "ink";
 
-const toneHex: Record<Tone, string> = {
-  "cream": "#FFFBF0",
+export const toneHex: Record<Tone, string> = {
+  "cream": "#FAFAFA",
   "white": "#FFFFFF",
   "sole": "#FFED4E",
   "sole-soft": "#e1e1e1",

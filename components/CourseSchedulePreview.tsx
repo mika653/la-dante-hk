@@ -12,7 +12,7 @@ function iso(y: number, m: number, d: number) { return `${y}-${String(m + 1).pad
 function pretty(isoStr: string) { const { y, m, d } = parts(isoStr); return `${d} ${MONTHS[m].slice(0, 3)} ${y}`; }
 
 export default function CourseSchedulePreview({
-  startISO, weekday, weekdays, lessons, holidays = [], lessonDates: override,
+  startISO, weekday, weekdays, lessons, holidays = [], lessonDates: override, onChangeDates,
 }: {
   startISO: string;
   weekday?: number | null;          // legacy single day
@@ -20,8 +20,13 @@ export default function CourseSchedulePreview({
   lessons: number;                  // total lessons across all days
   holidays?: Holiday[];
   lessonDates?: string[];           // explicit dates — overrides the computed schedule
+  // When given, the calendar is clickable: click a lesson to SKIP it (a
+  // replacement is added after the last lesson, so the course keeps its length),
+  // click any other day to ADD a lesson. Receives the full new date list.
+  onChangeDates?: (dates: string[]) => void;
 }) {
-  const wds = weekdays && weekdays.length > 0 ? weekdays : (weekday != null ? [weekday] : []);
+  const wdKey = (weekdays && weekdays.length > 0 ? weekdays : (weekday != null ? [weekday] : [])).join(",");
+  const wds = useMemo(() => (wdKey ? wdKey.split(",").map(Number) : []), [wdKey]);
   const data = useMemo(() => {
     const hs = holidaySet(holidays);
     const lessonDates = override && override.length > 0
@@ -47,13 +52,31 @@ export default function CourseSchedulePreview({
     let y = first.y, m = first.m;
     while (y < lastP.y || (y === lastP.y && m <= lastP.m)) { months.push({ y, m }); if (++m > 11) { m = 0; y++; } }
 
-    return { lessonDates, lessonNo, holMap, skipped, months, last, wdset };
+    return { lessonDates, lessonNo, holMap, skipped, months, last, wdset, hs };
   }, [startISO, wds, lessons, holidays, override]);
+
+  function toggleDate(date: string) {
+    if (!data || !onChangeDates) return;
+    const current = data.lessonDates;
+    if (current.includes(date)) {
+      // Skip this lesson and add one on the next free class day after the last.
+      const rest = current.filter((d) => d !== date);
+      const taken = new Set(rest);
+      let cur = addDays(rest[rest.length - 1] ?? date, 1);
+      for (let g = 0; g < 366; g++, cur = addDays(cur, 1)) {
+        if (data.wdset.has(weekdayOf(cur)) && !data.hs.has(cur) && !taken.has(cur) && cur !== date) break;
+      }
+      onChangeDates([...rest, cur].sort());
+    } else {
+      onChangeDates([...current, date].sort());
+    }
+  }
 
   if (!data) {
     return <p className="text-sm text-ink-muted">Set a start date, class days and number of weeks to preview the schedule.</p>;
   }
   const { lessonDates, lessonNo, holMap, skipped, months, last, wdset } = data;
+  const editable = !!onChangeDates;
 
   return (
     <div>
@@ -70,6 +93,11 @@ export default function CourseSchedulePreview({
         <span className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-azzurro-deep inline-block" /> Class day</span>
         <span className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-rosso/15 border border-rosso inline-block" /> Holiday / closure (session skipped)</span>
       </div>
+      {editable && (
+        <p className="mt-2 text-xs text-azzurro-deep">
+          <b>Tip:</b> click a lesson to skip that date (one replacement lesson is added at the end), or click any other day to add a lesson.
+        </p>
+      )}
 
       {/* month grids */}
       <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -95,6 +123,19 @@ export default function CourseSchedulePreview({
                   if (isLesson) { cls = "bg-azzurro-deep text-cream font-medium"; title = `Lesson ${lessonNo.get(date)}`; }
                   else if (isSkip) { cls = "bg-rosso/15 text-rosso line-through"; title = `${holName} — class skipped`; }
                   else if (holName) { cls = "text-rosso"; title = holName; }
+                  if (editable) {
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => toggleDate(date)}
+                        title={isLesson ? `${title} — click to skip this date` : `${title ? title + " — " : ""}click to add a lesson`}
+                        className={`aspect-square flex items-center justify-center text-[11px] rounded ${cls} hover:ring-2 hover:ring-azzurro-deep/50`}
+                      >
+                        {day}
+                      </button>
+                    );
+                  }
                   return (
                     <div key={i} title={title} className={`aspect-square flex items-center justify-center text-[11px] rounded ${cls}`}>
                       {day}

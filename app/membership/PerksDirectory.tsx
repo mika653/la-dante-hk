@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Globe, Phone, MapPin, Link2 } from "lucide-react";
 import { IconFacebook, IconInstagram, IconYoutube, IconLinkedin } from "@/components/SocialIcons";
 import type { Social } from "@/lib/db/schema";
+import { privilegeLogo } from "@/lib/privilege-logos";
 
 export type Perk = {
   id: string;
@@ -76,7 +77,7 @@ function PerkCard({ perk: p }: { perk: Perk }) {
   return (
     <div className="frame bg-white p-6">
       <div className="flex items-center gap-4">
-        <Logo url={p.logo} brand={p.brand} />
+        <Logo url={privilegeLogo(p.brand, p.logo)} brand={p.brand} />
         <div className="min-w-0">
           <h3 className="text-lg font-heading font-bold leading-tight">{p.brand}</h3>
           <p className="text-sm text-azzurro-deep">{p.category}</p>
@@ -118,10 +119,10 @@ function Logo({ url, brand }: { url: string | null | undefined; brand: string })
   const initials = brand.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
   if (url) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={url} alt="" className="w-12 h-12 rounded-full object-contain bg-white border border-line shrink-0" />;
+    return <img src={url} alt="" className="w-16 h-16 rounded-full object-contain p-1 bg-white border border-line shrink-0" />;
   }
   return (
-    <span className="w-12 h-12 rounded-full bg-azzurro-deep text-cream inline-flex items-center justify-center text-sm font-semibold shrink-0">
+    <span className="w-16 h-16 rounded-full bg-azzurro-deep text-cream inline-flex items-center justify-center text-sm font-semibold shrink-0">
       {initials}
     </span>
   );

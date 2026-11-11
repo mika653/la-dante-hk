@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import {
   defaultSiteContent, normaliseSiteContent,
   type SiteContent, type HeroContent, type CarouselSlide, type SectionPhotos,
-  type Sponsors, type SponsorItem,
+  type Sponsors, type SponsorItem, type PageHeaderPhotos,
 } from "@/lib/site-content-shared";
 
-export type { SiteContent, HeroContent, CarouselSlide, SectionPhotos, Sponsors, SponsorItem };
-export { defaultHero, defaultCarousel, defaultSiteContent, defaultSectionPhotos, defaultSponsors } from "@/lib/site-content-shared";
+export type { SiteContent, HeroContent, CarouselSlide, SectionPhotos, Sponsors, SponsorItem, PageHeaderPhotos };
+export { defaultHero, defaultCarousel, defaultSiteContent, defaultSectionPhotos, defaultSponsors, CIRCLE_BANNER_PAGES, COLLAGE_BANNER_PAGES, PLAIN_BANNER_PAGES, defaultPageHeaderPhoto } from "@/lib/site-content-shared";
 
 // Public hook: reads homepage content from /api/site-content so an admin's edit
 // is seen by everyone. Starts from defaults for an instant paint, then swaps in

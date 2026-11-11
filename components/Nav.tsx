@@ -29,7 +29,7 @@ const navGroups: NavGroup[] = [
         { label: "Groups",          href: "/courses/latin/groups" },
         { label: "Private Lessons", href: "/courses/latin/private" },
       ]},
-      { label: "Special Offers", href: "/courses" },
+      { label: "Special Offers", href: "/special-offers" },
       { label: "Study in Italy", href: "/courses/study-in-italy" },
       { label: "Teachers' training", href: "/courses/teacher-training" },
     ],

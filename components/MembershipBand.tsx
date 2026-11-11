@@ -2,14 +2,15 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useT, localizePath } from "@/lib/locale";
+import ReviewsCarousel from "./ReviewsCarousel";
 
 export default function MembershipBand() {
   const { t, locale } = useT();
   return (
     <section className="relative bg-azzurro text-ink py-20 md:py-28 overflow-hidden">
-      {/* Murales shadow — a faint silhouette of the mural instead of circles */}
+      {/* Murales — large, spanning the full width and most of the band's height (per Giulia) */}
       <div
-        className="absolute inset-x-0 bottom-0 h-72 md:h-[28rem] lg:h-[34rem] opacity-[0.18] bg-no-repeat bg-bottom bg-contain mix-blend-multiply"
+        className="absolute inset-0 opacity-[0.2] bg-no-repeat bg-bottom bg-[length:auto_100%] md:bg-[length:100%_auto] mix-blend-multiply"
         style={{ backgroundImage: "url('/mural.png')" }}
         aria-hidden
       />
@@ -34,6 +35,9 @@ export default function MembershipBand() {
             </div>
           ))}
         </dl>
+
+        {/* Reviews — integrated into the same section (per Giulia) */}
+        <ReviewsCarousel embedded heading={locale === "zh" ? "學員心聲" : "What our students say"} />
       </div>
     </section>
   );

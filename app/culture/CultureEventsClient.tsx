@@ -21,14 +21,13 @@ export default function CultureEventsClient() {
               const year = d.getFullYear();
               return (
                 <div key={e.id} className="frame p-5 md:p-6 bg-white grid md:grid-cols-[auto_auto_1fr_auto] gap-4 items-center">
-                  {/* PLACEHOLDER: event graphic — client to supply a per-event image here.
-                      Sits to the LEFT of the yellow date tile. Hidden on mobile to keep rows compact. */}
-                  <div
-                    aria-hidden
-                    title="Event graphic placeholder — image to be supplied by the client"
-                    className="hidden md:flex shrink-0 w-24 h-24 rounded-2xl bg-sole-soft border border-dashed border-ink/20 items-center justify-center text-ink-soft"
-                  >
-                    <ImageIcon size={26} strokeWidth={1.5} />
+                  {/* Event graphic, left of the yellow date tile (per Giulia). Uploaded in
+                      Admin → Events; a neutral placeholder shows until one is added. */}
+                  <div className="shrink-0 w-full h-44 md:w-28 md:h-28 rounded-2xl overflow-hidden bg-paper border border-line flex items-center justify-center text-ink-soft">
+                    {e.image
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={e.image} alt={e.title} className="w-full h-full object-cover" loading="lazy" />
+                      : <ImageIcon size={26} strokeWidth={1.5} aria-hidden />}
                   </div>
                   <span className="inline-flex flex-col items-center justify-center w-16 h-16 rounded-2xl bg-sole font-heading font-bold shrink-0 leading-tight">
                     <span className="text-[11px] uppercase tracking-wider">{mon}</span>

@@ -245,7 +245,7 @@ function TeamLeave({ me, staff, teamLeave }: { me: PublicUser; staff: PublicUser
                   <td className="px-5 py-3 font-medium">{u.name}</td>
                   <td className="px-5 py-3">{a.remaining} / {a.entitlement}</td>
                   <td className="px-5 py-3">{s.remaining} / {s.entitlement}</td>
-                  <td className="px-5 py-3">{a.pending + s.pending > 0 ? <span className="px-2 py-0.5 rounded-full text-xs bg-sole/40">{a.pending + s.pending}d</span> : "—"}</td>
+                  <td className="px-5 py-3">{a.pending + s.pending > 0 ? <span className="px-2 py-0.5 rounded-full text-xs bg-sole">{a.pending + s.pending}d</span> : "—"}</td>
                 </tr>
               );
             })}

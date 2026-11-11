@@ -25,6 +25,12 @@ export default function CourseListView({ courses, emptyMessage }: { courses: Cou
               <span className="inline-flex items-center gap-1.5"><MapPin size={13} aria-hidden />{c.location}</span>
               <span className="inline-flex items-center gap-1.5"><User size={13} aria-hidden />{c.teacher}</span>
             </div>
+            {c.description && (
+              <details className="mt-3 group">
+                <summary className="cursor-pointer list-none text-[13px] font-medium text-azzurro-deep hover:underline">Course details</summary>
+                <p className="mt-2 text-[14px] text-ink-muted leading-relaxed whitespace-pre-line">{c.description}</p>
+              </details>
+            )}
           </div>
           <div className="flex items-center gap-3 md:flex-col md:items-end">
             <span className="text-xl md:text-lg font-heading font-bold">{formatHKD(c.priceHKD)}</span>

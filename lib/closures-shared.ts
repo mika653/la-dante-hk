@@ -3,6 +3,7 @@
 // by both the client (to build skip-sets) and the server actions (to seed the
 // database). The source of truth is now the shared `closures` table in Neon —
 // see lib/closures-actions.ts — so every computer sees one list.
+import { PLIDA_SESSIONS } from "@/lib/plida-sessions";
 
 // A holiday/closure. Single day has no endDate; a multi-day break (e.g. the
 // Christmas break) sets endDate to the last day, inclusive.
@@ -36,10 +37,12 @@ export const HK_HOLIDAYS_SEED: Holiday[] = [
   { date: "2027-12-25", name: "Christmas Day" },
 ];
 
-export const PLIDA_DATES_SEED: PlidaDate[] = [
-  { date: "2026-06-14", name: "PLIDA exam — June sitting" },
-  { date: "2026-11-15", name: "PLIDA exam — November sitting" },
-];
+// Seed = the official 2026 PLIDA HK calendar (mirrors lib/plida-sessions.ts).
+// Staff can "reset to defaults" in Admin → Holidays to load these.
+export const PLIDA_DATES_SEED: PlidaDate[] = PLIDA_SESSIONS.map((s) => ({
+  date: s.date,
+  name: `PLIDA exam${s.junior ? " (Junior)" : ""} — ${s.levels.join(", ")}`,
+}));
 
 // Expand a possibly-multi-day holiday into every calendar date it covers.
 function eachDate(startISO: string, endISO: string): string[] {

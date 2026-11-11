@@ -1,6 +1,7 @@
 import PageHeader from "@/components/PageHeader";
 import MembershipClient from "./MembershipClient";
 import SponsorshipSection from "./SponsorshipSection";
+import MembershipInfo from "./MembershipInfo";
 import PerksDirectory, { type Perk } from "./PerksDirectory";
 import { memberPerks } from "@/lib/data";
 import { listActivePrivileges } from "@/lib/privilege-actions";
@@ -40,6 +41,9 @@ export default async function MembershipPage() {
         crumbs={[{ label: "Home", href: "/" }, { label: "Membership" }]}
         tone="azzurro"
       />
+      {/* Membership card · benefits · card administration */}
+      <MembershipInfo />
+
       <MembershipClient />
 
       {/* Sponsorship — tiers + classroom add-on */}

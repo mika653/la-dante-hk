@@ -46,13 +46,13 @@ export default function AdultGroupsPage() {
             <div className="frame p-6 bg-cream-2">
               <p className="font-semibold text-ink">已有意大利文基礎？</p>
               <p className="text-[14px] text-ink-muted mt-1">試做我們的分級測試。</p>
-              <Link href="/zh/placement-test" className="btn btn-primary mt-4 text-sm h-11">分級測試</Link>
+              <Link href="/zh/placement-test" className="btn btn-blue mt-4 text-sm h-11">分級測試</Link>
             </div>
             <div className="frame p-6 bg-cream-2">
               <p className="text-[14px] text-ink-muted leading-relaxed">
                 小組課程於星期一至星期六上課,涵蓋 A1 至 C2 級別。我們提供實體、網上及混合模式課程。歡迎查看課程大綱。
               </p>
-              <Link href="#A1" className="btn btn-yellow mt-4 text-sm h-11">課程大綱</Link>
+              <a href="#A1" className="btn btn-yellow mt-4 text-sm h-11">課程大綱</a>
             </div>
           </div>
         </div>
@@ -67,7 +67,7 @@ export default function AdultGroupsPage() {
             <p className="eyebrow">不確定自己的程度？</p>
             <h2 className="mt-2 text-3xl md:text-4xl max-w-xl">立即參加我們的免費分級測試。只需五分鐘,對應 CEFR 等級。</h2>
           </div>
-          <Link href="/zh/placement-test" className="btn btn-primary">開始測試 <ArrowRight size={16} /></Link>
+          <Link href="/zh/placement-test" className="btn btn-blue">開始測試 <ArrowRight size={16} /></Link>
         </div>
       </section>
 

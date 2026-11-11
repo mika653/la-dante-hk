@@ -76,6 +76,7 @@ export const courses = pgTable("courses", {
   // it is a purely additive migration; existing courses read as "don't skip".
   skipPlida: boolean("skip_plida").default(false),
   continuationOf: text("continuation_of"),
+  description: text("description"),                        // public course description (auto-fill editable in Course defaults)
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -183,6 +184,7 @@ export const events = pgTable("events", {
   location: text("location").notNull().default(""),
   description: text("description"),
   bookingUrl: text("booking_url"),
+  image: text("image"),                      // event graphic URL (Media Library); placeholder shown if blank
   published: boolean("published").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

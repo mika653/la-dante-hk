@@ -5,13 +5,13 @@ import { Check, ArrowLeft, ArrowRight, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 
 type Step = 1 | 2 | 3 | 4;
-type PlanId = "individual" | "student";
+type PlanId = "individual";
 
 type Plan = {
   id: PlanId;
   name: string;
   priceHKD: number;
-  cadence: string; // shown after the price, e.g. "first year" / "one-time"
+  cadence: string; // shown after the price, e.g. "first year"
   renewal?: string; // optional second line, e.g. "then HKD 600 / year"
   blurb: string;
   perks: string[];
@@ -19,28 +19,26 @@ type Plan = {
   badge?: string;
 };
 
-// Membership fees per Giulia. Individual is the headline plan; the student rate
-// is a one-time fee. Sponsorship tiers live in the SponsorshipSection below.
+// Per Giulia: the website shows ONLY the Individual membership and the three
+// sponsorship levels (SponsorshipSection). Student membership is not sold here —
+// it's added to the course invoice automatically at enrolment.
 const membershipPlans: Plan[] = [
   {
     id: "individual",
-    name: "Individual",
+    name: "Individual membership",
     priceHKD: 800,
     cadence: "first year",
-    renewal: `then ${formatHKD(600)} / year`,
-    blurb: "Full access to Dante life in Hong Kong.",
-    perks: ["Course discounts", "Library & bookclub", "Cultural events", "50+ member perks across HK", "PLIDA exam discount"],
+    renewal: `then ${formatHKD(600)} / year renewal`,
+    blurb: "For lovers of Italian culture who aren't enrolled in a course. Includes voting rights at the AGM.",
+    perks: [
+      "Special offers at partner restaurants, fashion, home-living shops & more",
+      "Discounts on selected cultural activities & short courses",
+      "Free access to the Dante Library (1,400+ Italian books & DVDs)",
+      "Privileges from the Società Dante Alighieri in Rome",
+      "Voting rights & invitation to the AGM",
+    ],
     highlight: true,
-    badge: "Most popular",
-  },
-  {
-    id: "student",
-    name: "Student",
-    priceHKD: 150,
-    cadence: "one-time",
-    blurb: "Under 25, or with a full-time student ID.",
-    perks: ["Course discounts", "Library & bookclub", "Student-only events", "50+ member perks across HK"],
-    badge: "One-time fee",
+    badge: "With voting rights",
   },
 ];
 
@@ -113,7 +111,7 @@ export default function MembershipClient() {
         {step === 1 && (
           <div>
             <h2 className="text-2xl md:text-3xl text-balance">Choose your membership.</h2>
-            <p className="mt-2 text-ink-muted">Join as an individual, or at the student rate. Looking to partner as a company? <a href="#sponsorship" className="underline hover:text-azzurro-deep">See sponsorship</a>.</p>
+            <p className="mt-2 text-ink-muted">Join as an individual member, or support Dante as a sponsor. Enrolling in a course? Your student membership is added to your course invoice automatically.</p>
             <div className="mt-8 grid sm:grid-cols-2 gap-5 max-w-3xl">
               {membershipPlans.map((p) => {
                 const selected = planId === p.id;
@@ -153,8 +151,18 @@ export default function MembershipClient() {
                   </button>
                 );
               })}
+
+              {/* Sponsorship — chosen in the dedicated section below */}
+              <a href="#sponsorship" className="relative text-left frame p-6 bg-white hover:-translate-y-0.5 transition-all flex flex-col">
+                <span className="inline-block self-start px-2.5 py-1 rounded-full text-xs font-medium uppercase tracking-wider bg-azzurro text-ink">Companies & patrons</span>
+                <h3 className="mt-3 text-xl font-heading font-bold">Sponsorship / Corporate</h3>
+                <p className="mt-2 text-ink-muted text-sm">Support Dante&apos;s mission at one of three levels — Silver, Gold or Diamond — with the option to sponsor a classroom.</p>
+                <p className="mt-4 text-3xl font-heading font-extrabold">{formatHKD(7500)}<span className="text-sm font-medium text-ink-muted"> – {formatHKD(55000)}</span></p>
+                <span className="mt-auto pt-6 inline-flex items-center gap-2 text-sm font-medium text-azzurro-deep">See sponsorship levels <ArrowRight size={14} /></span>
+              </a>
             </div>
-            <div className="mt-8 flex justify-end">
+            <div className="mt-8 flex items-center justify-end gap-4">
+              {plan && <p className="text-sm text-ink-muted">Selected: <strong className="text-ink">{plan.name}</strong></p>}
               <button type="button" onClick={() => setStep(2)} disabled={!planId} className="btn btn-primary disabled:opacity-40">Continue <ArrowRight size={16} /></button>
             </div>
           </div>

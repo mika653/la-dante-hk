@@ -60,7 +60,7 @@ export default function SponsorshipSection() {
           <p className="eyebrow text-cream/70!">Corporate sponsorship</p>
           <h2 className="mt-3 text-3xl md:text-5xl font-heading font-bold text-balance text-cream!">Put your brand behind Italian&nbsp;culture.</h2>
           <p className="mt-4 text-cream/80">
-            Three annual partnership tiers from {formatHKD(7500)} to {formatHKD(55000)} — each with logo placement, course and team-building discounts, lesson hours, member cards for your team, and an invitation to our annual Dante&nbsp;dinner.
+            For individuals or companies who want to support Dante&apos;s mission. Three sponsorship levels from {formatHKD(7500)} to {formatHKD(55000)} — each with logo placement, course and team-building discounts, lesson hours, member cards for your team, and an invitation to our annual Dante&nbsp;dinner.
           </p>
         </div>
 
@@ -124,7 +124,7 @@ export default function SponsorshipSection() {
               <p className="eyebrow text-cream/70!">Add-on</p>
               <h3 className="mt-3 text-2xl md:text-3xl font-heading font-bold text-cream!">Classroom sponsorship.</h3>
               <p className="mt-3 text-cream/80 max-w-md">
-                An affordable way to support Italian culture in Hong Kong and put your brand in front of our community — on its own, or alongside any tier above.
+                Sponsors at any level are also entitled to sponsor one of our classrooms — your name on the door and your brand in front of our whole community.
               </p>
               <a href={`mailto:${CONTACT}?subject=${encodeURIComponent("Classroom sponsorship enquiry")}`} className="btn btn-outline-white mt-6">
                 <Mail size={16} aria-hidden /> Sponsor a classroom

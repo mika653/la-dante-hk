@@ -37,6 +37,7 @@ export type Course = {
   archived?: boolean;         // hidden from the public site (auto once it has started)
   skipPlida?: boolean;        // also skip sessions that land on PLIDA exam days
   continuationOf?: string;    // id of the course this one continues from
+  description?: string;       // shown on the public course card
 };
 
 export const courses: Course[] = [
@@ -278,7 +279,9 @@ export const memberPerks = [
   { category: "Dining", items: [
     { name: "Alice Pizza", perk: "10% off pizza & drinks on $150+ (Wan Chai)" },
     { name: "Belgos", perk: "10% off à la carte" },
+    { name: "Alice Pizza", perk: "10% off pizza & drinks over $150 (Wan Chai)" },
     { name: "Bella Lee", perk: "10% off (excl. happy hour)" },
+    { name: "Già Trattoria Italiana", perk: "10% off à la carte, up to 8 guests" },
     { name: "Cadillac", perk: "10% off à la carte" },
     { name: "The Italian Club HK", perk: "10% off the bill, in-store & online" },
     { name: "Grappa's QRE", perk: "10% off à la carte" },

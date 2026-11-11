@@ -23,7 +23,7 @@ function write<T>(key: string, value: T) {
 // Courses — database-backed via server actions. All async now; the admin pages
 // await them. Every write is re-checked against the caller's session server-side.
 export async function getCourses(): Promise<Course[]> { return listAllCourses(); }
-export async function addCourse(c: Course): Promise<void> { await createCourse(c); }
+export async function addCourse(c: Course): Promise<string> { return createCourse(c); }
 export async function updateCourse(id: string, patch: Partial<Course>): Promise<void> { await patchCourse(id, patch); }
 export async function removeCourse(id: string): Promise<void> { await deleteCourse(id); }
 

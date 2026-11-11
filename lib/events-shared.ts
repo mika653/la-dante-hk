@@ -11,6 +11,7 @@ export type EventItem = {
   location: string;
   description?: string;
   bookingUrl?: string;
+  image?: string;    // event graphic (shown left of the date tile)
   published: boolean;
 };
 

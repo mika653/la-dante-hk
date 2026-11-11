@@ -34,6 +34,7 @@ export function rowToCourse(r: CourseRow): Course {
     ...(r.archived && { archived: r.archived }),
     ...(r.skipPlida && { skipPlida: r.skipPlida }),
     ...(r.continuationOf != null && { continuationOf: r.continuationOf }),
+    ...(r.description != null && r.description !== "" && { description: r.description }),
   };
 }
 
@@ -66,5 +67,6 @@ export function courseToRow(c: Course): NewCourseRow {
     archived: c.archived ?? false,
     skipPlida: c.skipPlida ?? false,
     continuationOf: c.continuationOf ?? null,
+    description: c.description?.trim() ? c.description : null,
   };
 }

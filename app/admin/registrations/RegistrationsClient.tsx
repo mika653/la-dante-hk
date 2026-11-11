@@ -143,7 +143,7 @@ export default function RegistrationsClient({ rows, error, isOwner = false }: { 
                         <th className="px-5 py-2 text-left font-medium">Age</th>
                         <th className="px-5 py-2 text-left font-medium">Student</th>
                         <th className="px-5 py-2 text-left font-medium">Registered</th>
-                        {isOwner && <th className="px-5 py-2" />}
+                        {isOwner && <th className="px-3 py-2 sticky right-0 bg-cream-2"><span className="sr-only">Actions</span></th>}
                       </tr>
                     </thead>
                     <tbody>
@@ -156,8 +156,8 @@ export default function RegistrationsClient({ rows, error, isOwner = false }: { 
                           <td className="px-5 py-3">{r.isStudent ? <span className="text-xs px-2 py-0.5 rounded-full bg-azzurro/15 text-azzurro-deep">Student</span> : "—"}</td>
                           <td className="px-5 py-3 text-ink-muted">{fmt(r.createdAt)}</td>
                           {isOwner && (
-                            <td className="px-3 py-3 text-right">
-                              <button type="button" disabled={busy} onClick={() => remove(r.id)} title="Delete permanently" className="w-7 h-7 rounded-full inline-flex items-center justify-center text-ink-muted hover:bg-rosso/10 hover:text-rosso disabled:opacity-50">
+                            <td className="px-3 py-3 text-right sticky right-0 bg-white shadow-[-6px_0_6px_-6px_rgba(25,25,25,0.12)]">
+                              <button type="button" disabled={busy} onClick={() => remove(r.id)} title="Delete permanently" className="w-8 h-8 rounded-full inline-flex items-center justify-center text-ink-muted hover:bg-rosso/10 hover:text-rosso disabled:opacity-50">
                                 <Trash2 size={14} />
                               </button>
                             </td>

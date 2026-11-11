@@ -22,7 +22,57 @@ export type SectionPhotos = { workshops: string[]; mosaic: string[] };
 export type SponsorItem = { name: string; logo: string; room?: string };
 export type Sponsors = { classroom: SponsorItem[]; gold: SponsorItem[]; silver: SponsorItem[] };
 
-export type SiteContent = { hero: HeroContent; carousel: CarouselSlide[]; sectionPhotos: SectionPhotos; sponsors: Sponsors };
+// Landing-page banner photos (the circle frame on the yellow banner), keyed by
+// the page's English path, e.g. "/plida". Blank → the page's default photo.
+export type PageHeaderPhotos = Record<string, string>;
+
+export type SiteContent = { hero: HeroContent; carousel: CarouselSlide[]; sectionPhotos: SectionPhotos; sponsors: Sponsors; pageHeaders: PageHeaderPhotos };
+
+// Banner style per Giulia: these three landing pages get the homepage photo
+// collage on the yellow banner; legal pages get a plain banner; every other
+// landing page gets the yellow banner + a circle photo frame (editable in
+// Admin → Content → Section photos).
+export const COLLAGE_BANNER_PAGES = ["/courses/italian", "/culture", "/about"];
+export const PLAIN_BANNER_PAGES = ["/privacy", "/terms", "/cookie-policy"];
+export const CIRCLE_BANNER_PAGES: { path: string; label: string }[] = [
+  { path: "/courses", label: "All courses" },
+  { path: "/courses/italian/adult-groups", label: "Italian · Adult groups" },
+  { path: "/courses/italian/kids", label: "Italian · Kids & Teens" },
+  { path: "/courses/italian/private", label: "Italian · Private" },
+  { path: "/courses/italian/corporate", label: "Italian · Corporate" },
+  { path: "/courses/italian/online", label: "Italian · Online" },
+  { path: "/courses/italian/special", label: "Italian · Special courses" },
+  { path: "/courses/italian/level-progression", label: "Italian · Level progression" },
+  { path: "/courses/latin", label: "Latin" },
+  { path: "/courses/latin/groups", label: "Latin · Groups" },
+  { path: "/courses/latin/kids", label: "Latin · Kids & Teens" },
+  { path: "/courses/latin/private", label: "Latin · Private" },
+  { path: "/courses/study-in-italy", label: "Study in Italy" },
+  { path: "/courses/teacher-training", label: "Teacher training" },
+  { path: "/special-offers", label: "Special offers" },
+  { path: "/placement-test", label: "Placement test" },
+  { path: "/plida", label: "PLIDA" },
+  { path: "/culture/library", label: "Library" },
+  { path: "/workshops", label: "Workshops" },
+  { path: "/membership", label: "Membership" },
+  { path: "/donate", label: "Donate" },
+  { path: "/gift", label: "Gift" },
+  { path: "/merch", label: "Shop" },
+  { path: "/services/translation", label: "Translation" },
+  { path: "/services/sponsorship", label: "Sponsorship" },
+  { path: "/about/scuola-semplice", label: "Scuola Semplice" },
+  { path: "/contact", label: "Contact" },
+  { path: "/book-trial", label: "Book a trial" },
+  { path: "/bad-weather", label: "Typhoon & severe weather" },
+];
+
+// PLACEHOLDER default circle photo for a page until the office uploads its own
+// (picked deterministically from the stock collage photos).
+export function defaultPageHeaderPhoto(path: string): string {
+  let h = 0;
+  for (const ch of path) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return `/mosaic/${(h % 10) + 1}.jpg`;
+}
 
 export const defaultHero: HeroContent = {
   eyebrow: "Italiano · Latino · Hong Kong · 1934",
@@ -57,7 +107,7 @@ export const defaultSponsors: Sponsors = {
   silver: seedSponsors.silver.map((s) => ({ name: s.name, logo: s.logo })),
 };
 
-export const defaultSiteContent: SiteContent = { hero: defaultHero, carousel: defaultCarousel, sectionPhotos: defaultSectionPhotos, sponsors: defaultSponsors };
+export const defaultSiteContent: SiteContent = { hero: defaultHero, carousel: defaultCarousel, sectionPhotos: defaultSectionPhotos, sponsors: defaultSponsors, pageHeaders: {} };
 
 // Merge stored/partial content over the defaults so a missing field never blanks the page.
 export function normaliseSiteContent(parsed: unknown): SiteContent {
@@ -87,5 +137,10 @@ export function normaliseSiteContent(parsed: unknown): SiteContent {
       gold: tier(sponsors.gold, defaultSponsors.gold),
       silver: tier(sponsors.silver, defaultSponsors.silver),
     },
+    pageHeaders: Object.fromEntries(
+      Object.entries((p.pageHeaders ?? {}) as Record<string, unknown>)
+        .filter(([k, v]) => k.startsWith("/") && typeof v === "string" && v.trim())
+        .map(([k, v]) => [k, (v as string).trim()])
+    ),
   };
 }

@@ -51,6 +51,12 @@ const COPY: Record<EnquiryType, Copy> = {
     showLevel: true, levelLabel: "Your level (or “not sure”)",
     timingLabel: "Topic / format you'd like", messageLabel: "Anything else",
   },
+  training: {
+    title: "Register for teacher training",
+    blurb: "New course details and topics are coming soon. Register now and you'll be the first to hear when the next CEDILS / DITALS round opens.",
+    showLevel: true, levelLabel: "Your Italian level / teaching experience",
+    timingLabel: "Programme you're interested in (CEDILS, DITALS, other)", messageLabel: "Background / questions",
+  },
   // placement and newsletter enquiries are filed programmatically, not via this
   // form — these entries exist only to satisfy the type.
   placement: {
