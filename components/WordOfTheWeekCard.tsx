@@ -6,9 +6,9 @@ import { pickForDate } from "@/lib/daily-word";
 import { useToday } from "@/lib/use-today";
 import { useT, localizePath } from "@/lib/locale";
 
-// "Word / phrase of the week" — now sits INSIDE the hero slideshow, under the
-// CTAs (per Giulia: the old floating box covered important content). It's part
-// of the page flow, so it never overlaps anything. Dismissal lasts the session.
+// "Word / phrase of the week" — floats in the upper-right corner of the landing
+// page (per Giulia). It clears the nav and sits over the hero imagery, not the
+// copy on the left. Dismissible; dismissal is remembered for the session.
 export default function WordOfTheWeekCard() {
   const { t, locale } = useT();
   const isZh = locale === "zh";
@@ -31,7 +31,7 @@ export default function WordOfTheWeekCard() {
   const label = item.kind === "phrase" ? t.daily.phrase : t.daily.word;
 
   return (
-    <aside aria-label={label} className="relative mt-8 w-full max-w-[340px] rounded-2xl bg-white/90 backdrop-blur border border-line p-4 pr-9 shadow-[var(--shadow-card)] animate-in">
+    <aside aria-label={label} className="fixed top-28 md:top-32 right-4 z-30 w-[280px] sm:w-[320px] rounded-2xl bg-white/90 backdrop-blur border border-line p-4 pr-9 shadow-[var(--shadow-card)] animate-in">
       <button type="button" onClick={close} aria-label={isZh ? "關閉" : "Close"} className="absolute top-2 right-2 w-6 h-6 rounded-full hover:bg-ink/10 inline-flex items-center justify-center text-ink-muted">
         <X size={14} />
       </button>
