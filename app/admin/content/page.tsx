@@ -6,7 +6,7 @@ const sections = [
   { href: "/admin/content/hero",      icon: Type,        title: "Hero section",         blurb: "Headline, subhead, CTAs, and the trust strip on the homepage." },
   { href: "/admin/content/carousel",  icon: ImageIcon,   title: "Hero carousel",        blurb: "Add, remove, and reorder the slides behind the hero." },
   { href: "/admin/content/photos",    icon: Images,      title: "Section & banner photos", blurb: "Workshop card photos, the photo collage, and the circle photo on each landing-page banner." },
-  { href: "/admin/settings",          icon: Megaphone,   title: "Announcement & pop-up", blurb: "Top banner text and the entry pop-up on first visit." },
+  { href: "/admin/content/announcement", icon: Megaphone, title: "Announcement & pop-up", blurb: "Top banner text and the entry pop-up on first visit (English + 繁中)." },
   { href: "/admin/content/featured",  icon: Sparkles,    title: "Featured cards",       blurb: "The five “Happening at Dante” cards (coming soon)", disabled: true },
   { href: "/admin/content/sponsors",  icon: PaintBucket, title: "Sponsors",             blurb: "Classroom, gold & silver sponsor logos — add, edit and reorder." },
   { href: "/admin/content/placement", icon: ClipboardCheck, title: "Placement test",     blurb: "Add, edit and remove the free placement-test questions and answers." },
@@ -24,7 +24,10 @@ export default function ContentHub() {
         {sections.map((s) => {
           const card = (
             <>
-              <s.icon size={22} className="text-azzurro-deep" aria-hidden />
+              <div className="flex items-start justify-between gap-2">
+                <s.icon size={22} className="text-azzurro-deep" aria-hidden />
+                {s.disabled && <span className="text-[10px] font-heading font-bold uppercase tracking-wider text-ink-muted bg-cream-2 border border-line rounded-full px-2 py-0.5">Coming soon</span>}
+              </div>
               <h3 className="mt-4 text-xl font-semibold">{s.title}</h3>
               <p className="mt-2 text-sm text-ink-muted">{s.blurb}</p>
               {!s.disabled && (

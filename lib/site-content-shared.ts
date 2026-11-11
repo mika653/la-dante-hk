@@ -26,7 +26,34 @@ export type Sponsors = { classroom: SponsorItem[]; gold: SponsorItem[]; silver: 
 // the page's English path, e.g. "/plida". Blank → the page's default photo.
 export type PageHeaderPhotos = Record<string, string>;
 
-export type SiteContent = { hero: HeroContent; carousel: CarouselSlide[]; sectionPhotos: SectionPhotos; sponsors: Sponsors; pageHeaders: PageHeaderPhotos };
+// A short piece of text in both site languages. 繁中 is optional — when it is
+// blank the English is shown, so the office can edit English-only if they like.
+export type Bilingual = { en: string; zh: string };
+export const biEmpty: Bilingual = { en: "", zh: "" };
+/** Pick the locale's text, falling back to English when the 繁中 is blank. */
+export function pickLocale(b: Bilingual | undefined, locale: "en" | "zh"): string {
+  if (!b) return "";
+  return locale === "zh" ? (b.zh?.trim() || b.en || "") : (b.en || "");
+}
+
+// Top announcement bar (editable in Admin → Content → Announcement & pop-up).
+export type AnnouncementContent = {
+  enabled: boolean;
+  parts: Bilingual[];                       // the messages shown, separated by ·
+  cta: { label: Bilingual; href: string };  // the link at the end (blank label hides it)
+};
+
+// First-visit entry pop-up (same editor). Shown once per session.
+export type PopupContent = {
+  enabled: boolean;
+  eyebrow: Bilingual;
+  title: Bilingual;
+  bullets: Bilingual[];
+  cta1: { label: Bilingual; href: string };
+  cta2: { label: Bilingual; href: string };  // blank label hides the second button
+};
+
+export type SiteContent = { hero: HeroContent; carousel: CarouselSlide[]; sectionPhotos: SectionPhotos; sponsors: Sponsors; pageHeaders: PageHeaderPhotos; announcement: AnnouncementContent; popup: PopupContent };
 
 // Banner style per Giulia: these three landing pages get the homepage photo
 // collage on the yellow banner; legal pages get a plain banner; every other
@@ -107,7 +134,81 @@ export const defaultSponsors: Sponsors = {
   silver: seedSponsors.silver.map((s) => ({ name: s.name, logo: s.logo })),
 };
 
-export const defaultSiteContent: SiteContent = { hero: defaultHero, carousel: defaultCarousel, sectionPhotos: defaultSectionPhotos, sponsors: defaultSponsors, pageHeaders: {} };
+// Seeded from the strings the bar + pop-up shipped with, so turning them into
+// editable content changes nothing on screen until the office edits them.
+export const defaultAnnouncement: AnnouncementContent = {
+  enabled: true,
+  parts: [
+    { en: "Early-bird discount — new term now open", zh: "新學期早鳥優惠開始了" },
+    { en: "University students & seniors 10% off", zh: "大學生及長者 9 折" },
+  ],
+  cta: { label: { en: "See all offers →", zh: "查看所有優惠 →" }, href: "/special-offers" },
+};
+
+export const defaultPopup: PopupContent = {
+  enabled: true,
+  eyebrow: { en: "New this term", zh: "本學期新推出" },
+  title: { en: "September–December 2026 enrolment is open.", zh: "2026 年 9 月至 12 月課程現已開始報名。" },
+  bullets: [
+    { en: "Early-bird discount on the new term", zh: "新學期早鳥優惠" },
+    { en: "University students & seniors 10% off", zh: "大學生及長者 9 折" },
+    { en: "Gift cards available", zh: "備有禮品卡" },
+    { en: "Bring a friend & you both save", zh: "帶朋友同行，雙方同享優惠" },
+  ],
+  cta1: { label: { en: "See courses", zh: "查看課程" }, href: "/courses/italian/adult-groups" },
+  cta2: { label: { en: "Find my level", zh: "測試我的程度" }, href: "/placement-test" },
+};
+
+export const defaultSiteContent: SiteContent = { hero: defaultHero, carousel: defaultCarousel, sectionPhotos: defaultSectionPhotos, sponsors: defaultSponsors, pageHeaders: {}, announcement: defaultAnnouncement, popup: defaultPopup };
+
+// Keep a stored bilingual value but coerce each side to a string; a missing side
+// falls back to the default so a half-saved field never blanks the page.
+function cleanBi(v: unknown, fallback: Bilingual): Bilingual {
+  if (v == null) return { ...fallback };
+  const o = v as Partial<Bilingual>;
+  return {
+    en: typeof o.en === "string" ? o.en : fallback.en,
+    zh: typeof o.zh === "string" ? o.zh : fallback.zh,
+  };
+}
+const biFilled = (b: Bilingual) => b.en.trim() !== "" || b.zh.trim() !== "";
+
+function normaliseAnnouncement(v: unknown): AnnouncementContent {
+  const a = (v ?? {}) as Partial<AnnouncementContent>;
+  const parts = Array.isArray(a.parts) ? a.parts.map((p) => cleanBi(p, biEmpty)).filter(biFilled) : [];
+  const cta = (a.cta ?? {}) as Partial<AnnouncementContent["cta"]>;
+  return {
+    enabled: typeof a.enabled === "boolean" ? a.enabled : defaultAnnouncement.enabled,
+    parts: parts.length > 0 ? parts : defaultAnnouncement.parts,
+    cta: {
+      label: cleanBi(cta.label, defaultAnnouncement.cta.label),
+      href: typeof cta.href === "string" && cta.href.trim() ? cta.href.trim() : defaultAnnouncement.cta.href,
+    },
+  };
+}
+
+function normalisePopup(v: unknown): PopupContent {
+  const p = (v ?? {}) as Partial<PopupContent>;
+  const bullets = Array.isArray(p.bullets) ? p.bullets.map((b) => cleanBi(b, biEmpty)).filter(biFilled) : [];
+  const c1 = (p.cta1 ?? {}) as Partial<PopupContent["cta1"]>;
+  const c2 = (p.cta2 ?? {}) as Partial<PopupContent["cta2"]>;
+  return {
+    enabled: typeof p.enabled === "boolean" ? p.enabled : defaultPopup.enabled,
+    eyebrow: cleanBi(p.eyebrow, defaultPopup.eyebrow),
+    title: cleanBi(p.title, defaultPopup.title),
+    bullets: bullets.length > 0 ? bullets : defaultPopup.bullets,
+    cta1: {
+      label: cleanBi(c1.label, defaultPopup.cta1.label),
+      href: typeof c1.href === "string" && c1.href.trim() ? c1.href.trim() : defaultPopup.cta1.href,
+    },
+    cta2: {
+      // Fall back to the default label when the field was never set; an admin who
+      // clears it (stored as "") keeps it empty, which hides the 2nd button.
+      label: cleanBi(c2.label, defaultPopup.cta2.label),
+      href: typeof c2.href === "string" && c2.href.trim() ? c2.href.trim() : defaultPopup.cta2.href,
+    },
+  };
+}
 
 // Merge stored/partial content over the defaults so a missing field never blanks the page.
 export function normaliseSiteContent(parsed: unknown): SiteContent {
@@ -142,5 +243,7 @@ export function normaliseSiteContent(parsed: unknown): SiteContent {
         .filter(([k, v]) => k.startsWith("/") && typeof v === "string" && v.trim())
         .map(([k, v]) => [k, (v as string).trim()])
     ),
+    announcement: normaliseAnnouncement(p.announcement),
+    popup: normalisePopup(p.popup),
   };
 }

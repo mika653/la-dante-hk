@@ -8,6 +8,7 @@ import type { SmtpPublic } from "@/lib/smtp-shared";
 export default function EmailSettings() {
   const [s, setS] = useState<SmtpPublic | null>(null);
   const [denied, setDenied] = useState(false);
+  const [loadErr, setLoadErr] = useState<string | null>(null);
   const [password, setPassword] = useState("");   // write-only
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -17,9 +18,16 @@ export default function EmailSettings() {
   const [testing, setTesting] = useState(false);
 
   useEffect(() => {
+    let alive = true;
     getSmtpSettings()
-      .then((v) => setS(v))
-      .catch((e) => { if (/Not authorised/i.test(String(e?.message ?? e))) setDenied(true); else setErr("Couldn't load settings."); });
+      .then((res) => {
+        if (!alive) return;
+        if (res.ok) setS(res.settings);
+        else if (res.reason === "forbidden") setDenied(true);
+        else setLoadErr("Couldn't load the email settings. Please refresh and try again.");
+      })
+      .catch(() => { if (alive) setLoadErr("Couldn't load the email settings. Please refresh and try again."); });
+    return () => { alive = false; };
   }, []);
 
   function set<K extends keyof SmtpPublic>(k: K, v: SmtpPublic[K]) { setS((p) => (p ? { ...p, [k]: v } : p)); setSaved(false); }
@@ -52,8 +60,8 @@ export default function EmailSettings() {
         <Link href="/admin/settings" className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-azzurro-deep mb-6"><ArrowLeft size={14} /> Back to settings</Link>
         <div className="frame p-8 bg-white text-center">
           <Lock size={26} className="mx-auto text-ink-muted mb-3" />
-          <p className="font-medium">Owner only</p>
-          <p className="text-sm text-ink-muted mt-1">Email settings hold sensitive credentials, so only the site owner can view or change them.</p>
+          <p className="font-medium">Admins only</p>
+          <p className="text-sm text-ink-muted mt-1">Email settings hold sensitive credentials, so you need to be signed in as an <strong>admin</strong> (owner or manager) to view or change them.</p>
         </div>
       </div>
     );
@@ -69,7 +77,7 @@ export default function EmailSettings() {
       <div className="mt-5 frame p-4 bg-sole-soft flex items-start gap-3">
         <ShieldAlert size={18} className="text-azzurro-deep shrink-0 mt-0.5" aria-hidden />
         <div className="text-sm space-y-1.5">
-          <p><strong>These are sensitive credentials.</strong> They&apos;re stored <strong>encrypted</strong>, only the <strong>owner</strong> can see this page, and the password is <strong>write-only</strong> (never shown again after saving).</p>
+          <p><strong>These are sensitive credentials.</strong> They&apos;re stored <strong>encrypted</strong>, they stay with the school (not DFB), and the password is <strong>write-only</strong> (never shown again after saving).</p>
           <p className="text-ink-muted">Tip: use a <strong>dedicated mailbox</strong> (e.g. <span className="font-mono text-[13px]">no-reply@ladante.cc</span>) rather than a personal one, so the credential is easy to rotate later.</p>
         </div>
       </div>
@@ -88,7 +96,11 @@ export default function EmailSettings() {
       </div>
 
       {!s ? (
-        <p className="mt-8 text-sm text-ink-muted">Loading…</p>
+        loadErr ? (
+          <p className="mt-8 text-sm text-rosso">{loadErr}</p>
+        ) : (
+          <p className="mt-8 text-sm text-ink-muted">Loading…</p>
+        )
       ) : (
         <>
           <div className="mt-6 frame p-6 md:p-8 bg-white space-y-5">

@@ -12,6 +12,14 @@ export type SmtpSettings = {
 
 export type SmtpPublic = SmtpSettings & { hasPassword: boolean; updatedBy: string; updatedAt: string | null };
 
+// Result of loading the settings. We return "forbidden" explicitly rather than
+// throwing, because Next.js strips server-action error messages in production —
+// so the browser can't tell a permission error from any other failure by its
+// message. A discriminated result survives the server→client boundary intact.
+export type SmtpLoad =
+  | { ok: true; settings: SmtpPublic }
+  | { ok: false; reason: "forbidden" | "error" };
+
 export type SmtpInput = SmtpSettings & { password?: string }; // password optional — omit to keep the stored one
 
 export const defaultSmtp: SmtpSettings = {
