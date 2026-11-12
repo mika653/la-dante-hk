@@ -48,6 +48,18 @@ export function isAnswerCorrect(q: Question, response: number | string | number[
   return Number(response) === q.correctIndex; // "choice" and "truefalse"
 }
 
+// How many individual answer-blanks a student got right in one question. A
+// single-choice / fill / true-false question is one blank; a multi-part question
+// is one blank per sub-part. Giulia's sectioned scoring counts blanks, not whole
+// questions, so a part-right cloze still earns the points it got.
+export function countCorrectBlanks(q: Question, response: number | string | number[] | null | undefined): number {
+  if (q.parts && q.parts.length > 0) {
+    const arr = Array.isArray(response) ? response : [];
+    return q.parts.reduce((n, p, i) => n + (Number(arr[i]) === p.correctIndex ? 1 : 0), 0);
+  }
+  return isAnswerCorrect(q, response) ? 1 : 0;
+}
+
 // Shared option banks for the two "pick from a list" cloze questions (44, 45).
 const PREP_BANK = ["a", "allo", "da", "dall'", "dei", "di", "in", "nell'", "sul"];
 const VERB_BANK = ["avessi letto", "avevo letto", "buttare", "chieda", "chiedessi", "compri", "hai visto", "ho buttato", "interessava", "lascia", "preferirei", "volevo"];
@@ -309,4 +321,73 @@ export function scoreToSubLevel(correct: number): { label: string; cefr: CEFR } 
   let band: ScoreBand = SCORE_BANDS[0];
   for (const b of SCORE_BANDS) if (correct >= b.minCorrect) band = b;
   return { label: band.label, cefr: band.cefr };
+}
+
+// ---------------- Sectioned scoring (Giulia's "Results rules") ----------------
+// The real rubric is a SECTIONED test: the student works through blocks of
+// questions in order; in each block we count correct ANSWER-BLANKS (not whole
+// questions) and compare to a pass mark. Below the mark places them at that
+// block's level and stops; at or above, they move up and continue to the next
+// block. The final block has a three-way split.
+//
+// PROVISIONAL — GIULIA TO CONFIRM. The question ranges are taken verbatim from
+// her sheet and OVERLAP (1–18 then 9–16, which sits inside it); they most likely
+// need to be corrected to consecutive ranges. The pass marks are hers. To adjust,
+// change the numbers below — nothing else needs touching.
+export type PlacementSection = { from: number; to: number; pass: number; below: string; above: string };
+export const PLACEMENT_SECTIONS: PlacementSection[] = [
+  { from: 1,  to: 18, pass: 14, below: "A1.1",      above: "A1.2" },
+  { from: 9,  to: 16, pass: 20, below: "A1.3",      above: "A2.1" },
+  { from: 17, to: 24, pass: 12, below: "A2.1–A2.2", above: "A2.3" },
+  { from: 25, to: 32, pass: 13, below: "A2.3–A2.4", above: "B1.1" },
+  { from: 33, to: 40, pass: 13, below: "B1.1–B1.2", above: "B1.3" },
+];
+// Final block Q41–46: below 13 → B1.3–B1.4, 13–34 → B2.1, 35+ → C1–C2.
+// (Giulia's sheet left 30–34 undefined; folded into B2.1 here — confirm with her.)
+export const PLACEMENT_FINAL = {
+  from: 41,
+  to: 46,
+  bands: [ { min: 0, label: "B1.3–B1.4" }, { min: 13, label: "B2.1" }, { min: 35, label: "C1–C2" } ],
+};
+
+// CEFR band (A1/A2/B1/B2/C1) behind a sub-level label like "A2.1–A2.2" or "C1–C2".
+function cefrOf(label: string): CEFR {
+  const b = label.slice(0, 2);
+  return (["A1", "A2", "B1", "B2", "C1"] as string[]).includes(b) ? (b as CEFR) : "C1";
+}
+
+// Walk the sections in order, counting correct blanks. Stop at the first block
+// the student scores below its pass mark (their level is that block's "below").
+// Clearing a block moves them up and on; a student who stops early is placed by
+// the last block they answered. The final block uses its three-way bands.
+export function scoreSectioned(
+  bank: Question[],
+  answers: Record<string, number | string | number[]>,
+): { label: string; cefr: CEFR } {
+  const byId = new Map(bank.map((q) => [q.id, q]));
+  const answeredIn = (from: number, to: number) => {
+    for (let i = from; i <= to; i++) if (answers[`q${i}`] !== undefined) return true;
+    return false;
+  };
+  const blanksIn = (from: number, to: number) => {
+    let n = 0;
+    for (let i = from; i <= to; i++) {
+      const q = byId.get(`q${i}`);
+      if (q) n += countCorrectBlanks(q, answers[q.id]);
+    }
+    return n;
+  };
+  let result: { label: string; cefr: CEFR } = { label: "A1.1", cefr: "A1" };
+  for (const s of PLACEMENT_SECTIONS) {
+    if (!answeredIn(s.from, s.to)) return result;                   // stopped before this block
+    if (blanksIn(s.from, s.to) < s.pass) return { label: s.below, cefr: cefrOf(s.below) };
+    result = { label: s.above, cefr: cefrOf(s.above) };            // cleared this block; carry on
+  }
+  if (answeredIn(PLACEMENT_FINAL.from, PLACEMENT_FINAL.to)) {
+    const score = blanksIn(PLACEMENT_FINAL.from, PLACEMENT_FINAL.to);
+    let band = PLACEMENT_FINAL.bands[0];
+    for (const b of PLACEMENT_FINAL.bands) if (score >= b.min) band = b;
+    result = { label: band.label, cefr: cefrOf(band.label) };
+  }
+  return result;
 }

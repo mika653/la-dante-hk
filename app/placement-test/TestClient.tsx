@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { type CEFR, levelInfo, scoreToSubLevel, isAnswerCorrect, TF_CHOICES } from "@/lib/placement-questions";
+import { type CEFR, levelInfo, scoreSectioned, isAnswerCorrect, TF_CHOICES } from "@/lib/placement-questions";
 import { usePlacementQuestions } from "@/lib/use-placement";
 import { useCourses } from "@/lib/use-courses";
 import { suggestFor, seatsLeft, formatStart } from "@/lib/placement-suggest";
@@ -34,7 +34,9 @@ export default function TestClient() {
     return correct;
   }, [answers, bank]);
   const answeredCount = Object.keys(answers).length;
-  const result = useMemo(() => scoreToSubLevel(score), [score]);
+  // Level comes from Giulia's sectioned rubric (correct blanks per block); `score`
+  // (whole questions right) stays for the "you answered X of Y" summary + review.
+  const result = useMemo(() => scoreSectioned(bank, answers), [bank, answers]);
 
   function begin() { setStage("testing"); setIndex(0); setAnswers({}); setResponse(null); }
 
