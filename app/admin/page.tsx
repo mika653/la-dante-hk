@@ -2,28 +2,37 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BookOpen, PaintBucket, Calendar, Users, Plus, ArrowRight, AlertCircle } from "lucide-react";
-import { getCourses, resetDemo } from "@/lib/admin-store";
+import { getCourses } from "@/lib/admin-store";
+import { getMyName } from "@/lib/auth-actions";
+import { getWorkshops } from "@/lib/use-workshops";
+import { getEvents } from "@/lib/use-events";
 import type { Course } from "@/lib/data";
 
 export default function AdminOverview() {
   const [courses, setCoursesState] = useState<Course[]>([]);
-  useEffect(() => { getCourses().then(setCoursesState).catch(() => setCoursesState([])); }, []);
+  const [name, setName] = useState("");
+  const [workshopCount, setWorkshopCount] = useState<number | null>(null);
+  const [eventCount, setEventCount] = useState<number | null>(null);
+  useEffect(() => {
+    getCourses().then(setCoursesState).catch(() => setCoursesState([]));
+    getMyName().then(setName).catch(() => {});
+    getWorkshops().then((w) => setWorkshopCount(w.length)).catch(() => {});
+    const today = new Date().toISOString().slice(0, 10);
+    getEvents().then((e) => setEventCount(e.filter((x) => x.published && x.date >= today).length)).catch(() => {});
+  }, []);
 
   const published = courses.filter((c) => c.status === "Published");
   const enrolled = published.reduce((sum, c) => sum + c.enrolled, 0);
   const almostFull = published.filter((c) => c.enrolled >= Math.ceil(c.seats * 0.75));
   const lowEnrol = published.filter((c) => c.enrolled <= 2);
 
-  const name = "Giulia"; // In Phase 2 this would come from the auth session
-
   return (
     <div className="max-w-6xl">
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
           <p className="eyebrow">Admin · Overview</p>
-          <h1 className="mt-2 text-3xl md:text-4xl">Ciao, {name}.</h1>
+          <h1 className="mt-2 text-3xl md:text-4xl">Ciao{name ? `, ${name}` : ""}.</h1>
         </div>
-        <button type="button" onClick={() => { resetDemo(); location.reload(); }} className="text-xs text-ink-muted underline">Reset demo data</button>
       </div>
 
       <p className="mt-3 text-ink-muted">Here&apos;s what&apos;s happening this term.</p>
@@ -33,8 +42,8 @@ export default function AdminOverview() {
         {[
           { icon: BookOpen,    label: "Active courses", value: published.length, href: "/admin/courses" },
           { icon: Users,       label: "Enrolled students", value: enrolled,        href: "/admin/members" },
-          { icon: PaintBucket, label: "Workshops planned", value: "4",             href: "/admin/workshops" },
-          { icon: Calendar,    label: "Upcoming events",   value: "6",             href: "/admin/events" },
+          { icon: PaintBucket, label: "Workshops planned", value: workshopCount ?? "—", href: "/admin/workshops" },
+          { icon: Calendar,    label: "Upcoming events",   value: eventCount ?? "—",    href: "/admin/events" },
         ].map(({ icon: Icon, label, value, href }) => (
           <Link key={label} href={href} className="frame p-6 bg-white">
             <Icon size={22} className="text-azzurro-deep" aria-hidden />

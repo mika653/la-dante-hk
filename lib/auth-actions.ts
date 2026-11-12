@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
-import { createSession, destroySession, roleHome } from "@/lib/auth";
+import { createSession, destroySession, roleHome, getSession } from "@/lib/auth";
 
 export type LoginState = { error?: string };
 
@@ -57,4 +57,10 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
 export async function logoutAction() {
   await destroySession();
   redirect("/login");
+}
+
+// The signed-in user's display name, for client components that greet them.
+export async function getMyName(): Promise<string> {
+  const s = await getSession();
+  return s?.name ?? "";
 }

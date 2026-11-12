@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Wordmark from "./Wordmark";
 import { MapPin, Phone, Mail, MessageCircle, ChevronRight, Clock } from "lucide-react";
-import { IconInstagram, IconFacebook, IconYoutube, IconLinkedin } from "./SocialIcons";
+import { IconInstagram, IconFacebook } from "./SocialIcons";
 import { useT, localizePath } from "@/lib/locale";
 
 export default function Footer() {
@@ -20,10 +20,8 @@ export default function Footer() {
   ];
 
   const socials = [
-    { Icon: IconFacebook, href: "#", label: "Facebook" },
-    { Icon: IconInstagram, href: "https://instagram.com/ladantehk", label: "Instagram" },
-    { Icon: IconYoutube, href: "#", label: "YouTube" },
-    { Icon: IconLinkedin, href: "#", label: "LinkedIn" },
+    { Icon: IconFacebook, href: "https://www.facebook.com/ladantehk", label: "Facebook" },
+    { Icon: IconInstagram, href: "https://www.instagram.com/ladantehk/", label: "Instagram" },
   ];
 
   return (
@@ -59,6 +57,8 @@ export default function Footer() {
                 <Link
                   key={label}
                   href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={label}
                   className="w-9 h-9 rounded-md bg-azzurro-deep text-white inline-flex items-center justify-center transition-colors hover:bg-sole hover:text-ink"
                 >
@@ -131,7 +131,7 @@ export default function Footer() {
           <p>© {new Date().getFullYear()} Dante Alighieri Society of Hong Kong · {t.footer.allRights}</p>
           <div className="flex flex-wrap gap-x-5 gap-y-2">
             <Link href={lp("/privacy")} className="hover:text-azzurro-deep">{t.footer.privacy}</Link>
-            <Link href="/cookie-policy" className="hover:text-azzurro-deep">Cookies</Link>
+            <Link href={lp("/cookie-policy")} className="hover:text-azzurro-deep">{locale === "zh" ? "Cookie 政策" : "Cookies"}</Link>
             <Link href={lp("/terms")} className="hover:text-azzurro-deep">{t.footer.terms}</Link>
             <Link href={lp("/bad-weather")} className="hover:text-azzurro-deep">{t.footer.typhoon}</Link>
           </div>

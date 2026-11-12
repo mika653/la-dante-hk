@@ -61,10 +61,10 @@ export default function AboutZh() {
           <h2 className="mt-3 text-3xl md:text-5xl">你將會遇見的面孔。</h2>
           <div className="mt-10 grid sm:grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { name: "Giulia Marchetti", role: "總監" },
-              { name: "Marco Rossi",      role: "首席導師" },
-              { name: "Sofia Bianchi",    role: "PLIDA 統籌" },
-              { name: "Elena Conti",      role: "文化項目" },
+              { name: "Giulia Capasso", role: "校務統籌" },
+              { name: "Alice Agostini", role: "辦公室經理" },
+              { name: "Bill Chen",      role: "行政及資訊科技" },
+              { name: "Johnny Yuen",    role: "市場推廣主任" },
             ].map((p) => (
               <div key={p.name} className="text-center">
                 <div className="w-40 h-40 mx-auto rounded-full bg-ink text-cream font-heading font-extrabold text-5xl inline-flex items-center justify-center">{p.name.split(" ").map((x) => x[0]).join("")}</div>

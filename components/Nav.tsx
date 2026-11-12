@@ -39,7 +39,7 @@ const navGroups: NavGroup[] = [
     label: "Culture",   // dropdown only — no landing page
     menu: [
       { label: "Events", href: "/culture" },
-      { label: "Workshops", href: "/culture#workshops" },
+      { label: "Workshops", href: "/workshops" },
       { label: "Library", submenu: [
         { label: "Borrow a book", href: "/culture/library#borrow" },
         { label: "Il Salotto di Dante Bookclub", href: "/culture/library#bookclub" },

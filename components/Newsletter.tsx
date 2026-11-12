@@ -3,14 +3,28 @@ import { useState } from "react";
 import { Mail, Check } from "lucide-react";
 import { IconInstagram, IconFacebook } from "./SocialIcons";
 import { useT } from "@/lib/locale";
+import { submitEnquiry } from "@/lib/enquiry-actions";
 
 export default function Newsletter() {
   const { t, locale } = useT();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [done, setDone] = useState(false);
-  // Note: newsletter capture is on hold — the signup isn't stored yet.
   const followLabel = locale === "zh" ? "追蹤我們" : "Follow us";
+
+  // Store the signup as a "newsletter" enquiry so the office actually receives it.
+  async function subscribe(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      const fd = new FormData();
+      fd.set("type", "newsletter");
+      fd.set("name", name.trim());
+      fd.set("email", email.trim());
+      fd.set("sourcePath", locale === "zh" ? "/zh" : "/");
+      await submitEnquiry({}, fd);
+    } catch { /* best effort — never block the confirmation */ }
+    setDone(true);
+  }
 
   return (
     <section className="relative overflow-hidden bg-white py-16 md:py-24 border-t border-line">
@@ -31,7 +45,7 @@ export default function Newsletter() {
             </div>
           ) : (
             <form
-              onSubmit={(e) => { e.preventDefault(); setDone(true); }}
+              onSubmit={subscribe}
               className="mt-8 flex flex-col sm:flex-row gap-3 max-w-xl mx-auto"
             >
               <input
