@@ -35,7 +35,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="mt-4 text-center text-xs text-ink-muted">Forgotten your password? Ask Giulia or Bill to reset it.</p>
+        <p className="mt-4 text-center text-xs text-ink-muted">Forgotten your password? Ask your administrator to reset it.</p>
       </div>
     </main>
   );
