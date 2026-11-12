@@ -6,7 +6,7 @@ import { usePlacementQuestions } from "@/lib/use-placement";
 import { useCourses } from "@/lib/use-courses";
 import { suggestFor, seatsLeft, formatStart } from "@/lib/placement-suggest";
 import { submitEnquiry } from "@/lib/enquiry-actions";
-import { ArrowLeft, ArrowRight, Check, Mail, Sparkles, Clock, CalendarDays, MapPin, User, Phone, Flag } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, X, ChevronDown, Mail, Clock, CalendarDays, MapPin, User, Phone, Flag } from "lucide-react";
 
 type Stage = "intro" | "testing" | "email" | "result";
 
@@ -23,6 +23,7 @@ export default function TestClient() {
   const [response, setResponse] = useState<number | string | number[] | null>(null);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [showReview, setShowReview] = useState(false); // correct answers are revealed only here, after finishing
 
   // Score = how many ANSWERED questions are correct (Giulia's rubric is scored
   // on the raw number correct, mapped to a sub-level in scoreToSubLevel).
@@ -249,6 +250,7 @@ export default function TestClient() {
   // stage === "result"
   const info = levelInfo[result.cefr];
   const suggestion = suggestFor(courses, result.cefr);
+  const attempted = bank.filter((q) => q.id in answers); // only the questions they actually answered
 
   return (
     <section className="bg-cream py-16 md:py-20">
@@ -313,9 +315,74 @@ export default function TestClient() {
             </div>
           )}
 
+          {/* Answer review — the correct answers appear only here, after the test is
+              finished, so nothing is given away while the student can still change answers. */}
+          {attempted.length > 0 && (
+            <div className="mt-10 text-left border-t border-line pt-6">
+              <button
+                type="button"
+                onClick={() => setShowReview((v) => !v)}
+                className="w-full flex items-center justify-between gap-3 text-left"
+                aria-expanded={showReview}
+              >
+                <span className="font-heading font-semibold text-lg">Review your answers</span>
+                <span className="inline-flex items-center gap-2 text-sm text-ink-muted">
+                  {score}/{attempted.length} correct
+                  <ChevronDown size={18} className={`transition-transform ${showReview ? "rotate-180" : ""}`} />
+                </span>
+              </button>
+              {showReview && (
+                <div className="mt-5 space-y-3">
+                  <p className="text-xs text-ink-muted">Here are the correct answers for the questions you answered.</p>
+                  {attempted.map((q) => {
+                    const resp = answers[q.id];
+                    const ok = isAnswerCorrect(q, resp);
+                    const isMulti = !!(q.parts && q.parts.length);
+                    const arr = Array.isArray(resp) ? resp : [];
+                    return (
+                      <div key={q.id} className={`rounded-xl border p-4 ${ok ? "border-green-200 bg-green-50" : "border-rosso/30 bg-rosso/5"}`}>
+                        <div className="flex items-start gap-2.5">
+                          <span className={`mt-0.5 shrink-0 ${ok ? "text-green-700" : "text-rosso"}`}>
+                            {ok ? <Check size={17} /> : <X size={17} />}
+                          </span>
+                          <p className="text-sm font-medium leading-snug">{q.prompt}</p>
+                        </div>
+                        {isMulti ? (
+                          <ul className="mt-3 pl-7 space-y-1.5 text-sm">
+                            {q.parts!.map((p, i) => {
+                              const chose = typeof arr[i] === "number" ? p.choices[arr[i]] : "—";
+                              const pOk = Number(arr[i]) === p.correctIndex;
+                              return (
+                                <li key={i} className="flex flex-wrap items-baseline gap-x-2">
+                                  {p.label && <span className="text-ink-muted shrink-0">{p.label}</span>}
+                                  <span className={pOk ? "text-green-700 font-medium" : "text-rosso font-medium"}>{chose}</span>
+                                  {!pOk && <span className="text-ink-muted">→ correct: <b className="text-ink">{p.choices[p.correctIndex]}</b></span>}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        ) : (
+                          <p className="mt-2 pl-7 text-sm">
+                            Your answer:{" "}
+                            <span className={ok ? "text-green-700 font-medium" : "text-rosso font-medium"}>
+                              {q.type === "fill" ? String(resp ?? "—") : typeof resp === "number" ? q.choices[resp] : "—"}
+                            </span>
+                            {!ok && (
+                              <> · Correct: <b className="text-ink">{q.type === "fill" ? q.answer : q.choices[q.correctIndex]}</b></>
+                            )}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/courses/italian/adult-groups" className="btn btn-ghost">See all courses</Link>
-            <button type="button" onClick={() => { setStage("intro"); setAnswers({}); setIndex(0); setResponse(null); }} className="btn btn-ghost">Retake test</button>
+            <button type="button" onClick={() => { setStage("intro"); setAnswers({}); setIndex(0); setResponse(null); setShowReview(false); }} className="btn btn-ghost">Retake test</button>
           </div>
         </div>
       </div>
