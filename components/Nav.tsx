@@ -82,6 +82,24 @@ const navGroups: NavGroup[] = [
   { label: "Contact", href: "/contact" },
 ];
 
+// Chinese labels for every nav entry (top-level + submenus). Falls back to the
+// English label if a key is missing.
+const NAV_ZH: Record<string, string> = {
+  Home: "首頁", Courses: "課程", Culture: "文化", PLIDA: "PLIDA", "Join Us": "加入我們",
+  Translation: "翻譯服務", About: "關於我們", Contact: "聯絡我們",
+  Italian: "意大利文", "Adult courses": "成人課程", "Kids & Teens": "兒童及青少年",
+  "Private Lessons": "私人課堂", "Corporate courses": "企業課程", "Special courses": "特別課程",
+  "Level progression": "程度進階", "Test your level": "測試你的程度",
+  Latin: "拉丁文", Groups: "小組課程", "Special Offers": "特別優惠",
+  "Study in Italy": "到意大利升學", "Teachers' training": "師資培訓",
+  Events: "活動", Workshops: "工作坊", Library: "圖書館",
+  "Borrow a book": "借書", "Il Salotto di Dante Bookclub": "Il Salotto di Dante 讀書會",
+  "Presidio Letterario": "Presidio Letterario",
+  "Sessions & Application": "考試日期及報名", "Prepare for PLIDA": "PLIDA 備試", "PLIDA FAQ": "PLIDA 常見問題",
+  Membership: "會員", Donate: "捐助", "Interpreting & Translations": "傳譯及翻譯",
+  History: "歷史", "Our Team": "我們的團隊", "Scuola Semplice": "Scuola Semplice",
+};
+
 export default function Nav() {
   const { t, locale } = useT();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -96,6 +114,9 @@ export default function Nav() {
     };
     return map[key] ?? key;
   };
+  // Localize any nav label (submenus included) and link.
+  const navLabel = (label: string) => (locale === "zh" ? (NAV_ZH[label] ?? label) : label);
+  const navHref = (href: string) => localizePath(href, locale);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80);
@@ -173,16 +194,16 @@ export default function Nav() {
                         >
                           {mi.href ? (
                             <Link
-                              href={mi.href}
+                              href={navHref(mi.href)}
                               className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[14px] hover:bg-cream ${mi.submenu ? "font-medium text-ink" : "text-ink-muted hover:text-azzurro-deep"}`}
                               onClick={() => { setOpenGroup(null); setOpenSub(null); }}
                             >
-                              {mi.label}
+                              {navLabel(mi.label)}
                               {mi.submenu && <ChevronRight size={14} className="opacity-50" aria-hidden />}
                             </Link>
                           ) : (
                             <span className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[14px] font-medium text-ink cursor-default hover:bg-cream">
-                              {mi.label}
+                              {navLabel(mi.label)}
                               {mi.submenu && <ChevronRight size={14} className="opacity-50" aria-hidden />}
                             </span>
                           )}
@@ -193,11 +214,11 @@ export default function Nav() {
                                   {mi.submenu.map((s) => (
                                     <li key={s.label}>
                                       <Link
-                                        href={s.href}
+                                        href={navHref(s.href)}
                                         className="block px-3 py-2 rounded-lg text-[14px] text-ink-muted hover:text-azzurro-deep hover:bg-cream"
                                         onClick={() => { setOpenGroup(null); setOpenSub(null); }}
                                       >
-                                        {s.label}
+                                        {navLabel(s.label)}
                                       </Link>
                                     </li>
                                   ))}
@@ -254,8 +275,8 @@ export default function Nav() {
                   {g.columns && (
                     <div className="mt-2 pl-3 space-y-1">
                       {g.columns.flatMap((c) => c.items.map((it) => ({ ...it, _col: c.title }))).map((it) => (
-                        <Link key={`${it._col}-${it.label}`} href={it.href} onClick={() => setMobileOpen(false)} className="block py-1.5 text-[15px] text-ink-muted">
-                          {it.label}
+                        <Link key={`${it._col}-${it.label}`} href={navHref(it.href)} onClick={() => setMobileOpen(false)} className="block py-1.5 text-[15px] text-ink-muted">
+                          {navLabel(it.label)}
                         </Link>
                       ))}
                     </div>
@@ -266,21 +287,21 @@ export default function Nav() {
                         mi.submenu ? (
                           <div key={mi.label}>
                             {mi.href ? (
-                              <Link href={mi.href} onClick={() => setMobileOpen(false)} className="eyebrow mb-1 block">{mi.label}</Link>
+                              <Link href={navHref(mi.href)} onClick={() => setMobileOpen(false)} className="eyebrow mb-1 block">{navLabel(mi.label)}</Link>
                             ) : (
-                              <p className="eyebrow mb-1">{mi.label}</p>
+                              <p className="eyebrow mb-1">{navLabel(mi.label)}</p>
                             )}
                             <div className="space-y-1">
                               {mi.submenu.map((s) => (
-                                <Link key={s.label} href={s.href} onClick={() => setMobileOpen(false)} className="block py-1.5 text-[15px] text-ink-muted">
-                                  {s.label}
+                                <Link key={s.label} href={navHref(s.href)} onClick={() => setMobileOpen(false)} className="block py-1.5 text-[15px] text-ink-muted">
+                                  {navLabel(s.label)}
                                 </Link>
                               ))}
                             </div>
                           </div>
                         ) : (
-                          <Link key={mi.label} href={mi.href!} onClick={() => setMobileOpen(false)} className="block py-1.5 text-[15px] text-ink-muted">
-                            {mi.label}
+                          <Link key={mi.label} href={navHref(mi.href!)} onClick={() => setMobileOpen(false)} className="block py-1.5 text-[15px] text-ink-muted">
+                            {navLabel(mi.label)}
                           </Link>
                         )
                       ))}
