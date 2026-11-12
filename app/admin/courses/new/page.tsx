@@ -65,9 +65,16 @@ export default function NewCoursePage() {
   const { holidays: holidayList, plida: plidaList } = useClosures();
   const [allCourses, setAllCourses] = useState<Course[]>([]);
   useEffect(() => {
-    listAllCourses().then(setAllCourses).catch(() => {});
-    listTeacherNames().then(setTeacherNames).catch(() => {});
-    getCourseDefaults().then(setDefaults).catch(() => {});
+    // Re-fetch when the tab regains focus too, so a teacher added in the Course
+    // defaults tab shows up in the picker without a full page reload.
+    const load = () => {
+      listAllCourses().then(setAllCourses).catch(() => {});
+      listTeacherNames().then(setTeacherNames).catch(() => {});
+      getCourseDefaults().then(setDefaults).catch(() => {});
+    };
+    load();
+    window.addEventListener("focus", load);
+    return () => window.removeEventListener("focus", load);
   }, []);
   // Teacher picker: Course defaults list + teacher logins + anyone on a course.
   // Live course-code preview: the next code from the codes already in use.

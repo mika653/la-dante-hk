@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Plus, Trash2, RotateCcw } from "lucide-react";
-import { getCourseDefaults, saveCourseDefaults } from "@/lib/course-defaults-actions";
+import { getCourseDefaults, saveCourseDefaults, saveTeacherList } from "@/lib/course-defaults-actions";
 import {
   COURSE_TYPE_LABELS, DESCRIPTION_KEYS, DEFAULT_COURSE_DEFAULTS, builtInDescription,
   type CourseDefaults, type DescriptionKey,
@@ -38,11 +38,24 @@ export default function CourseDefaultsPage() {
   function resetDesc(k: DescriptionKey) {
     setD((p) => { const descriptions = { ...p.descriptions }; delete descriptions[k]; return { ...p, descriptions }; });
   }
+  // Adding/removing a teacher saves on its own — the teacher list is the thing
+  // people expect to "just stick", so it never waits for the Save button.
+  async function persistTeachers(teachers: string[]) {
+    setD((p) => ({ ...p, teachers }));
+    setErr(null);
+    const res = await saveTeacherList(teachers);
+    if (!res.ok) { setErr(res.error === "Not authorised" ? "You need to be signed in as an owner or manager to save." : (res.error ?? "Couldn't save the teacher.")); return; }
+    setSaved(true); setTimeout(() => setSaved(false), 2000);
+  }
   function addTeacher() {
     const n = newTeacher.trim();
     if (!n) return;
-    setD((p) => (p.teachers.some((t) => t.toLowerCase() === n.toLowerCase()) ? p : { ...p, teachers: [...p.teachers, n] }));
+    if (d.teachers.some((t) => t.toLowerCase() === n.toLowerCase())) { setNewTeacher(""); return; }
+    void persistTeachers([...d.teachers, n]);
     setNewTeacher("");
+  }
+  function removeTeacher(name: string) {
+    void persistTeachers(d.teachers.filter((x) => x !== name));
   }
 
   async function save() {
@@ -85,12 +98,12 @@ export default function CourseDefaultsPage() {
           {/* Teachers */}
           <section className="mt-6 frame bg-white p-6 md:p-8">
             <h2 className="text-xl font-semibold">Teachers</h2>
-            <p className="mt-1 text-sm text-ink-muted">Shown in the teacher picker on every course form. Teachers with a staff login (Staff &amp; leave) and anyone already on a course are included automatically.</p>
+            <p className="mt-1 text-sm text-ink-muted">Shown in the teacher picker on every course form. Added teachers save straight away — no need to press Save defaults. Teachers with a staff login (Staff &amp; leave) and anyone already on a course are included automatically.</p>
             <ul className="mt-5 flex flex-wrap gap-2">
               {d.teachers.map((t) => (
                 <li key={t} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper pl-3.5 pr-1.5 py-1 text-sm">
                   {t}
-                  <button type="button" onClick={() => setD((p) => ({ ...p, teachers: p.teachers.filter((x) => x !== t) }))} aria-label={`Remove ${t}`} className="w-6 h-6 rounded-full hover:bg-rosso/10 hover:text-rosso inline-flex items-center justify-center text-ink-muted"><Trash2 size={12} /></button>
+                  <button type="button" onClick={() => removeTeacher(t)} aria-label={`Remove ${t}`} className="w-6 h-6 rounded-full hover:bg-rosso/10 hover:text-rosso inline-flex items-center justify-center text-ink-muted"><Trash2 size={12} /></button>
                 </li>
               ))}
               {d.teachers.length === 0 && <li className="text-sm text-ink-muted">No teachers listed yet.</li>}

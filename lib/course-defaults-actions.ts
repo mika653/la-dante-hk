@@ -27,6 +27,23 @@ export async function saveCourseDefaults(input: CourseDefaults): Promise<{ ok: b
 }
 
 /**
+ * Persist ONLY the teacher list, merged onto whatever defaults are stored, so
+ * adding or removing a teacher saves immediately without touching the fee or
+ * description fields the admin may be mid-editing on the form.
+ */
+export async function saveTeacherList(teachers: string[]): Promise<{ ok: boolean; error?: string }> {
+  try { await requireAdminFresh(); } catch { return { ok: false, error: "Not authorised" }; }
+  const [row] = await db.select().from(siteConfig).where(eq(siteConfig.key, KEY));
+  const current = row ? normaliseCourseDefaults(row.data) : DEFAULT_COURSE_DEFAULTS;
+  const clean = normaliseCourseDefaults({ ...current, teachers });
+  await db
+    .insert(siteConfig)
+    .values({ key: KEY, data: clean, updatedAt: new Date() })
+    .onConflictDoUpdate({ target: siteConfig.key, set: { data: clean, updatedAt: new Date() } });
+  return { ok: true };
+}
+
+/**
  * Every teacher the course pickers should offer: the office's teacher list
  * (Course defaults), active teacher accounts (Staff & leave), and anyone already
  * assigned to a course — so a newly added teacher shows up straight away.
