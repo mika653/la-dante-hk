@@ -4,6 +4,7 @@ import { ArrowRight, CalendarDays, Users2, GraduationCap, UserCheck } from "luci
 import { useCourses } from "@/lib/use-courses";
 import { formatHKD } from "@/lib/utils";
 import { useT, localizePath } from "@/lib/locale";
+import { enrolLinkProps } from "@/lib/enroll";
 
 const FEATURES = [
   { icon: CalendarDays,   en: "12 weeks per term",       zh: "每期 12 週" },
@@ -61,9 +62,9 @@ export default function UpcomingCourses() {
                     <td className="py-4 px-4 text-[13px] text-ink-muted">{c.location}</td>
                     <td className="py-4 px-4 text-[13px] font-semibold">{formatHKD(c.priceHKD)}</td>
                     <td className="py-4 px-5 text-right">
-                      <Link href={`${localizePath("/courses/italian/adult-groups", locale)}#enquire`} className="btn btn-primary text-xs h-9 px-4 whitespace-nowrap">
+                      <a {...enrolLinkProps} className="btn btn-primary text-xs h-9 px-4 whitespace-nowrap">
                         {isZh ? "立即報名" : "Enroll Now"}
-                      </Link>
+                      </a>
                     </td>
                   </tr>
                 ))}

@@ -5,6 +5,7 @@ import { Menu, X, ChevronDown, ChevronRight } from "lucide-react";
 import Wordmark from "./Wordmark";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useT, localizePath } from "@/lib/locale";
+import { enrolLinkProps } from "@/lib/enroll";
 
 type NavItem = { label: string; href: string };
 type NavColumn = { title: string; items: NavItem[] };
@@ -217,7 +218,7 @@ export default function Nav() {
         <div className="hidden lg:flex items-center gap-3">
           <LanguageSwitcher />
           <Link href={localizePath("/placement-test", locale)} className="hidden text-[14px] font-medium text-ink hover:text-azzurro-deep">{t.nav.placementTest}</Link>
-          <Link href={localizePath("/courses/italian/adult-groups", locale)} className="hidden! btn btn-primary text-[14px]">{t.nav.enrol}</Link>
+          <a {...enrolLinkProps} className="hidden! btn btn-primary text-[14px]">{t.nav.enrol}</a>
         </div>
 
         <div className="lg:hidden flex items-center gap-2">
@@ -290,7 +291,7 @@ export default function Nav() {
             </ul>
             <div className="hidden mt-6 space-y-3">
               <Link href={localizePath("/placement-test", locale)} onClick={() => setMobileOpen(false)} className="btn btn-ghost w-full">{t.nav.placementTest}</Link>
-              <Link href={localizePath("/courses/italian/adult-groups", locale)} onClick={() => setMobileOpen(false)} className="btn btn-primary w-full">{t.nav.enrol}</Link>
+              <a {...enrolLinkProps} onClick={() => setMobileOpen(false)} className="btn btn-primary w-full">{t.nav.enrol}</a>
             </div>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { useCourses } from "@/lib/use-courses";
 import { levelOutcomes, type Course } from "@/lib/data";
 import { SUB_LEVELS, subLevelSyllabus } from "@/lib/adult-groups-syllabus";
 import { formatDateRange, formatHKD } from "@/lib/utils";
+import { enrolLinkProps } from "@/lib/enroll";
 
 const LEVEL_ORDER: Array<{ key: string; prefix: string }> = [
   { key: "A1", prefix: "A1" },
@@ -151,9 +152,11 @@ export default function LevelAccordions() {
                                   {c.enrolled >= c.seats ? "Waitlist" : `${c.seats - c.enrolled} left`}
                                 </span>
                               </div>
-                              <Link href="#enquire" className={`btn ${c.enrolled >= c.seats ? "btn-ghost" : "btn-primary"} text-sm h-10 px-5 w-full mt-3`}>
-                                {c.enrolled >= c.seats ? "Join waitlist" : "Enrol"}
-                              </Link>
+                              {c.enrolled >= c.seats ? (
+                                <Link href="#enquire" className="btn btn-ghost text-sm h-10 px-5 w-full mt-3">Join waitlist</Link>
+                              ) : (
+                                <a {...enrolLinkProps} className="btn btn-primary text-sm h-10 px-5 w-full mt-3">Enrol</a>
+                              )}
                             </div>
                           ))}
                         </div>

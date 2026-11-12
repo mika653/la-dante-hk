@@ -2,6 +2,7 @@ import { type Course } from "@/lib/data";
 import { formatDateRange, formatHKD } from "@/lib/utils";
 import Link from "next/link";
 import { Calendar, Clock, MapPin, User } from "lucide-react";
+import { enrolLinkProps } from "@/lib/enroll";
 
 export default function CourseListView({ courses, emptyMessage }: { courses: Course[]; emptyMessage?: string }) {
   if (courses.length === 0) {
@@ -34,7 +35,7 @@ export default function CourseListView({ courses, emptyMessage }: { courses: Cou
           </div>
           <div className="flex items-center gap-3 md:flex-col md:items-end">
             <span className="text-xl md:text-lg font-heading font-bold">{formatHKD(c.priceHKD)}</span>
-            <Link href="/membership" className="hidden! btn btn-primary text-sm h-10 px-5">Enrol</Link>
+            <a {...enrolLinkProps} className="hidden! btn btn-primary text-sm h-10 px-5">Enrol</a>
           </div>
         </div>
       ))}

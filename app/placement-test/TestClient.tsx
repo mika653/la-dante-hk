@@ -6,6 +6,7 @@ import { usePlacementQuestions } from "@/lib/use-placement";
 import { useCourses } from "@/lib/use-courses";
 import { suggestFor, seatsLeft, formatStart } from "@/lib/placement-suggest";
 import { submitEnquiry } from "@/lib/enquiry-actions";
+import { enrolLinkProps } from "@/lib/enroll";
 import { ArrowLeft, ArrowRight, Check, X, ChevronDown, Mail, Clock, CalendarDays, MapPin, User, Phone, Flag } from "lucide-react";
 
 type Stage = "intro" | "testing" | "email" | "result";
@@ -289,9 +290,11 @@ export default function TestClient() {
                         <li className="flex items-center gap-2"><MapPin size={15} aria-hidden /> {c.location}</li>
                         <li className="flex items-center gap-2"><User size={15} aria-hidden /> {c.teacher}</li>
                       </ul>
-                      <Link href="/courses/italian/adult-groups" className="btn btn-primary mt-4">
-                        {left > 0 ? "Enrol" : "Join the waiting list"} <ArrowRight size={16} />
-                      </Link>
+                      {left > 0 ? (
+                        <a {...enrolLinkProps} className="btn btn-primary mt-4">Enrol <ArrowRight size={16} /></a>
+                      ) : (
+                        <Link href="/contact" className="btn btn-primary mt-4">Join the waiting list <ArrowRight size={16} /></Link>
+                      )}
                     </div>
                   );
                 })}
