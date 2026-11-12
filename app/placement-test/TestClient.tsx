@@ -19,8 +19,8 @@ export default function TestClient() {
 
   const [stage, setStage] = useState<Stage>("intro");
   const [index, setIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, number | string>>({});
-  const [response, setResponse] = useState<number | string | null>(null);
+  const [answers, setAnswers] = useState<Record<string, number | string | number[]>>({});
+  const [response, setResponse] = useState<number | string | number[] | null>(null);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
 
@@ -114,8 +114,19 @@ export default function TestClient() {
   if (stage === "testing") {
     const q = bank[index];
     const qType = q.type ?? "choice";
+    const isMulti = !!(q.parts && q.parts.length);
     const options = qType === "truefalse" ? (q.choices.length >= 2 ? q.choices : TF_CHOICES) : q.choices;
-    const canProceed = qType === "fill" ? (typeof response === "string" && response.trim() !== "") : typeof response === "number";
+    const multiResp: number[] = Array.isArray(response) ? response : [];
+    const canProceed = isMulti
+      ? q.parts!.every((_, pi) => typeof multiResp[pi] === "number" && multiResp[pi] >= 0)
+      : qType === "fill"
+      ? (typeof response === "string" && response.trim() !== "")
+      : typeof response === "number";
+    const pickPart = (pi: number, ci: number) => {
+      const next = Array.isArray(response) ? [...response] : [];
+      next[pi] = ci;
+      setResponse(next);
+    };
     const isLast = index + 1 >= total;
     const progress = total ? Math.round(((index + 1) / total) * 100) : 0;
     const canFinish = answeredCount >= 1 || canProceed;
@@ -136,7 +147,31 @@ export default function TestClient() {
             <p className="text-xl md:text-2xl font-heading font-semibold leading-tight">{q.prompt}</p>
             {q.sub && <p className="mt-2 text-[15px] text-ink-muted">{q.sub}</p>}
 
-            {qType === "fill" ? (
+            {isMulti ? (
+              <div className="mt-6 divide-y divide-line">
+                {q.parts!.map((part, pi) => (
+                  <div key={pi} className="py-4 first:pt-2">
+                    {part.label && <p className="text-[15px] md:text-base font-medium mb-2.5">{part.label}</p>}
+                    <div className="flex flex-wrap gap-2">
+                      {part.choices.map((c, ci) => {
+                        const active = multiResp[pi] === ci;
+                        return (
+                          <button
+                            key={ci}
+                            type="button"
+                            onClick={() => pickPart(pi, ci)}
+                            className={`text-left border rounded-xl px-3.5 py-2 text-[15px] transition-all ${active ? "border-azzurro-deep bg-azzurro/10 font-medium" : "border-line hover:border-ink-muted"}`}
+                          >
+                            {c}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+                <p className="pt-4 text-xs text-ink-muted">Answer every blank to continue — the question counts only if all parts are correct.</p>
+              </div>
+            ) : qType === "fill" ? (
               <div className="mt-8">
                 <input
                   type="text"
