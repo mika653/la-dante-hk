@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CalendarDays, Check, X, Plus, UserPlus, LogOut, KeyRound } from "lucide-react";
 import type { Role, LeaveType, LeaveStatus } from "@/lib/db/schema";
 import { balanceFor, workingDays, roleLabel, statusStyle, currentYear, fmtDate, canManageUser, canDecide } from "@/lib/leave-core";
-import { requestLeave, cancelLeave, decideLeave, addUser, updateUser, type ActionResult } from "@/lib/leave-actions";
+import { requestLeave, cancelLeave, decideLeave, addUser, updateUser, resetUserPassword, type ActionResult } from "@/lib/leave-actions";
 import { logoutAction } from "@/lib/auth-actions";
 
 type PublicUser = {
@@ -261,6 +261,7 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(addUser, null);
   const [busy, startTransition] = useTransition();
   const [err, setErr] = useState<string | null>(null);
+  const [resetMsg, setResetMsg] = useState<string | null>(null);
   const ownerOnly = me.role === "owner";
 
   function patch(id: string, p: Parameters<typeof updateUser>[1]) {
@@ -268,6 +269,15 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
     startTransition(async () => {
       const r = await updateUser(id, p);
       if (!r.ok) setErr(r.error);
+    });
+  }
+
+  function reset(id: string) {
+    setErr(null); setResetMsg(null);
+    startTransition(async () => {
+      const r = await resetUserPassword(id);
+      if (r.ok) setResetMsg(r.message ?? null);
+      else setErr(r.error ?? "Couldn't reset the password.");
     });
   }
 
@@ -300,6 +310,12 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
       <div className="frame bg-white overflow-hidden">
         <div className="px-5 py-3 bg-cream-2 text-xs uppercase tracking-wider text-ink-muted font-medium">Staff ({staff.length})</div>
         {err && <p className="m-4 text-sm bg-rosso/10 text-rosso rounded-lg px-3 py-2">{err}</p>}
+        {resetMsg && (
+          <div className="m-4 rounded-lg border border-azzurro-deep/30 bg-azzurro-soft px-4 py-3 text-sm flex items-start justify-between gap-3">
+            <span className="font-medium text-ink">{resetMsg}</span>
+            <button type="button" onClick={() => setResetMsg(null)} className="text-xs text-ink-muted hover:text-ink shrink-0 underline">Dismiss</button>
+          </div>
+        )}
         <table className="w-full text-sm">
           <thead className="text-xs uppercase tracking-wider text-ink-muted">
             <tr>
@@ -308,6 +324,7 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
               <th className="px-5 py-2 text-left font-medium">Annual</th>
               <th className="px-5 py-2 text-left font-medium">Sick</th>
               <th className="px-5 py-2 text-left font-medium">Status</th>
+              <th className="px-5 py-2 text-left font-medium">Password</th>
             </tr>
           </thead>
           <tbody>
@@ -333,6 +350,11 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
                     {editable && u.id !== me.id ? (
                       <button onClick={() => patch(u.id, { active: !u.active })} className={`text-xs px-2 py-1 rounded-full ${u.active ? "bg-green-100 text-green-800" : "bg-ink/5 text-ink-muted"}`}>{u.active ? "Active" : "Inactive"}</button>
                     ) : <span className={`text-xs px-2 py-1 rounded-full ${u.active ? "bg-green-100 text-green-800" : "bg-ink/5 text-ink-muted"}`}>{u.active ? "Active" : "Inactive"}</span>}
+                  </td>
+                  <td className="px-5 py-3">
+                    {canManageUser(me.role, u.role) && u.id !== me.id ? (
+                      <button type="button" onClick={() => reset(u.id)} disabled={busy} className="text-xs px-2.5 py-1 rounded-full border border-line bg-white hover:border-ink-muted disabled:opacity-50">Reset</button>
+                    ) : <span className="text-xs text-ink-soft">—</span>}
                   </td>
                 </tr>
               );

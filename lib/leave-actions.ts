@@ -135,6 +135,27 @@ export async function addUser(_prev: ActionResult | null, formData: FormData): P
   return { ok: true, message: `${name} added. One-time password: ${password} — give it to them privately; it won't be shown again.` };
 }
 
+/**
+ * Reset another user's password to a fresh one-time password (returned once, for
+ * the admin to pass on). Owner can reset anyone; a manager can reset teachers.
+ */
+export async function resetUserPassword(id: string): Promise<ActionResult> {
+  const s = await requireSession();
+  if (!isAdmin(s.role)) return { ok: false, error: "You can't reset passwords." };
+  const [target] = await db
+    .select({ id: users.id, name: users.name, role: users.role })
+    .from(users)
+    .where(eq(users.id, id));
+  if (!target) return { ok: false, error: "User not found." };
+  if (target.id === s.userId) return { ok: false, error: "Use Change password to change your own." };
+  if (!canManageUser(s.role, target.role)) return { ok: false, error: "You can only reset your staff's passwords." };
+
+  const password = generatePassword();
+  await db.update(users).set({ passwordHash: await bcrypt.hash(password, 12) }).where(eq(users.id, id));
+  revalidatePath("/leave");
+  return { ok: true, message: `New one-time password for ${target.name}: ${password} — give it to them privately; it won't be shown again.` };
+}
+
 export async function updateUser(
   id: string,
   patch: { role?: Role; annualEntitlement?: number; sickEntitlement?: number; active?: boolean },
