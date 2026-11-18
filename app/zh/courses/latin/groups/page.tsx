@@ -21,7 +21,7 @@ export default function LatinGroupsPage() {
           <p className="eyebrow">小組課堂</p>
           <p className="mt-1 text-[13px] text-ink-muted">2026 課程列表</p>
           <div className="mt-6">
-            <CourseListClient language="latin" />
+            <CourseListClient language="latin" levelFilter />
           </div>
         </div>
       </section>

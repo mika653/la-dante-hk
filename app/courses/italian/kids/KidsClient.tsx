@@ -3,22 +3,12 @@ import { useMemo, useState } from "react";
 import CourseListView from "@/components/CourseListView";
 import { useCourses } from "@/lib/use-courses";
 import { useT } from "@/lib/locale";
+import { levelBand, sortedBands } from "@/lib/course-levels";
 
 // Kids & teens courses use mixed level labels — some CEFR (A1.2, A1.3), some
-// plain (Beginner / Intermediate / Advanced). Group each into a filter bucket:
-// a CEFR level collapses to its band (A1.2 → "A1"); a plain level stays as-is.
-// The pills are built from whatever the office has actually published, so the
-// filter never shows an empty or hard-coded level.
-function levelBand(level: string): string {
-  const s = String(level ?? "").trim();
-  return /^[ABC][12]/.test(s) ? s.slice(0, 2) : (s || "Other");
-}
-
-const CEFR_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"];
-function bandRank(b: string): number {
-  const i = CEFR_ORDER.indexOf(b);
-  return i >= 0 ? i : 100 + b.charCodeAt(0); // CEFR bands first, then plain levels A→Z
-}
+// plain (Beginner / Intermediate / Advanced). The shared helper groups each into
+// a filter band; the pills are built from whatever the office has published, so
+// the filter never shows an empty or hard-coded level.
 
 export default function KidsClient() {
   const { locale } = useT();
@@ -27,11 +17,7 @@ export default function KidsClient() {
   const kids = useMemo(() => all.filter((c) => c.language === "italian" && c.type === "kids"), [all]);
   const [active, setActive] = useState<string>("All");
 
-  const bands = useMemo(() => {
-    const set = new Set<string>();
-    for (const c of kids) set.add(levelBand(c.level));
-    return [...set].sort((a, b) => bandRank(a) - bandRank(b));
-  }, [kids]);
+  const bands = useMemo(() => sortedBands(kids.map((c) => c.level)), [kids]);
 
   const counts = useMemo(() => {
     const base: Record<string, number> = { All: kids.length };

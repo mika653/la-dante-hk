@@ -13,7 +13,7 @@ export default function OnlinePage() {
       />
       <section className="bg-cream py-14">
         <div className="container-xl">
-          <CourseListClient location="Online" emptyMessage="本學期暫無網上課堂 — 下一期招生:2026 年 9 月。" />
+          <CourseListClient location="Online" levelFilter emptyMessage="本學期暫無網上課堂 — 下一期招生:2026 年 9 月。" />
         </div>
       </section>
     </>

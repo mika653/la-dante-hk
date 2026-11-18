@@ -26,6 +26,7 @@ const publicUser = {
   role: users.role,
   annualEntitlement: users.annualEntitlement,
   sickEntitlement: users.sickEntitlement,
+  partTime: users.partTime,
   active: users.active,
 };
 

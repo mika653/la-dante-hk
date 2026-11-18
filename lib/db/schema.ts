@@ -1,5 +1,5 @@
 // Database schema (Drizzle / Postgres) for authentication + staff leave.
-import { pgTable, pgEnum, uuid, text, integer, date, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, uuid, text, integer, doublePrecision, date, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["owner", "manager", "teacher"]);
 export const leaveTypeEnum = pgEnum("leave_type", ["annual", "sick"]);
@@ -14,6 +14,9 @@ export const users = pgTable("users", {
   // yearly leave entitlements (days)
   annualEntitlement: integer("annual_entitlement").notNull().default(14),
   sickEntitlement: integer("sick_entitlement").notNull().default(14),
+  // Part-time staff — a plain flag for the office; leave entitlements stay the
+  // numbers an admin sets (not auto-prorated). Additive, defaults false.
+  partTime: boolean("part_time").notNull().default(false),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -24,7 +27,7 @@ export const leaveRequests = pgTable("leave_requests", {
   type: leaveTypeEnum("type").notNull(),
   startDate: date("start_date").notNull(),   // "YYYY-MM-DD"
   endDate: date("end_date").notNull(),
-  days: integer("days").notNull(),           // working days requested
+  days: doublePrecision("days").notNull(),   // working days requested (0.5 for a half day)
   reason: text("reason"),
   status: leaveStatusEnum("status").notNull().default("pending"),
   decidedBy: uuid("decided_by").references(() => users.id),

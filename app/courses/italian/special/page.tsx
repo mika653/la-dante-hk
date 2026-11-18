@@ -22,7 +22,7 @@ export default function SpecialCoursesPage() {
 
       <section className="bg-cream py-14">
         <div className="container-xl">
-          <CourseListClient type="special" emptyMessage="No special courses scheduled this term — please check back soon." />
+          <CourseListClient type="special" levelFilter emptyMessage="No special courses scheduled this term — please check back soon." />
         </div>
       </section>
 

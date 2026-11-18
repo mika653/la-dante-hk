@@ -2,15 +2,15 @@
 import { useActionState, useMemo, useState, useTransition, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, Check, X, Plus, UserPlus, LogOut, KeyRound } from "lucide-react";
+import { Check, X, Plus, UserPlus, LogOut, KeyRound, Trash2 } from "lucide-react";
 import type { Role, LeaveType, LeaveStatus } from "@/lib/db/schema";
 import { balanceFor, workingDays, roleLabel, statusStyle, currentYear, fmtDate, canManageUser, canDecide } from "@/lib/leave-core";
-import { requestLeave, cancelLeave, decideLeave, addUser, updateUser, resetUserPassword, type ActionResult } from "@/lib/leave-actions";
+import { requestLeave, cancelLeave, decideLeave, addUser, updateUser, resetUserPassword, deleteUser, type ActionResult } from "@/lib/leave-actions";
 import { logoutAction } from "@/lib/auth-actions";
 
 type PublicUser = {
   id: string; email: string; name: string; role: Role;
-  annualEntitlement: number; sickEntitlement: number; active: boolean;
+  annualEntitlement: number; sickEntitlement: number; partTime: boolean; active: boolean;
 };
 type Leave = {
   id: string; userId: string; type: LeaveType;
@@ -82,10 +82,14 @@ function Notice({ state }: { state: ActionResult | null }) {
 function MyLeave({ me, myLeave }: { me: PublicUser; myLeave: Leave[] }) {
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(requestLeave, null);
   const [type, setType] = useState<LeaveType>("annual");
+  const [halfDay, setHalfDay] = useState(false);
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [busy, startTransition] = useTransition();
-  const days = useMemo(() => workingDays(start, end), [start, end]);
+  const days = useMemo(
+    () => (halfDay ? (start && workingDays(start, start) >= 1 ? 0.5 : 0) : workingDays(start, end)),
+    [halfDay, start, end],
+  );
 
   return (
     <div className="space-y-6">
@@ -111,6 +115,7 @@ function MyLeave({ me, myLeave }: { me: PublicUser; myLeave: Leave[] }) {
       <form action={action} className="frame bg-white p-5 md:p-6">
         <h2 className="font-heading font-bold text-lg">Request leave</h2>
         <input type="hidden" name="type" value={type} />
+        <input type="hidden" name="halfDay" value={halfDay ? "1" : ""} />
         <div className="mt-4 grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">Type</label>
@@ -122,13 +127,28 @@ function MyLeave({ me, myLeave }: { me: PublicUser; myLeave: Leave[] }) {
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="text-sm font-medium">From
-              <input name="startDate" type="date" required value={start} onChange={(e) => setStart(e.target.value)} className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" />
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium mb-2 select-none cursor-pointer">
+              <input type="checkbox" checked={halfDay} onChange={(e) => setHalfDay(e.target.checked)} className="w-4 h-4 accent-azzurro-deep" />
+              Half day <span className="text-ink-muted font-normal">(0.5 day)</span>
             </label>
-            <label className="text-sm font-medium">To
-              <input name="endDate" type="date" required value={end} onChange={(e) => setEnd(e.target.value)} className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" />
-            </label>
+            {halfDay ? (
+              <>
+                <label className="text-sm font-medium block">Date
+                  <input name="startDate" type="date" required value={start} onChange={(e) => setStart(e.target.value)} className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" />
+                </label>
+                <input type="hidden" name="endDate" value={start} />
+              </>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                <label className="text-sm font-medium">From
+                  <input name="startDate" type="date" required value={start} onChange={(e) => setStart(e.target.value)} className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" />
+                </label>
+                <label className="text-sm font-medium">To
+                  <input name="endDate" type="date" required value={end} onChange={(e) => setEnd(e.target.value)} className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" />
+                </label>
+              </div>
+            )}
           </div>
         </div>
         <label className="block text-sm font-medium mt-4">Reason <span className="text-ink-muted font-normal">(optional)</span>
@@ -136,7 +156,11 @@ function MyLeave({ me, myLeave }: { me: PublicUser; myLeave: Leave[] }) {
         </label>
         <div className="mt-4 flex items-center justify-between gap-3 flex-wrap">
           <span className="text-sm text-ink-muted">
-            {days > 0 ? <><b className="text-ink">{days}</b> working day{days === 1 ? "" : "s"} · weekends don&apos;t count</> : "Select dates"}
+            {days <= 0
+              ? (halfDay ? "Pick a working day" : "Select dates")
+              : halfDay
+                ? <><b className="text-ink">0.5</b> day · half day (Sundays don&apos;t count)</>
+                : <><b className="text-ink">{days}</b> working day{days === 1 ? "" : "s"} · weekends don&apos;t count</>}
           </span>
           <button type="submit" disabled={pending} className="btn btn-primary disabled:opacity-50">
             <Plus size={16} /> {pending ? "Sending…" : "Submit request"}
@@ -281,6 +305,16 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
     });
   }
 
+  function remove(u: PublicUser) {
+    setErr(null); setResetMsg(null);
+    if (!window.confirm(`Permanently delete ${u.name}? This removes their account and leave history and can't be undone.`)) return;
+    startTransition(async () => {
+      const r = await deleteUser(u.id);
+      if (r.ok) setResetMsg(r.message ?? `${u.name} removed.`);
+      else setErr(r.error ?? "Couldn't remove that person.");
+    });
+  }
+
   return (
     <div className="space-y-6">
       <form action={action} className="frame bg-white p-5 md:p-6">
@@ -300,6 +334,10 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
             <label className="text-sm font-medium">Sick days<input name="sick" type="number" defaultValue={14} className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" /></label>
           </div>
         </div>
+        <label className="mt-4 flex items-center gap-2 text-sm font-medium select-none cursor-pointer w-fit">
+          <input type="checkbox" name="partTime" value="1" className="w-4 h-4 accent-azzurro-deep" />
+          Part-time
+        </label>
         <div className="mt-4 flex justify-end">
           <button type="submit" disabled={pending} className="btn btn-primary disabled:opacity-50"><Plus size={16} /> {pending ? "Adding…" : "Add user"}</button>
         </div>
@@ -316,15 +354,18 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
             <button type="button" onClick={() => setResetMsg(null)} className="text-xs text-ink-muted hover:text-ink shrink-0 underline">Dismiss</button>
           </div>
         )}
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[720px]">
           <thead className="text-xs uppercase tracking-wider text-ink-muted">
             <tr>
               <th className="px-5 py-2 text-left font-medium">Name</th>
               <th className="px-5 py-2 text-left font-medium">Role</th>
               <th className="px-5 py-2 text-left font-medium">Annual</th>
               <th className="px-5 py-2 text-left font-medium">Sick</th>
+              <th className="px-5 py-2 text-left font-medium">Type</th>
               <th className="px-5 py-2 text-left font-medium">Status</th>
               <th className="px-5 py-2 text-left font-medium">Password</th>
+              <th className="px-5 py-2 text-left font-medium">Remove</th>
             </tr>
           </thead>
           <tbody>
@@ -347,6 +388,11 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
                     {editable ? <input type="number" defaultValue={u.sickEntitlement} onBlur={(e) => { const v = Number(e.target.value); if (v !== u.sickEntitlement) patch(u.id, { sickEntitlement: v }); }} className="w-16 h-8 px-2 rounded-lg border border-line" /> : u.sickEntitlement}
                   </td>
                   <td className="px-5 py-3">
+                    {editable ? (
+                      <button type="button" onClick={() => patch(u.id, { partTime: !u.partTime })} className={`text-xs px-2 py-1 rounded-full ${u.partTime ? "bg-sole/50 text-ink" : "bg-ink/5 text-ink-muted"}`}>{u.partTime ? "Part-time" : "Full-time"}</button>
+                    ) : <span className={`text-xs px-2 py-1 rounded-full ${u.partTime ? "bg-sole/50 text-ink" : "bg-ink/5 text-ink-muted"}`}>{u.partTime ? "Part-time" : "Full-time"}</span>}
+                  </td>
+                  <td className="px-5 py-3">
                     {editable && u.id !== me.id ? (
                       <button onClick={() => patch(u.id, { active: !u.active })} className={`text-xs px-2 py-1 rounded-full ${u.active ? "bg-green-100 text-green-800" : "bg-ink/5 text-ink-muted"}`}>{u.active ? "Active" : "Inactive"}</button>
                     ) : <span className={`text-xs px-2 py-1 rounded-full ${u.active ? "bg-green-100 text-green-800" : "bg-ink/5 text-ink-muted"}`}>{u.active ? "Active" : "Inactive"}</span>}
@@ -356,11 +402,17 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
                       <button type="button" onClick={() => reset(u.id)} disabled={busy} className="text-xs px-2.5 py-1 rounded-full border border-line bg-white hover:border-ink-muted disabled:opacity-50">Reset</button>
                     ) : <span className="text-xs text-ink-soft">—</span>}
                   </td>
+                  <td className="px-5 py-3">
+                    {canManageUser(me.role, u.role) && u.id !== me.id ? (
+                      <button type="button" onClick={() => remove(u)} disabled={busy} className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border border-rosso/30 text-rosso hover:bg-rosso/10 disabled:opacity-50"><Trash2 size={13} aria-hidden /> Delete</button>
+                    ) : <span className="text-xs text-ink-soft">—</span>}
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

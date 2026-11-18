@@ -31,16 +31,20 @@ export async function requestLeave(_prev: ActionResult | null, formData: FormDat
 
   const type = String(formData.get("type") ?? "") as LeaveType;
   const startDate = String(formData.get("startDate") ?? "");
-  const endDate = String(formData.get("endDate") ?? "");
+  const halfDay = String(formData.get("halfDay") ?? "") === "1";
+  // A half day is always a single day — ignore whatever end the form sent.
+  const endDate = halfDay ? startDate : String(formData.get("endDate") ?? "");
   const reason = String(formData.get("reason") ?? "").trim();
 
   if (type !== "annual" && type !== "sick") return { ok: false, error: "Pick annual or sick leave." };
-  if (!ISO.test(startDate) || !ISO.test(endDate)) return { ok: false, error: "Pick both dates." };
+  if (!ISO.test(startDate)) return { ok: false, error: halfDay ? "Pick a date." : "Pick both dates." };
+  if (!halfDay && !ISO.test(endDate)) return { ok: false, error: "Pick both dates." };
   if (endDate < startDate) return { ok: false, error: "The end date is before the start date." };
 
   // Recomputed here, never taken from the form — the browser could send anything.
-  const days = workingDays(startDate, endDate);
-  if (days < 1) return { ok: false, error: "That range has no working days in it (Sundays don't count)." };
+  // A half day only counts if it lands on a working day (Sundays never count).
+  const days = halfDay ? (workingDays(startDate, startDate) >= 1 ? 0.5 : 0) : workingDays(startDate, endDate);
+  if (days < 0.5) return { ok: false, error: halfDay ? "That day is a Sunday — pick a working day." : "That range has no working days in it (Sundays don't count)." };
 
   // Don't let anyone request more than their yearly entitlement (counting days
   // already approved OR still pending for that type this year).
@@ -130,6 +134,7 @@ export async function addUser(_prev: ActionResult | null, formData: FormData): P
   const role = String(formData.get("role") ?? "teacher") as Role;
   const annual = Number(formData.get("annual") ?? 14);
   const sick = Number(formData.get("sick") ?? 14);
+  const partTime = String(formData.get("partTime") ?? "") === "1";
 
   if (!name) return { ok: false, error: "Name is required." };
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, error: "That email doesn't look right." };
@@ -149,6 +154,7 @@ export async function addUser(_prev: ActionResult | null, formData: FormData): P
     passwordHash: await bcrypt.hash(password, 12),
     annualEntitlement: annual,
     sickEntitlement: sick,
+    partTime,
   });
 
   revalidatePath("/leave");
@@ -178,7 +184,7 @@ export async function resetUserPassword(id: string): Promise<ActionResult> {
 
 export async function updateUser(
   id: string,
-  patch: { role?: Role; annualEntitlement?: number; sickEntitlement?: number; active?: boolean },
+  patch: { role?: Role; annualEntitlement?: number; sickEntitlement?: number; active?: boolean; partTime?: boolean },
 ): Promise<ActionResult> {
   const s = await requireSession();
   if (!isAdmin(s.role)) return { ok: false, error: "You can't edit staff." };
@@ -207,6 +213,7 @@ export async function updateUser(
   const set: Record<string, unknown> = {};
   if (patch.role) set.role = patch.role;
   if (patch.active !== undefined) set.active = patch.active;
+  if (patch.partTime !== undefined) set.partTime = !!patch.partTime;
   if (patch.annualEntitlement !== undefined) {
     if (!Number.isInteger(patch.annualEntitlement) || patch.annualEntitlement < 0 || patch.annualEntitlement > 365) {
       return { ok: false, error: "Annual days look wrong." };
@@ -224,4 +231,31 @@ export async function updateUser(
   await db.update(users).set(set).where(eq(users.id, id));
   revalidatePath("/leave");
   return { ok: true };
+}
+
+/**
+ * Permanently remove a staff member and all of their own leave requests (the
+ * leave_requests FK cascades). Any requests THEY approved stay, but lose the
+ * "decided by" link (set to null) so the delete doesn't trip that reference.
+ * Owner can remove anyone; a manager can remove teachers. You can't remove
+ * yourself, and the last owner can't be removed.
+ */
+export async function deleteUser(id: string): Promise<ActionResult> {
+  const s = await requireSession();
+  if (!isAdmin(s.role)) return { ok: false, error: "You can't remove staff." };
+
+  const [target] = await db.select({ id: users.id, name: users.name, role: users.role }).from(users).where(eq(users.id, id));
+  if (!target) return { ok: false, error: "That person no longer exists." };
+  if (target.id === s.userId) return { ok: false, error: "You can't delete your own account." };
+  if (!canManageUser(s.role, target.role)) return { ok: false, error: "A manager can only remove teachers." };
+  if (target.role === "owner") {
+    const owners = await db.select({ id: users.id }).from(users).where(eq(users.role, "owner"));
+    if (owners.length <= 1) return { ok: false, error: "This is the only owner — promote someone else first." };
+  }
+
+  await db.update(leaveRequests).set({ decidedBy: null }).where(eq(leaveRequests.decidedBy, id));
+  await db.delete(users).where(eq(users.id, id));
+
+  revalidatePath("/leave");
+  return { ok: true, message: `${target.name} removed.` };
 }
