@@ -9,7 +9,7 @@ const OFFERS = [
   { Icon: Timer, tag: "新學期", title: "早鳥優惠", body: "提早報讀新學期小組課程即可享優惠。詳情及截止日期請向辦公室查詢。", href: "/zh/courses/italian/adult-groups", cta: "查看小組課程" },
   { Icon: GraduationCap, tag: "9 折", title: "大學生及長者", body: "全日制大學生及長者報讀課程可享 9 折。報名時請出示有效學生證或長者證。", href: "/zh/courses", cta: "瀏覽所有課程" },
   { Icon: IdCard, tag: "會員", title: "會員折扣及優惠", body: "憑但丁會員卡可享指定文化活動及短期課程折扣，以及合作餐廳、酒商等商戶優惠。", href: "/zh/membership#perks", cta: "查看會員優惠" },
-  { Icon: Gift, tag: "禮物", title: "送一份意大利", body: "把課程或會員資格送給熱愛意大利的朋友。", href: "/zh/gift", cta: "禮物選項" },
+  { Icon: Gift, tag: "禮物", title: "送一份意大利", body: "把課程或會員資格送給熱愛意大利的朋友。", href: "/zh/contact", cta: "聯絡我們" },
 ];
 
 export default function SpecialOffersZh() {

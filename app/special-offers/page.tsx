@@ -38,8 +38,8 @@ const OFFERS = [
     tag: "Gift",
     title: "Give Italian",
     body: "Gift a course or a membership to someone who loves Italy.",
-    href: "/gift",
-    cta: "Gift options",
+    href: "/contact",
+    cta: "Contact us",
   },
 ];
 

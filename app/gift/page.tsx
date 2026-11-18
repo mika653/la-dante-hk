@@ -1,19 +1,7 @@
-import PageHeader from "@/components/PageHeader";
-import Link from "next/link";
+import { redirect } from "next/navigation";
 
+// The gift offer now routes straight to Contact (per Giulia) — the dedicated
+// gift page is retired; anyone landing here is sent to the contact form.
 export default function Gift() {
-  return (
-    <>
-      <PageHeader
-        eyebrow="Gift"
-        title="A year of Italy."
-        subtitle="Gift membership, gift a course, or let them pick. Beautifully presented digital certificate, sent instantly."
-        crumbs={[{ label: "Home", href: "/" }, { label: "Gift" }]}
-        tone="sole-soft"
-      />
-      <section className="bg-cream py-14">
-        <div className="container-xl text-center"><Link href="/membership" className="btn btn-primary">Choose a gift plan</Link></div>
-      </section>
-    </>
-  );
+  redirect("/contact");
 }
