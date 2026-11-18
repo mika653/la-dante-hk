@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, Calendar, Users, MapPin, User, Hash, RefreshCw } from "lucide-react";
 import { addCourse } from "@/lib/admin-store";
 import type { Course, Language, CourseType, CEFRLevel } from "@/lib/data";
+import { TEXTBOOK_OPTIONS } from "@/lib/data";
 import { generateContinuation, nextLevel, computeEndDateMulti, countClassDays } from "@/lib/course-schedule";
 import { getCourseDefaults, listTeacherNames } from "@/lib/course-defaults-actions";
 import { descriptionFor, mergeTeacherNames, DEFAULT_COURSE_DEFAULTS, type CourseDefaults } from "@/lib/course-defaults-shared";
@@ -60,6 +61,7 @@ export default function NewCoursePage() {
   const [description, setDescription] = useState("");
   const [earlyBirdDueISO, setEarlyBirdDueISO] = useState("");
   const [earlyBirdFeeHKD, setEarlyBirdFeeHKD] = useState<number | "">("");
+  const [textbook, setTextbook] = useState("");
   const [daysTouched, setDaysTouched] = useState(false); // did the admin pick class days by hand?
   const [createNext, setCreateNext] = useState(false);
   const [gapWeeks, setGapWeeks] = useState(1);
@@ -186,6 +188,7 @@ export default function NewCoursePage() {
       skipPlida,
       earlyBirdDueISO: earlyBirdDueISO || undefined,
       earlyBirdFeeHKD: earlyBirdFeeHKD === "" ? undefined : Number(earlyBirdFeeHKD),
+      textbook: textbook.trim() || undefined,
     };
   }
 
@@ -402,6 +405,10 @@ export default function NewCoursePage() {
                 <span className="mt-1 block text-xs font-normal text-ink-muted">Shown as a discounted price until the deadline.</span>
               </label>
             </div>
+            <label className="block text-sm font-medium">Textbook <span className="text-ink-muted font-normal">(optional)</span>
+              <input list="textbook-options" value={textbook} onChange={(e) => setTextbook(e.target.value)} placeholder="e.g. Nuovo Espresso 1 Plus" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" />
+              <datalist id="textbook-options">{TEXTBOOK_OPTIONS.map((t) => <option key={t} value={t} />)}</datalist>
+            </label>
             <div className="flex items-center justify-between">
               <button type="button" onClick={() => setStep(2)} className="btn btn-ghost"><ArrowLeft size={16} /> Back</button>
               <button type="button" onClick={() => { if (feeValue === "" || feeValue <= 0) { setErr("Please enter the course fee."); return; } setErr(null); setStep(4); }} className="btn btn-primary">Preview <ArrowRight size={16} /></button>

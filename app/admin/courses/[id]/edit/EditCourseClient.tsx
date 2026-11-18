@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Save, Sparkles, RefreshCw, Plus, Trash2, Wand2 } from "lucide-react";
 import { getCourses, updateCourse } from "@/lib/admin-store";
 import type { Course, Language, CourseType } from "@/lib/data";
+import { TEXTBOOK_OPTIONS } from "@/lib/data";
 import { computeEndDateMulti, computeLessonDatesMulti, parseDayLabel, weekdayOf, dayLabelFromMulti, countClassDays, courseLessons } from "@/lib/course-schedule";
 import { generateCourseCode } from "@/lib/course-code";
 import { getCourseDefaults, listTeacherNames } from "@/lib/course-defaults-actions";
@@ -62,6 +63,7 @@ export default function EditCourseClient({ id }: { id: string }) {
   const [lessons, setLessons] = useState<number | "">("");
   const [earlyBirdDueISO, setEarlyBirdDueISO] = useState("");
   const [earlyBirdFeeHKD, setEarlyBirdFeeHKD] = useState<number | "">("");
+  const [textbook, setTextbook] = useState("");
   const [skipPlida, setSkipPlida] = useState(false);
   const [weekdays, setWeekdays] = useState<number[]>([]);       // all class days
   const [lessonDates, setLessonDates] = useState<string[]>([]); // manual date overrides; [] = auto
@@ -98,6 +100,7 @@ export default function EditCourseClient({ id }: { id: string }) {
       setLessons(typeof c.lessons === "number" ? c.lessons : (c.startISO && c.endISO ? courseLessons(c) : ""));
       setEarlyBirdDueISO((c.earlyBirdDueISO || "").slice(0, 10));
       setEarlyBirdFeeHKD(typeof c.earlyBirdFeeHKD === "number" ? c.earlyBirdFeeHKD : "");
+      setTextbook(c.textbook || "");
       setSkipPlida(!!c.skipPlida);
       // All class days: stored, else every day named in the label (so a legacy
       // "Mon/Wed" intensive opens as twice a week), else the start date's day.
@@ -213,6 +216,7 @@ export default function EditCourseClient({ id }: { id: string }) {
       lessonDates: sortedDates.length > 0 ? sortedDates : undefined,
       earlyBirdDueISO: earlyBirdDueISO || undefined,
       earlyBirdFeeHKD: earlyBirdFeeHKD === "" ? undefined : Number(earlyBirdFeeHKD),
+      textbook: textbook.trim() || undefined,
       skipPlida,
       description,
     });
@@ -439,6 +443,12 @@ export default function EditCourseClient({ id }: { id: string }) {
             <input type="number" value={earlyBirdFeeHKD} onChange={(e) => setEarlyBirdFeeHKD(e.target.value === "" ? "" : Number(e.target.value))} placeholder="e.g. 4300" className={field} />
           </label>
         </div>
+
+        {/* Textbook */}
+        <label className="block text-sm font-medium">Textbook <span className="text-ink-muted font-normal">(optional)</span>
+          <input list="textbook-options" value={textbook} onChange={(e) => setTextbook(e.target.value)} placeholder="e.g. Nuovo Espresso 1 Plus" className={field} />
+          <datalist id="textbook-options">{TEXTBOOK_OPTIONS.map((t) => <option key={t} value={t} />)}</datalist>
+        </label>
 
         {/* Numbers */}
         <div className="grid md:grid-cols-4 gap-4">

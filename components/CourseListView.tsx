@@ -1,7 +1,7 @@
 import { type Course } from "@/lib/data";
 import { formatDateRange, formatHKD, formatDMY } from "@/lib/utils";
 import Link from "next/link";
-import { Calendar, Clock, MapPin, User } from "lucide-react";
+import { Calendar, Clock, MapPin, User, BookOpen } from "lucide-react";
 import { enrolLinkProps } from "@/lib/enroll";
 
 // Order so a continuation (e.g. A1.2) sits directly under its original (A1.1).
@@ -51,6 +51,7 @@ export default function CourseListView({ courses, emptyMessage }: { courses: Cou
                 <span className="inline-flex items-center gap-1.5"><Clock size={13} aria-hidden />{c.dayLabel}</span>
                 <span className="inline-flex items-center gap-1.5"><MapPin size={13} aria-hidden />{c.location}</span>
                 <span className="inline-flex items-center gap-1.5"><User size={13} aria-hidden />{c.teacher}</span>
+                {c.textbook && <span className="inline-flex items-center gap-1.5"><BookOpen size={13} aria-hidden />{c.textbook}</span>}
               </div>
               {c.description && (
                 <details className="mt-3 group">

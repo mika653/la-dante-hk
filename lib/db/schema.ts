@@ -77,6 +77,7 @@ export const courses = pgTable("courses", {
   skipPlida: boolean("skip_plida").default(false),
   continuationOf: text("continuation_of"),
   description: text("description"),                        // public course description (auto-fill editable in Course defaults)
+  textbook: text("textbook"),                             // course textbook, e.g. "Nuovo Espresso 1 Plus"
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

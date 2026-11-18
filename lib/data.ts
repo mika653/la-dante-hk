@@ -34,11 +34,21 @@ export type Course = {
   lessonDates?: string[];     // explicit per-lesson dates — overrides the computed schedule when set
   earlyBirdDueISO?: string;   // early-bird deadline
   earlyBirdFeeHKD?: number;   // discounted early-bird fee
+  textbook?: string;          // course textbook, e.g. "Nuovo Espresso 1 Plus"
   archived?: boolean;         // hidden from the public site (auto once it has started)
   skipPlida?: boolean;        // also skip sessions that land on PLIDA exam days
   continuationOf?: string;    // id of the course this one continues from
   description?: string;       // shown on the public course card
 };
+
+// Textbook suggestions for the course forms (free-type, so any title works).
+export const TEXTBOOK_OPTIONS = [
+  "Nuovo Espresso 1 Plus",
+  "Nuovo Espresso 2 Plus",
+  "Nuovo Espresso 3 Plus",
+  "Nuovo Espresso 4",
+  "Nuovo Espresso 5",
+];
 
 export const courses: Course[] = [
   { id: "c1",  language: "italian", type: "adult-group", level: "A1.1", title: "A1.1 Beginner — Wednesday Evening", dayLabel: "Wed 18:30–21:30", startISO: "2026-09-09", endISO: "2026-11-18", hours: 30, location: "Wanchai", teacher: "Giulia Marchetti", priceHKD: 4800, seats: 8, enrolled: 6, status: "Published" },
