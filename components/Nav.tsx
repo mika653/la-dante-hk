@@ -190,19 +190,19 @@ export default function Nav() {
                         <li
                           key={mi.label}
                           className="relative"
-                          onMouseEnter={() => mi.submenu && setOpenSub(mi.label)}
+                          onMouseEnter={() => setOpenSub(mi.submenu ? mi.label : null)}
                         >
                           {mi.href ? (
                             <Link
                               href={navHref(mi.href)}
-                              className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[14px] hover:bg-cream ${mi.submenu ? "font-medium text-ink" : "text-ink-muted hover:text-azzurro-deep"}`}
+                              className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[14px] hover:bg-azzurro-soft ${mi.submenu ? "font-medium text-ink" : "text-ink-muted hover:text-azzurro-deep"}`}
                               onClick={() => { setOpenGroup(null); setOpenSub(null); }}
                             >
                               {navLabel(mi.label)}
                               {mi.submenu && <ChevronRight size={14} className="opacity-50" aria-hidden />}
                             </Link>
                           ) : (
-                            <span className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[14px] font-medium text-ink cursor-default hover:bg-cream">
+                            <span className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-[14px] font-medium text-ink cursor-default hover:bg-azzurro-soft">
                               {navLabel(mi.label)}
                               {mi.submenu && <ChevronRight size={14} className="opacity-50" aria-hidden />}
                             </span>
@@ -215,7 +215,7 @@ export default function Nav() {
                                     <li key={s.label}>
                                       <Link
                                         href={navHref(s.href)}
-                                        className="block px-3 py-2 rounded-lg text-[14px] text-ink-muted hover:text-azzurro-deep hover:bg-cream"
+                                        className="block px-3 py-2 rounded-lg text-[14px] text-ink-muted hover:text-azzurro-deep hover:bg-azzurro-soft"
                                         onClick={() => { setOpenGroup(null); setOpenSub(null); }}
                                       >
                                         {navLabel(s.label)}

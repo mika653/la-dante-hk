@@ -40,7 +40,27 @@ export async function requestLeave(_prev: ActionResult | null, formData: FormDat
 
   // Recomputed here, never taken from the form — the browser could send anything.
   const days = workingDays(startDate, endDate);
-  if (days < 1) return { ok: false, error: "That range has no working days in it." };
+  if (days < 1) return { ok: false, error: "That range has no working days in it (Sundays don't count)." };
+
+  // Don't let anyone request more than their yearly entitlement (counting days
+  // already approved OR still pending for that type this year).
+  const [u] = await db
+    .select({ annual: users.annualEntitlement, sick: users.sickEntitlement })
+    .from(users)
+    .where(eq(users.id, s.userId));
+  const entitlement = type === "annual" ? (u?.annual ?? 0) : (u?.sick ?? 0);
+  const year = Number(startDate.slice(0, 4));
+  const mine = await db
+    .select({ days: leaveRequests.days, status: leaveRequests.status, startDate: leaveRequests.startDate, type: leaveRequests.type })
+    .from(leaveRequests)
+    .where(eq(leaveRequests.userId, s.userId));
+  const used = mine
+    .filter((l) => l.type === type && Number(l.startDate.slice(0, 4)) === year && (l.status === "approved" || l.status === "pending"))
+    .reduce((acc, l) => acc + l.days, 0);
+  const available = entitlement - used;
+  if (days > available) {
+    return { ok: false, error: `That's more ${type} leave than you have left for ${year}: ${Math.max(0, available)} of ${entitlement} day${entitlement === 1 ? "" : "s"} remaining (approved + pending).` };
+  }
 
   await db.insert(leaveRequests).values({
     userId: s.userId,

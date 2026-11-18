@@ -31,7 +31,7 @@ export function workingDays(startISO: string, endISO: string): number {
   let n = 0;
   while (cur <= end) {
     const d = cur.getDay();
-    if (d !== 0 && d !== 6) n++;
+    if (d !== 0) n++; // La Dante works Mon–Sat; only Sunday is a non-working day
     cur.setDate(cur.getDate() + 1);
   }
   return n;
