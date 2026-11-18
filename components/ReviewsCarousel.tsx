@@ -20,9 +20,13 @@ export default function ReviewsCarousel({ embedded = false, heading }: { embedde
   const body = (
     <div className="text-center max-w-3xl mx-auto">
       <Quote size={32} className="mx-auto text-azzurro-deep" aria-hidden />
-      <blockquote className="mt-6 text-2xl md:text-3xl font-heading font-semibold leading-[1.2] text-ink">
-        “{r.quote}”
-      </blockquote>
+      {/* Reserve a steady height so rotating between short/long reviews doesn't
+          shift the section up and down (the "tic" the office noticed). */}
+      <div className="mt-6 min-h-[8.5rem] md:min-h-[10.5rem] flex items-center justify-center">
+        <blockquote className="text-2xl md:text-3xl font-heading font-semibold leading-[1.2] text-ink">
+          “{r.quote}”
+        </blockquote>
+      </div>
       <p className="mt-6 text-[15px] text-ink-muted">
         <span className="font-medium text-ink">{r.name}</span> · {r.level} · {r.year}
       </p>

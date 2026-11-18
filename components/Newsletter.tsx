@@ -27,7 +27,7 @@ export default function Newsletter() {
   }
 
   return (
-    <section className="relative overflow-hidden bg-white py-16 md:py-24 border-t border-line">
+    <section className="relative overflow-hidden bg-white py-16 md:py-24">
       {/* Blue + yellow brand circles */}
       <div className="absolute -top-16 -left-16 w-64 h-64 rounded-full bg-azzurro/30 blur-2xl" aria-hidden />
       <div className="absolute -bottom-24 -right-16 w-72 h-72 rounded-full bg-sole blur-2xl" aria-hidden />
