@@ -4,6 +4,7 @@
 // skipping public holidays, carrying over teacher / time / fee / early-bird.
 
 import type { Course, CEFRLevel } from "@/lib/data";
+import { holidaySet, holidayNameMap, type Holiday } from "@/lib/holidays";
 
 // The CEFR progression used to pick the "next" course.
 export const LEVEL_SEQUENCE: CEFRLevel[] = [
@@ -149,6 +150,38 @@ export function courseLessonDates(c: Course, holidays: Set<string>): string[] {
   const weekdays = courseWeekdays(c);
   if (weekdays.length === 0) return [];
   return computeLessonDatesMulti(c.startISO, weekdays, courseLessons(c, holidays), holidays);
+}
+
+// ---- "no lesson" dates: closures that fall on a class day within a course's run ----
+// The public card uses this to tell students which weeks the class is off. Returns
+// [] for anything without a real weekly pattern (private "by appointment",
+// corporate "custom schedule"), so we never invent a skip from a fallback weekday.
+export function courseSkippedDates(c: Course, holidays: Holiday[]): Holiday[] {
+  const hasPattern =
+    (Array.isArray(c.weekdays) && c.weekdays.length > 0) ||
+    typeof c.weekday === "number" ||
+    parseDayLabel(c.dayLabel).weekdays.length > 0;
+  if (!hasPattern) return [];
+  const weekdays = courseWeekdays(c);
+  if (weekdays.length === 0) return [];
+
+  const hs = holidaySet(holidays);
+  const dates = courseLessonDates(c, hs);
+  if (dates.length === 0) return [];
+
+  const lessonSet = new Set(dates);          // a holiday kept as a real lesson isn't "no lesson"
+  const wdset = new Set(weekdays);
+  const holMap = holidayNameMap(holidays);
+  const first = dates[0];
+  const last = dates[dates.length - 1];
+
+  const out: Holiday[] = [];
+  for (let cur = first, g = 0; cur <= last && g < 520 * 7; cur = addDays(cur, 1), g++) {
+    if (holMap.has(cur) && wdset.has(weekdayOf(cur)) && !lessonSet.has(cur)) {
+      out.push({ date: cur, name: holMap.get(cur)! });
+    }
+  }
+  return out;
 }
 
 // ---- upcoming / started (archiving) ----

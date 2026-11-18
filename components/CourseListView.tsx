@@ -1,8 +1,27 @@
+"use client";
 import { type Course } from "@/lib/data";
 import { formatDateRange, formatHKD, formatDMY } from "@/lib/utils";
 import Link from "next/link";
-import { Calendar, Clock, MapPin, User, BookOpen } from "lucide-react";
+import { Calendar, Clock, MapPin, User, BookOpen, CalendarOff } from "lucide-react";
 import { enrolLinkProps } from "@/lib/enroll";
+import { useClosures } from "@/lib/use-closures";
+import { courseSkippedDates } from "@/lib/course-schedule";
+
+// DD/MM — the term's full date range is already shown above, so the day+month is
+// enough to point a student at the week that's off.
+function dm(iso: string) { const [, m, d] = iso.split("-"); return `${d}/${m}`; }
+
+// Group consecutive skips that share a name (e.g. a 3-day Lunar New Year break)
+// into one "19/02, 20/02 (Lunar New Year)" entry.
+function groupSkips(skips: { date: string; name: string }[]) {
+  const groups: { name: string; dates: string[] }[] = [];
+  for (const s of skips) {
+    const g = groups.find((x) => x.name === s.name);
+    if (g) g.dates.push(s.date);
+    else groups.push({ name: s.name, dates: [s.date] });
+  }
+  return groups;
+}
 
 // Order so a continuation (e.g. A1.2) sits directly under its original (A1.1).
 function orderByContinuation(courses: Course[]): Course[] {
@@ -29,6 +48,7 @@ function orderByContinuation(courses: Course[]): Course[] {
 }
 
 export default function CourseListView({ courses, emptyMessage }: { courses: Course[]; emptyMessage?: string }) {
+  const { holidays } = useClosures();
   if (courses.length === 0) {
     return (
       <div className="frame p-10 bg-white text-center text-ink-muted">
@@ -41,6 +61,7 @@ export default function CourseListView({ courses, emptyMessage }: { courses: Cou
     <div className="grid gap-4">
       {orderByContinuation(courses).map((c) => {
         const hasEarlyBird = typeof c.earlyBirdFeeHKD === "number" && !!c.earlyBirdDueISO;
+        const skips = groupSkips(courseSkippedDates(c, holidays));
         return (
           <div key={c.id} className="frame p-5 md:p-6 bg-white grid md:grid-cols-[1fr_auto] gap-4 items-center">
             <div>
@@ -53,6 +74,20 @@ export default function CourseListView({ courses, emptyMessage }: { courses: Cou
                 <span className="inline-flex items-center gap-1.5"><User size={13} aria-hidden />{c.teacher}</span>
                 {c.textbook && <span className="inline-flex items-center gap-1.5"><BookOpen size={13} aria-hidden />{c.textbook}</span>}
               </div>
+              {skips.length > 0 && (
+                <p className="mt-2 flex items-start gap-1.5 text-[12px] text-rosso">
+                  <CalendarOff size={13} className="mt-0.5 shrink-0" aria-hidden />
+                  <span>
+                    <span className="font-medium">No lesson</span>{" "}
+                    {skips.map((g, i) => (
+                      <span key={g.name}>
+                        {i > 0 && <span className="text-rosso/50"> · </span>}
+                        {g.dates.map(dm).join(", ")} <span className="text-rosso/70">({g.name})</span>
+                      </span>
+                    ))}
+                  </span>
+                </p>
+              )}
               {c.description && (
                 <details className="mt-3 group">
                   <summary className="cursor-pointer list-none text-[13px] font-medium text-azzurro-deep hover:underline">Course details</summary>

@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Menu, X, ChevronDown, ChevronRight } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronRight, Search } from "lucide-react";
 import Wordmark from "./Wordmark";
 import LanguageSwitcher from "./LanguageSwitcher";
+import SiteSearchOverlay from "./SiteSearch";
 import { useT, localizePath } from "@/lib/locale";
 import { enrolLinkProps } from "@/lib/enroll";
 
@@ -106,6 +107,7 @@ export default function Nav() {
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [openSub, setOpenSub] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const labelFor = (key: string): string => {
     const map: Record<string, string> = {
@@ -128,6 +130,24 @@ export default function Nav() {
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
   }, [mobileOpen]);
+
+  // Keyboard shortcuts: ⌘K / Ctrl+K anywhere, or "/" when not already typing.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+        return;
+      }
+      if (e.key === "/" && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        const el = document.activeElement as HTMLElement | null;
+        const typing = !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
+        if (!typing) { e.preventDefault(); setSearchOpen(true); }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <header
@@ -237,12 +257,25 @@ export default function Nav() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="inline-flex items-center gap-2 h-9 pl-3 pr-2.5 rounded-full border border-ink/10 bg-white/50 text-ink-muted hover:text-azzurro-deep hover:border-azzurro-deep/30 transition-colors"
+            aria-label={locale === "zh" ? "搜尋" : "Search"}
+          >
+            <Search size={15} aria-hidden />
+            <span className="hidden xl:inline text-[13px]">{locale === "zh" ? "搜尋" : "Search"}</span>
+            <kbd className="hidden xl:inline-flex items-center rounded border border-ink/15 px-1.5 text-[10px] font-mono text-ink-muted/80">⌘K</kbd>
+          </button>
           <LanguageSwitcher />
           <Link href={localizePath("/placement-test", locale)} className="hidden text-[14px] font-medium text-ink hover:text-azzurro-deep">{t.nav.placementTest}</Link>
           <a {...enrolLinkProps} className="hidden! btn btn-primary text-[14px]">{t.nav.enrol}</a>
         </div>
 
-        <div className="lg:hidden flex items-center gap-2">
+        <div className="lg:hidden flex items-center gap-1">
+          <button type="button" onClick={() => { setMobileOpen(false); setSearchOpen(true); }} className="p-2" aria-label={locale === "zh" ? "搜尋" : "Search"}>
+            <Search size={20} />
+          </button>
           <LanguageSwitcher />
           <button type="button" onClick={() => setMobileOpen((v) => !v)} className="p-2 -mr-2" aria-label="Toggle menu" aria-expanded={mobileOpen}>
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
@@ -317,6 +350,8 @@ export default function Nav() {
           </div>
         </div>
       )}
+
+      <SiteSearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} locale={locale} />
     </header>
   );
 }
