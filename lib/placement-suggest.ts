@@ -43,11 +43,9 @@ export function seatsLeft(c: Course): number {
   return Math.max(0, c.seats - c.enrolled);
 }
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-/** "2026-05-04" → "4 May 2026". Deterministic, so it can't cause a hydration mismatch. */
+/** "2026-05-04" → "04/05/2026". Deterministic, so it can't cause a hydration mismatch. */
 export function formatStart(iso: string): string {
   const [y, m, d] = iso.split("-").map(Number);
   if (!y || !m || !d) return iso;
-  return `${d} ${MONTHS[m - 1]} ${y}`;
+  return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`;
 }

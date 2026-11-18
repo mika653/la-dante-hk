@@ -8,14 +8,14 @@ export function formatHKD(amount: number) {
   return new Intl.NumberFormat("en-HK", { style: "currency", currency: "HKD", maximumFractionDigits: 0 }).format(amount);
 }
 
+// DD/MM/YYYY (the office's preferred format). Parsed from the ISO parts directly
+// so it's deterministic and timezone-safe (no hydration mismatch).
+export function formatDMY(iso: string): string {
+  const [y, m, d] = String(iso ?? "").split("-").map(Number);
+  if (!y || !m || !d) return iso;
+  return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`;
+}
+
 export function formatDateRange(startISO: string, endISO: string) {
-  const s = new Date(startISO);
-  const e = new Date(endISO);
-  const sameMonth = s.getMonth() === e.getMonth() && s.getFullYear() === e.getFullYear();
-  const sameYear = s.getFullYear() === e.getFullYear();
-  const opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
-  const sFmt = new Intl.DateTimeFormat("en-GB", opts).format(s);
-  const eFmt = new Intl.DateTimeFormat("en-GB", sameMonth ? { day: "numeric" } : opts).format(e);
-  const year = sameYear ? s.getFullYear() : `${s.getFullYear()}–${e.getFullYear()}`;
-  return `${sFmt} – ${eFmt} ${year}`;
+  return `${formatDMY(startISO)} – ${formatDMY(endISO)}`;
 }

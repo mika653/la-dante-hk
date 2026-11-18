@@ -58,6 +58,9 @@ export default function NewCoursePage() {
   const [teacherNames, setTeacherNames] = useState<string[]>([]);
   const [lessonDates, setLessonDates] = useState<string[]>([]); // hand-adjusted dates; [] = automatic
   const [description, setDescription] = useState("");
+  const [earlyBirdDueISO, setEarlyBirdDueISO] = useState("");
+  const [earlyBirdFeeHKD, setEarlyBirdFeeHKD] = useState<number | "">("");
+  const [daysTouched, setDaysTouched] = useState(false); // did the admin pick class days by hand?
   const [createNext, setCreateNext] = useState(false);
   const [gapWeeks, setGapWeeks] = useState(1);
   const [weeks, setWeeks] = useState<number | "">("");
@@ -104,6 +107,28 @@ export default function NewCoursePage() {
     setEndDate(computeEndDateMulti(start, wds, Number(wk) * dys.length, skipDates(skip)));
   }
 
+  // The weekday name ("Mon"…"Sat") of an ISO date, or null.
+  const DOW_NAME = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  function weekdayName(isoDate: string): string | null {
+    const [y, m, d] = isoDate.split("-").map(Number);
+    if (!y || !m || !d) return null;
+    return DOW_NAME[new Date(y, m - 1, d).getDay()];
+  }
+
+  // Picking a start date lines the class day up with that weekday (unless the
+  // admin has already chosen days by hand), so the end date is computed right
+  // away instead of needing the days re-picked.
+  function onStartDate(v: string) {
+    setStartDate(v);
+    resetDates();
+    let dys = days;
+    if (!daysTouched && v) {
+      const wn = weekdayName(v);
+      if (wn && wn !== "Sun") { dys = [wn]; setDays(dys); }
+    }
+    autoEndFor(v, weeks, dys);
+  }
+
   // Total lessons: weeks × class days, else the class days between start and end.
   const weekdayIdx = days.map((d) => DOW_IDX[d]);
   const totalLessons = weeks !== ""
@@ -113,6 +138,7 @@ export default function NewCoursePage() {
   function resetDates() { setLessonDates([]); }
 
   function toggleDay(d: string) {
+    setDaysTouched(true);
     const nl = days.includes(d) ? days.filter((x) => x !== d) : [...days, d];
     setDays(nl);
     resetDates();
@@ -158,6 +184,8 @@ export default function NewCoursePage() {
       endTime,
       lessons: lessonDates.length > 0 ? lessonDates.length : (totalLessons > 0 ? totalLessons : undefined),
       skipPlida,
+      earlyBirdDueISO: earlyBirdDueISO || undefined,
+      earlyBirdFeeHKD: earlyBirdFeeHKD === "" ? undefined : Number(earlyBirdFeeHKD),
     };
   }
 
@@ -281,7 +309,7 @@ export default function NewCoursePage() {
         {step === 2 && (
           <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-4">
-              <label className="text-sm font-medium">Starts on<input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); resetDates(); autoEndFor(e.target.value, weeks, days); }} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" /></label>
+              <label className="text-sm font-medium">Starts on<input type="date" value={startDate} onChange={(e) => onStartDate(e.target.value)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" /></label>
               <label className="text-sm font-medium">Course duration (weeks)<input type="number" min={1} value={weeks} onChange={(e) => { const w = e.target.value === "" ? "" : Number(e.target.value); setWeeks(w); resetDates(); autoEndFor(startDate, w, days); }} placeholder="e.g. 11" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" /></label>
             </div>
             <label className="block text-sm font-medium">Ends on <span className="text-ink-muted font-normal">— auto-calculated from the duration; you can still move it for holidays</span>
@@ -363,6 +391,16 @@ export default function NewCoursePage() {
                 <button type="button" onClick={applySuggestedDescription} className="text-xs text-azzurro-deep underline">Auto-fill from level</button>
               </div>
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} className="w-full p-4 rounded-xl border border-line bg-white font-body" placeholder="Learning outcomes, who it&apos;s for, what to bring..." />
+            </div>
+            {/* Early bird — optional discounted fee before a deadline. */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <label className="text-sm font-medium">Early-bird deadline <span className="text-ink-muted font-normal">(optional)</span>
+                <input type="date" value={earlyBirdDueISO} onChange={(e) => setEarlyBirdDueISO(e.target.value)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" />
+              </label>
+              <label className="text-sm font-medium">Early-bird fee (HKD)
+                <input type="number" min={0} value={earlyBirdFeeHKD} onChange={(e) => setEarlyBirdFeeHKD(e.target.value === "" ? "" : Number(e.target.value))} placeholder="e.g. 4300" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" />
+                <span className="mt-1 block text-xs font-normal text-ink-muted">Shown as a discounted price until the deadline.</span>
+              </label>
             </div>
             <div className="flex items-center justify-between">
               <button type="button" onClick={() => setStep(2)} className="btn btn-ghost"><ArrowLeft size={16} /> Back</button>

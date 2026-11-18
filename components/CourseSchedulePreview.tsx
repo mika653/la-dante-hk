@@ -9,7 +9,7 @@ const DOW = ["S", "M", "T", "W", "T", "F", "S"];
 
 function parts(isoStr: string) { const [y, m, d] = isoStr.split("-").map(Number); return { y, m: m - 1, d }; }
 function iso(y: number, m: number, d: number) { return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`; }
-function pretty(isoStr: string) { const { y, m, d } = parts(isoStr); return `${d} ${MONTHS[m].slice(0, 3)} ${y}`; }
+function pretty(isoStr: string) { const { y, m, d } = parts(isoStr); return `${String(d).padStart(2, "0")}/${String(m + 1).padStart(2, "0")}/${y}`; }
 
 export default function CourseSchedulePreview({
   startISO, weekday, weekdays, lessons, holidays = [], lessonDates: override, onChangeDates,
