@@ -40,7 +40,7 @@ const navGroups: NavGroup[] = [
     label: "Culture",   // dropdown only — no landing page
     menu: [
       { label: "Events", href: "/culture" },
-      { label: "Workshops", href: "/workshops" },
+      { label: "Workshops", href: "/culture#workshops" },
     ],
   },
   {
