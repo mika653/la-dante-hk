@@ -1,9 +1,10 @@
 "use client";
 import { useActionState, useEffect, useMemo, useState } from "react";
-import { Plus, Trash2, X, ExternalLink, Upload } from "lucide-react";
+import { Plus, Trash2, X, ExternalLink, Upload, Pencil } from "lucide-react";
 import {
   listPrivileges,
   createPrivilege,
+  updatePrivilege,
   deletePrivilege,
   type SaveState,
 } from "@/lib/privilege-actions";
@@ -22,6 +23,7 @@ export default function AdminPrivileges() {
   const [rows, setRows] = useState<PrivilegeRow[]>([]);
   const [loadErr, setLoadErr] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<PrivilegeRow | null>(null);
 
   const reload = () =>
     listPrivileges()
@@ -54,12 +56,20 @@ export default function AdminPrivileges() {
           <h1 className="mt-2 text-3xl md:text-4xl">Privileges.</h1>
           <p className="mt-3 text-ink-muted">Partner brands and the discounts members get. These power the perks directory on the membership page.</p>
         </div>
-        <button type="button" onClick={() => setShowForm((v) => !v)} className="btn btn-primary shrink-0">
+        <button type="button" onClick={() => { setEditing(null); setShowForm(true); }} className="btn btn-primary shrink-0">
           <Plus size={16} /> Add privilege
         </button>
       </div>
 
-      {showForm && <AddForm categories={knownCategories} onDone={() => { setShowForm(false); reload(); }} onCancel={() => setShowForm(false)} />}
+      {showForm && (
+        <PrivilegeForm
+          key={editing?.id ?? "new"}
+          editing={editing}
+          categories={knownCategories}
+          onDone={() => { setShowForm(false); setEditing(null); reload(); }}
+          onCancel={() => { setShowForm(false); setEditing(null); }}
+        />
+      )}
 
       {loadErr && <p className="mt-8 text-sm text-rosso">{loadErr}</p>}
 
@@ -82,6 +92,9 @@ export default function AdminPrivileges() {
                 <ExternalLink size={16} />
               </a>
             )}
+            <button type="button" onClick={() => { setEditing(p); setShowForm(true); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-ink-muted hover:text-azzurro-deep" aria-label="Edit">
+              <Pencil size={16} />
+            </button>
             <button type="button" onClick={() => del(p.id, p.brand)} className="text-ink-muted hover:text-rosso" aria-label="Delete">
               <Trash2 size={16} />
             </button>
@@ -105,11 +118,12 @@ function Logo({ logo, brand }: { logo: string | null; brand: string }) {
   );
 }
 
-function AddForm({ categories, onDone, onCancel }: { categories: string[]; onDone: () => void; onCancel: () => void }) {
-  const [state, action, pending] = useActionState<SaveState, FormData>(createPrivilege, {});
-  const [logo, setLogo] = useState<string>("");     // data URL
+function PrivilegeForm({ editing, categories, onDone, onCancel }: { editing: PrivilegeRow | null; categories: string[]; onDone: () => void; onCancel: () => void }) {
+  const saveAction = editing ? updatePrivilege.bind(null, editing.id) : createPrivilege;
+  const [state, action, pending] = useActionState<SaveState, FormData>(saveAction, {});
+  const [logo, setLogo] = useState<string>(editing?.logo ?? "");     // data URL
   const [logoErr, setLogoErr] = useState<string | null>(null);
-  const [socials, setSocials] = useState<Social[]>([]);
+  const [socials, setSocials] = useState<Social[]>(editing?.socials ?? []);
 
   useEffect(() => { if (state.ok) onDone(); }, [state.ok]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -133,7 +147,7 @@ function AddForm({ categories, onDone, onCancel }: { categories: string[]; onDon
   return (
     <form action={action} className="frame bg-cream-2/50 p-6 mt-6 relative">
       <button type="button" onClick={onCancel} className="absolute top-4 right-4 text-ink-muted hover:text-ink" aria-label="Close"><X size={18} /></button>
-      <h2 className="text-lg font-heading font-bold">New privilege</h2>
+      <h2 className="text-lg font-heading font-bold">{editing ? "Edit privilege" : "New privilege"}</h2>
 
       {/* Hidden inputs carrying the logo data URL + serialised socials into the action */}
       <input type="hidden" name="logo" value={logo} />
@@ -157,14 +171,14 @@ function AddForm({ categories, onDone, onCancel }: { categories: string[]; onDon
           {logoErr && <p className="mt-2 text-sm text-rosso">{logoErr}</p>}
         </div>
 
-        <Field label="Brand name *" name="brand" required placeholder="Alice Pizza" />
-        <CategoryField categories={categories} />
+        <Field label="Brand name *" name="brand" required placeholder="Alice Pizza" defaultValue={editing?.brand} />
+        <CategoryField categories={categories} initial={editing?.category} />
 
-        <Field label="Discount details *" name="discount" required placeholder="10% discount on à la carte menu" className="md:col-span-2" />
-        <Field label="Fine print (optional)" name="note" placeholder="The offer cannot be combined with other promotions" className="md:col-span-2" />
-        <Field label="Address" name="address" placeholder="G/F, 92 Queen's Road East, Wan Chai" className="md:col-span-2" />
-        <Field label="Contact number" name="phone" placeholder="+852 2518 3502" />
-        <Field label="Website" name="website" placeholder="https://www.alicepizzahk.com" />
+        <Field label="Discount details *" name="discount" required placeholder="10% discount on à la carte menu" className="md:col-span-2" defaultValue={editing?.discount} />
+        <Field label="Fine print (optional)" name="note" placeholder="The offer cannot be combined with other promotions" className="md:col-span-2" defaultValue={editing?.note ?? ""} />
+        <Field label="Address" name="address" placeholder="G/F, 92 Queen's Road East, Wan Chai" className="md:col-span-2" defaultValue={editing?.address ?? ""} />
+        <Field label="Contact number" name="phone" placeholder="+852 2518 3502" defaultValue={editing?.phone ?? ""} />
+        <Field label="Website" name="website" placeholder="https://www.alicepizzahk.com" defaultValue={editing?.website ?? ""} />
 
         {/* Social links */}
         <div className="md:col-span-2">
@@ -211,7 +225,7 @@ function AddForm({ categories, onDone, onCancel }: { categories: string[]; onDon
       {state.error && <p className="mt-4 text-sm text-rosso">{state.error}</p>}
 
       <div className="mt-6 flex gap-3">
-        <button type="submit" disabled={pending} className="btn btn-primary">{pending ? "Saving…" : "Save privilege"}</button>
+        <button type="submit" disabled={pending} className="btn btn-primary">{pending ? "Saving…" : editing ? "Save changes" : "Save privilege"}</button>
         <button type="button" onClick={onCancel} className="btn btn-ghost">Cancel</button>
       </div>
     </form>
@@ -228,9 +242,10 @@ function LogoPreview({ logo }: { logo: string }) {
 
 const NEW_CATEGORY = "+ Add new category…";
 
-function CategoryField({ categories }: { categories: string[] }) {
-  const [value, setValue] = useState(categories[0] ?? "Dining");
-  const [adding, setAdding] = useState(false);
+function CategoryField({ categories, initial }: { categories: string[]; initial?: string }) {
+  const [value, setValue] = useState(initial || categories[0] || "Dining");
+  // A saved category that isn't in the known list still needs to be selectable.
+  const [adding, setAdding] = useState(!!initial && !categories.includes(initial));
 
   return (
     <label className="text-sm font-medium">
@@ -261,11 +276,11 @@ function CategoryField({ categories }: { categories: string[] }) {
   );
 }
 
-function Field({ label, name, required, placeholder, className = "" }: { label: string; name: string; required?: boolean; placeholder?: string; className?: string }) {
+function Field({ label, name, required, placeholder, className = "", defaultValue }: { label: string; name: string; required?: boolean; placeholder?: string; className?: string; defaultValue?: string }) {
   return (
     <label className={`text-sm font-medium ${className}`}>
       {label}
-      <input name={name} required={required} placeholder={placeholder} className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" />
+      <input name={name} required={required} placeholder={placeholder} defaultValue={defaultValue} className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" />
     </label>
   );
 }

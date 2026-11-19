@@ -88,6 +88,40 @@ export async function createPrivilege(_prev: SaveState, formData: FormData): Pro
   return { ok: true };
 }
 
+// Edit an existing privilege. `id` is bound by the caller (updatePrivilege.bind(
+// null, id)) so this keeps the (prevState, formData) shape useActionState expects.
+export async function updatePrivilege(id: string, _prev: SaveState, formData: FormData): Promise<SaveState> {
+  try { await requireAdminFresh(); }
+  catch { return { error: "You need to be signed in as an owner or manager to edit a privilege." }; }
+
+  const brand = clip(formData.get("brand"), 160);
+  const category = clip(formData.get("category"), 60) || "Dining";
+  const discount = clip(formData.get("discount"), 400);
+
+  if (brand.length < 2) return { error: "Please enter the brand name." };
+  if (discount.length < 2) return { error: "Please enter the discount details." };
+
+  try {
+    await db.update(privileges).set({
+      brand,
+      category,
+      discount,
+      note: clip(formData.get("note"), 400) || null,
+      logo: clip(formData.get("logo"), MAX_LOGO_CHARS) || null,
+      address: clip(formData.get("address"), 300) || null,
+      phone: clip(formData.get("phone"), 60) || null,
+      website: clip(formData.get("website"), 300) || null,
+      socials: parseSocials(formData.get("socials")),
+    }).where(eq(privileges.id, id));
+  } catch {
+    return { error: "Couldn't save those changes." };
+  }
+
+  revalidatePath("/admin/privileges");
+  revalidatePath("/membership");
+  return { ok: true };
+}
+
 export async function deletePrivilege(id: string): Promise<SaveState> {
   try { await requireAdminFresh(); } catch { return { error: "Not authorised" }; }
   await db.delete(privileges).where(eq(privileges.id, id));
