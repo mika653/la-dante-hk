@@ -1,4 +1,5 @@
 import PageHeader from "@/components/PageHeader";
+import EnquiryForm from "@/components/EnquiryForm";
 import KidsClient from "@/app/courses/italian/kids/KidsClient";
 
 export default function KidsPage() {
@@ -21,11 +22,17 @@ export default function KidsPage() {
       <section className="bg-cream py-12 md:py-16">
         <div className="container-xl max-w-4xl">
           <p className="eyebrow">兒童及青少年課程</p>
-          <h2 className="mt-2 text-2xl md:text-3xl font-heading font-semibold">按程度尋找課程。</h2>
-          <p className="mt-2 text-ink-muted text-[15px]">按程度篩選,查看本學期開辦的班級。</p>
+          <h2 className="mt-2 text-2xl md:text-3xl font-heading font-semibold">選擇年齡組別。</h2>
+          <p className="mt-2 text-ink-muted text-[15px]">幼兒班、兒童班或青少年班 — 點選組別即可跳至本學期開辦的班級。</p>
           <div className="mt-6">
             <KidsClient />
           </div>
+        </div>
+      </section>
+
+      <section id="enquire" className="bg-white py-14 md:py-20 scroll-mt-24">
+        <div className="container-xl max-w-2xl">
+          <EnquiryForm type="course" />
         </div>
       </section>
     </>

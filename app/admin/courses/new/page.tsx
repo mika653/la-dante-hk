@@ -34,6 +34,8 @@ const LEVELS: CEFRLevel[] = [
   "C1.1", "C1.2", "C1.3", "C1.4", "C1.5",
   "C2.1", "C2.2", "C2.3", "C2.4", "C2.5",
 ];
+// Range / open levels for special courses (e.g. "A2–B1", "No Italian required").
+const LEVEL_RANGES = ["No Italian required", "A1–A2", "A2–B1", "B1–B2", "B2–C1", "All levels"];
 
 export default function NewCoursePage() {
   const router = useRouter();
@@ -41,7 +43,7 @@ export default function NewCoursePage() {
   const [err, setErr] = useState<string | null>(null);
   const [lang, setLang] = useState<Language>("italian");
   const [type, setType] = useState<CourseType>("adult-group");
-  const [level, setLevel] = useState<CEFRLevel>("A1.1");
+  const [level, setLevel] = useState<string>("A1.1");
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -157,7 +159,7 @@ export default function NewCoursePage() {
 
   // Text comes from Admin → Courses → Course defaults (built-in text if unset).
   function applySuggestedDescription() {
-    const text = descriptionFor(defaults, lang, level);
+    const text = descriptionFor(defaults, lang, level as Course["level"]);
     if (text) setDescription(text);
   }
 
@@ -166,7 +168,7 @@ export default function NewCoursePage() {
       id: `new-${Date.now()}`,
       language: lang,
       type,
-      level,
+      level: level as Course["level"],
       title: title || autoTitle(),
       dayLabel: `${days.join("/")} ${startTime}–${endTime}`,
       startISO: lessonDates[0] || startDate || new Date().toISOString().slice(0, 10),
@@ -296,10 +298,9 @@ export default function NewCoursePage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Level</label>
-              <select value={level} onChange={(e) => setLevel(e.target.value as CEFRLevel)} className="h-12 px-4 rounded-xl border border-line bg-white w-full max-w-xs">
-                {LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
-              </select>
+              <label className="block text-sm font-medium mb-2">Level <span className="text-ink-muted font-normal">— a single level, or a range for special courses</span></label>
+              <input list="level-options" value={level} onChange={(e) => setLevel(e.target.value)} placeholder="e.g. A1.1, A2–B1, or No Italian required" className="h-12 px-4 rounded-xl border border-line bg-white w-full max-w-md" />
+              <datalist id="level-options">{[...LEVELS, ...LEVEL_RANGES].map((l) => <option key={l} value={l} />)}</datalist>
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Title <span className="text-ink-muted font-normal">(leave blank to auto-generate)</span></label>
@@ -449,12 +450,12 @@ export default function NewCoursePage() {
               </div>
             )}
 
-            {nextLevel(level) && (
+            {nextLevel(level as Course["level"]) && (
               <div className="frame p-4 md:p-5 bg-azzurro-soft/60 border border-azzurro-deep/20">
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input type="checkbox" checked={createNext} onChange={(e) => setCreateNext(e.target.checked)} className="mt-1 accent-azzurro-deep w-4 h-4" />
                   <span className="text-sm">
-                    <b>Also create the next-level course ({nextLevel(level)}) as a draft.</b>
+                    <b>Also create the next-level course ({nextLevel(level as Course["level"])}) as a draft.</b>
                     <span className="block text-ink-muted mt-0.5">Generated automatically — same day &amp; time, next level, dates computed weekly and skipping public holidays.</span>
                   </span>
                 </label>

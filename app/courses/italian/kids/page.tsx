@@ -1,4 +1,5 @@
 import PageHeader from "@/components/PageHeader";
+import EnquiryForm from "@/components/EnquiryForm";
 import KidsClient from "./KidsClient";
 
 export default function KidsPage() {
@@ -21,11 +22,17 @@ export default function KidsPage() {
       <section className="bg-cream py-12 md:py-16">
         <div className="container-xl max-w-4xl">
           <p className="eyebrow">Kids &amp; Teens classes</p>
-          <h2 className="mt-2 text-2xl md:text-3xl font-heading font-semibold">Find a class by level.</h2>
-          <p className="mt-2 text-ink-muted text-[15px]">Filter by level to see what&apos;s running this term.</p>
+          <h2 className="mt-2 text-2xl md:text-3xl font-heading font-semibold">Choose an age group.</h2>
+          <p className="mt-2 text-ink-muted text-[15px]">Playgroup, Children or Teenagers — tap a group to jump to the classes running this term.</p>
           <div className="mt-6">
             <KidsClient />
           </div>
+        </div>
+      </section>
+
+      <section id="enquire" className="bg-white py-14 md:py-20 scroll-mt-24">
+        <div className="container-xl max-w-2xl">
+          <EnquiryForm type="course" />
         </div>
       </section>
     </>

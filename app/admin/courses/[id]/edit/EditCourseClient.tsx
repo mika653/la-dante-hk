@@ -36,6 +36,8 @@ const LEVELS = [
   "C2.1", "C2.2", "C2.3", "C2.4", "C2.5",
   "Beginner", "Intermediate", "Advanced",
 ];
+// Range / open levels for special courses (e.g. "A2–B1", "No Italian required").
+const LEVEL_RANGES = ["No Italian required", "A1–A2", "A2–B1", "B1–B2", "B2–C1", "All levels"];
 const LOCATIONS: Course["location"][] = ["Wanchai", "Online", "Corporate"];
 
 export default function EditCourseClient({ id }: { id: string }) {
@@ -320,9 +322,9 @@ export default function EditCourseClient({ id }: { id: string }) {
         {/* Level + Teacher */}
         <div className="grid md:grid-cols-2 gap-4">
           <label className="block text-sm font-medium">Level
-            <select value={level} onChange={(e) => setLevel(e.target.value)} className={field}>
-              {LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
-            </select>
+            <input list="edit-level-options" value={level} onChange={(e) => setLevel(e.target.value)} className={field} placeholder="e.g. A1.1, A2–B1, or No Italian required" />
+            <datalist id="edit-level-options">{[...LEVELS, ...LEVEL_RANGES].map((l) => <option key={l} value={l} />)}</datalist>
+            <span className="mt-1 block text-xs font-normal text-ink-muted">Type a single level or a range (special courses often span one, e.g. “A2–B1”).</span>
           </label>
           <label className="block text-sm font-medium">Teacher
             <input list="edit-teacher-options" value={teacher} onChange={(e) => setTeacher(e.target.value)} placeholder="Pick or type a teacher" className={field} />
