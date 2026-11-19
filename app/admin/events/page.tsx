@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, Trash2, Eye, EyeOff, Check, ExternalLink, Calendar, MapPin, ImageIcon, X } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, Check, ExternalLink, Calendar, MapPin, ImageIcon, X, Pencil } from "lucide-react";
 import MediaPicker from "@/components/MediaPicker";
 import { getEvents, addEvent, updateEvent, removeEvent, type EventItem, type EventKind } from "@/lib/use-events";
 
@@ -15,12 +15,13 @@ function errText(e: unknown) {
 export default function AdminEventsPage() {
   const [list, setList] = useState<EventItem[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [justAdded, setJustAdded] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   const [date, setDate] = useState("");
   const [title, setTitle] = useState("");
-  const [kind, setKind] = useState<EventKind>("Workshop");
+  const [kind, setKind] = useState<string>("Workshop");
   const [location, setLocation] = useState("Wanchai");
   const [description, setDescription] = useState("");
   const [bookingUrl, setBookingUrl] = useState("");
@@ -30,15 +31,35 @@ export default function AdminEventsPage() {
   const refresh = () => getEvents().then((l) => setList(l.slice().sort((a, b) => b.date.localeCompare(a.date)))).catch((e) => setErr(errText(e)));
   useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
+  function resetForm() {
+    setEditingId(null);
+    setDate(""); setTitle(""); setKind("Workshop"); setLocation("Wanchai");
+    setDescription(""); setBookingUrl(""); setPublished(true); setImage("");
+  }
+  function startCreate() { resetForm(); setShowForm(true); }
+  function startEdit(ev: EventItem) {
+    setEditingId(ev.id);
+    setDate(ev.date); setTitle(ev.title); setKind(ev.kind); setLocation(ev.location);
+    setDescription(ev.description ?? ""); setBookingUrl(ev.bookingUrl ?? "");
+    setPublished(ev.published); setImage(ev.image ?? "");
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setErr(null);
+    const payload = { date, title, kind: kind as EventKind, location, description: description || undefined, bookingUrl: bookingUrl || undefined, image: image || undefined, published };
     try {
-      const ev = await addEvent({ date, title, kind, location, description: description || undefined, bookingUrl: bookingUrl || undefined, image: image || undefined, published });
-      setDate(""); setTitle(""); setKind("Workshop"); setLocation("Wanchai"); setDescription(""); setBookingUrl(""); setPublished(true); setImage("");
+      if (editingId) {
+        await updateEvent(editingId, payload);
+      } else {
+        const ev = await addEvent(payload);
+        setJustAdded(ev.title);
+        setTimeout(() => setJustAdded(null), 6000);
+      }
+      resetForm();
       setShowForm(false);
-      setJustAdded(ev.title);
-      setTimeout(() => setJustAdded(null), 6000);
       await refresh();
     } catch (e) { setErr(errText(e)); }
   }
@@ -65,7 +86,7 @@ export default function AdminEventsPage() {
           <h1 className="mt-2 text-3xl md:text-4xl">Events & workshops calendar.</h1>
           <p className="mt-2 text-ink-muted">Add a bookclub, film night, aperitivo, or workshop — it appears immediately on the <Link href="/culture" target="_blank" rel="noopener" className="underline">Culture page</Link>.</p>
         </div>
-        {!showForm && <button type="button" onClick={() => setShowForm(true)} className="btn btn-primary"><Plus size={16} /> New event</button>}
+        {!showForm && <button type="button" onClick={startCreate} className="btn btn-primary"><Plus size={16} /> New event</button>}
       </div>
 
       {err && (
@@ -85,13 +106,12 @@ export default function AdminEventsPage() {
 
       {showForm && (
         <form onSubmit={submit} className="frame p-6 md:p-8 bg-white mb-6 space-y-4">
-          <h2 className="text-lg font-semibold">New event</h2>
+          <h2 className="text-lg font-semibold">{editingId ? "Edit event" : "New event"}</h2>
           <div className="grid md:grid-cols-2 gap-4">
             <label className="text-sm font-medium">Date<input required type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
             <label className="text-sm font-medium">Kind
-              <select value={kind} onChange={(e) => setKind(e.target.value as EventKind)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink">
-                {KINDS.map((k) => <option key={k} value={k}>{k}</option>)}
-              </select>
+              <input list="event-kinds" value={kind} onChange={(e) => setKind(e.target.value)} placeholder="e.g. Workshop, or type your own" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" />
+              <datalist id="event-kinds">{KINDS.map((k) => <option key={k} value={k} />)}</datalist>
             </label>
             <label className="text-sm font-medium md:col-span-2">Title<input required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Italian Wine & Language" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
             <label className="text-sm font-medium">Location<input required value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Wanchai, HK Arts Centre…" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
@@ -114,8 +134,8 @@ export default function AdminEventsPage() {
             Publish immediately (visible on the public Culture page)
           </label>
           <div className="pt-3 border-t border-line flex items-center justify-between">
-            <button type="button" onClick={() => setShowForm(false)} className="btn btn-ghost">Cancel</button>
-            <button type="submit" className="btn btn-primary">Publish event</button>
+            <button type="button" onClick={() => { resetForm(); setShowForm(false); }} className="btn btn-ghost">Cancel</button>
+            <button type="submit" className="btn btn-primary">{editingId ? "Save changes" : "Publish event"}</button>
           </div>
         </form>
       )}
@@ -150,6 +170,7 @@ export default function AdminEventsPage() {
                 {e.description && <p className="mt-2 text-sm text-ink-muted line-clamp-2">{e.description}</p>}
               </div>
               <div className="flex flex-col items-end gap-1 shrink-0">
+                <button type="button" onClick={() => startEdit(e)} title="Edit" className="w-9 h-9 rounded-lg hover:bg-cream-2 inline-flex items-center justify-center text-ink-muted"><Pencil size={14} /></button>
                 <button type="button" onClick={() => togglePublish(e)} title={e.published ? "Unpublish" : "Publish"} className="w-9 h-9 rounded-lg hover:bg-cream-2 inline-flex items-center justify-center text-ink-muted">
                   {e.published ? <Eye size={14} /> : <EyeOff size={14} />}
                 </button>
