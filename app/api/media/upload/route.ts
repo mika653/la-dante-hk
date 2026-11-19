@@ -14,6 +14,8 @@ const ALLOWED = [
   "image/svg+xml",
   "image/gif",
   "image/avif",
+  "image/heic",
+  "image/heif",
   "image/x-icon",
   "image/vnd.microsoft.icon",
   "application/pdf",

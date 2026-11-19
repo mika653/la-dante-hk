@@ -27,7 +27,7 @@ export default function AdminEventsPage() {
   const [published, setPublished] = useState(true);
   const [image, setImage] = useState("");
 
-  const refresh = () => getEvents().then((l) => setList(l.slice().sort((a, b) => a.date.localeCompare(b.date)))).catch((e) => setErr(errText(e)));
+  const refresh = () => getEvents().then((l) => setList(l.slice().sort((a, b) => b.date.localeCompare(a.date)))).catch((e) => setErr(errText(e)));
   useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
   async function submit(e: React.FormEvent) {

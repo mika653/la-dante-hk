@@ -41,11 +41,6 @@ const navGroups: NavGroup[] = [
     menu: [
       { label: "Events", href: "/culture" },
       { label: "Workshops", href: "/workshops" },
-      { label: "Library", submenu: [
-        { label: "Borrow a book", href: "/culture/library#borrow" },
-        { label: "Il Salotto di Dante Bookclub", href: "/culture/library#bookclub" },
-        { label: "Presidio Letterario", href: "/culture/library#presidio" },
-      ]},
     ],
   },
   {

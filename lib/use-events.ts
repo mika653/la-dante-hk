@@ -30,5 +30,6 @@ export function useEvents(publishedOnly = false): EventItem[] {
     return () => { alive = false; };
   }, []);
   const filtered = publishedOnly ? list.filter((e) => e.published) : list;
-  return filtered.slice().sort((a, b) => a.date.localeCompare(b.date));
+  // Latest first (per Johnny) — newest/furthest-dated events at the top.
+  return filtered.slice().sort((a, b) => b.date.localeCompare(a.date));
 }

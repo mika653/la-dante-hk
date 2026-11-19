@@ -139,47 +139,62 @@ function MediaModal({ accept, onClose, onPick }: { accept: "image" | "all"; onCl
   );
 }
 
+const ACCEPT_IMAGE = "image/png,image/jpeg,image/webp,image/svg+xml,image/gif,image/avif,image/heic,image/heif,image/x-icon,image/vnd.microsoft.icon,.heic,.heif";
+const ACCEPT_ALL = ACCEPT_IMAGE + ",application/pdf,.pdf";
+
 function UploadRow({ accept, onUploaded, onList }: { accept: "image" | "all"; onUploaded: (url: string) => void; onList: () => void }) {
   const [busy, setBusy] = useState(false);
-  const [name, setName] = useState<string | null>(null);
+  const [progress, setProgress] = useState<string | null>(null);
+  const [count, setCount] = useState(0);
   const [err, setErr] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Upload every selected file (HEIC included), one after another. A single file
+  // is auto-selected into the field; several just land in the library for the
+  // admin to pick from the grid.
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const file = fileRef.current?.files?.[0];
-    if (!file) return;
+    const files = Array.from(fileRef.current?.files ?? []);
+    if (files.length === 0) return;
     setBusy(true); setErr(null);
+    let firstUrl: string | null = null;
+    let done = 0;
     try {
-      const blob = await upload(file.name, file, { access: "public", handleUploadUrl: "/api/media/upload" });
-      const res = await recordMedia({
-        url: blob.url, pathname: blob.pathname, filename: file.name,
-        alt: "", contentType: file.type || blob.contentType || "", size: file.size,
-      });
-      if (res.error) { setErr(res.error); return; }
+      for (const file of files) {
+        setProgress(files.length > 1 ? `Uploading ${done + 1}/${files.length}…` : "Uploading…");
+        const blob = await upload(file.name, file, { access: "public", handleUploadUrl: "/api/media/upload" });
+        const res = await recordMedia({
+          url: blob.url, pathname: blob.pathname, filename: file.name,
+          alt: "", contentType: file.type || blob.contentType || "", size: file.size,
+        });
+        if (res.error) { setErr(res.error); break; }
+        if (!firstUrl && res.url) firstUrl = res.url;
+        done++;
+      }
       onList();
-      if (res.url) onUploaded(res.url); // auto-select the just-uploaded file
-      setName(null);
+      // Auto-select only when a single file was uploaded; a batch stays in the grid.
+      if (files.length === 1 && firstUrl) onUploaded(firstUrl);
+      setCount(0);
       if (fileRef.current) fileRef.current.value = "";
     } catch (e2) {
       const m = String((e2 as Error)?.message ?? e2);
       if (/401|Unauthorized|Not authoris/i.test(m)) setErr("Sign in as an owner or manager to upload.");
-      else if (/content.?type|not allowed|allowedContentTypes/i.test(m)) setErr("That file type isn't supported — use PNG, JPG, SVG, WEBP, GIF or ICO.");
-      else if (/size|too large|maximum/i.test(m)) setErr("That file is too large (max 25 MB).");
+      else if (/content.?type|not allowed|allowedContentTypes/i.test(m)) setErr("That file type isn't supported — use PNG, JPG, HEIC, SVG, WEBP, GIF or PDF.");
+      else if (/size|too large|maximum/i.test(m)) setErr("That file is too large (max 25 MB each).");
       else setErr(`Upload failed: ${m}`);
-    } finally { setBusy(false); }
+    } finally { setBusy(false); setProgress(null); }
   }
 
   return (
     <form onSubmit={submit} className="flex items-center gap-3 flex-wrap">
       <label className="btn btn-ghost cursor-pointer text-xs py-2!">
-        <Upload size={14} /> {name ? "Change file" : "Upload new"}
-        <input ref={fileRef} type="file"
-          accept={accept === "image" ? "image/png,image/jpeg,image/webp,image/svg+xml,image/gif,image/avif,image/x-icon,image/vnd.microsoft.icon" : "image/png,image/jpeg,image/webp,image/svg+xml,image/gif,image/avif,image/x-icon,image/vnd.microsoft.icon,application/pdf"}
-          required className="sr-only" onChange={(e) => setName(e.target.files?.[0]?.name ?? null)} />
+        <Upload size={14} /> {count > 0 ? "Change files" : "Upload new"}
+        <input ref={fileRef} type="file" multiple
+          accept={accept === "image" ? ACCEPT_IMAGE : ACCEPT_ALL}
+          required className="sr-only" onChange={(e) => setCount(e.target.files?.length ?? 0)} />
       </label>
-      {name && <span className="text-xs text-ink-muted truncate max-w-[10rem]">{name}</span>}
-      {name && <button type="submit" disabled={busy} className="btn btn-primary text-xs py-2!">{busy ? "Uploading…" : "Upload & use"}</button>}
+      {count > 0 && <span className="text-xs text-ink-muted truncate max-w-[12rem]">{count === 1 ? fileRef.current?.files?.[0]?.name : `${count} files`}</span>}
+      {count > 0 && <button type="submit" disabled={busy} className="btn btn-primary text-xs py-2!">{busy ? (progress ?? "Uploading…") : `Upload${count > 1 ? " all" : " & use"}`}</button>}
       {err && <span className="text-xs text-rosso">{err}</span>}
     </form>
   );
