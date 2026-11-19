@@ -208,7 +208,16 @@ function titleForContinuation(parent: Course, next: CEFRLevel): string {
 }
 function continuationCode(code: string | undefined, from: string, to: string): string | undefined {
   if (!code) return undefined;
-  return code.includes(from) ? code.replace(from, to) : code;
+  // Only reuse the parent code if the level is actually embedded in it
+  // (e.g. "ITA-A1.1-WED" → "ITA-A1.2-WED"). A house code like "DA032653" has no
+  // level token, so return undefined and let the server assign a fresh, unique
+  // sequential code — otherwise every continuation reuses the parent's code.
+  return code.includes(from) ? code.replace(from, to) : undefined;
+}
+
+// Days to subtract from an ISO date to reach the Monday of its week (Mon=0 … Sun=6).
+function mondayOffset(iso: string): number {
+  return (weekdayOf(iso) + 6) % 7;
 }
 
 /**
@@ -230,18 +239,21 @@ export function generateContinuation(
   const holidays = opts?.holidays ?? new Set<string>();
   const gapWeeks = opts?.gapWeeks ?? 1;
   const { startTime, endTime } = courseTimes(parent);
-  const lessons = courseLessons(parent, holidays); // TOTAL lessons across all weekly days
 
-  // The parent's real last lesson (hand-set dates included), so the new term
-  // starts after it rather than after a recomputed date.
+  // The parent's real schedule, so the new term both starts after it and mirrors
+  // its exact length (a twice-a-week parent → a twice-a-week continuation with
+  // the SAME number of lessons, never doubled).
   const parentDates = courseLessonDates({ ...parent, weekdays }, holidays);
-  const parentLast = parentDates[parentDates.length - 1] ?? computeEndDateMulti(parent.startISO, weekdays, lessons, holidays);
-  // First lesson of the next course: a gap after the parent's last lesson, then the
-  // next class day — computeLessonDatesMulti aligns to a class day and skips holidays,
-  // and lays out ALL weekly days (so a twice-a-week course stays twice a week).
-  const candidate = addDays(parentLast, (gapWeeks + 1) * 7);
-  const dates = computeLessonDatesMulti(candidate, weekdays, lessons, holidays);
-  const firstISO = dates[0] ?? candidate;
+  const lessons = parentDates.length || courseLessons(parent, holidays);
+  const parentLast = parentDates[parentDates.length - 1] ?? parent.endISO ?? parent.startISO;
+
+  // First lesson of the next term: gapWeeks after the parent's last lesson, then
+  // snapped back to the Monday of that week so a multi-day course (e.g. Wed+Fri)
+  // begins on its FIRST weekly day (Wed), not whichever day the gap landed on.
+  const afterGap = addDays(parentLast, (gapWeeks + 1) * 7);
+  const weekStart = addDays(afterGap, -mondayOffset(afterGap));
+  const dates = computeLessonDatesMulti(weekStart, weekdays, lessons, holidays);
+  const firstISO = dates[0] ?? weekStart;
   const endISO = dates[dates.length - 1] ?? firstISO;
 
   let earlyBirdDueISO = parent.earlyBirdDueISO;
@@ -263,7 +275,9 @@ export function generateContinuation(
     startTime: startTime ?? undefined,
     endTime: endTime ?? undefined,
     lessons,
-    lessonDates: undefined, // recompute for the new term; don't carry manual date overrides
+    // Store the computed term so startISO/endISO and the published schedule all
+    // agree and students can see every lesson date (not a bare start/end).
+    lessonDates: dates.length > 0 ? dates : undefined,
     earlyBirdDueISO,
     earlyBirdFeeHKD: parent.earlyBirdFeeHKD,
     courseCode: continuationCode(parent.courseCode, String(parent.level), next),

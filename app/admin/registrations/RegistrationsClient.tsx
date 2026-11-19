@@ -21,7 +21,9 @@ function csv(rows: Row[]) {
   return [head.join(","), ...lines].join("\n");
 }
 function download(name: string, rows: Row[]) {
-  const blob = new Blob([csv(rows)], { type: "text/csv;charset=utf-8" });
+  // Lead with a UTF-8 BOM so Excel reads it as UTF-8 — otherwise the en-dash in
+  // age ranges ("18–24") and any accented names come out garbled.
+  const blob = new Blob(["﻿" + csv(rows)], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url; a.download = name; a.click();

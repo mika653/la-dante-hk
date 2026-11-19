@@ -4,6 +4,7 @@
 // library and selected), or paste an external URL. Calls onChange(url, alt?).
 // Pass accept="image" to restrict to images (e.g. the hero carousel).
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { upload } from "@vercel/blob/client";
 import { ImageIcon, Upload, X, Check, Link2, FileText, Search } from "lucide-react";
 import { listMedia, recordMedia } from "@/lib/media-actions";
@@ -20,18 +21,24 @@ export default function MediaPicker({
   accept?: "image" | "all";
 }) {
   const [open, setOpen] = useState(false);
+  // The modal contains its own upload <form>. MediaPicker is often used INSIDE
+  // another form (e.g. the new-event form), and a nested form flattens in the
+  // DOM so the upload button ends up submitting the OUTER form — which made the
+  // event form save-and-close mid-way ("pops out"). Portalling the modal to
+  // <body> takes it out of any surrounding form, so that can't happen.
+  const modal = open ? (
+    <MediaModal
+      accept={accept}
+      onClose={() => setOpen(false)}
+      onPick={(url, alt) => { onChange(url, alt); setOpen(false); }}
+    />
+  ) : null;
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} className="btn btn-ghost text-xs py-1.5!">
         <ImageIcon size={13} /> {label}
       </button>
-      {open && (
-        <MediaModal
-          accept={accept}
-          onClose={() => setOpen(false)}
-          onPick={(url, alt) => { onChange(url, alt); setOpen(false); }}
-        />
-      )}
+      {modal && typeof document !== "undefined" ? createPortal(modal, document.body) : null}
     </>
   );
 }

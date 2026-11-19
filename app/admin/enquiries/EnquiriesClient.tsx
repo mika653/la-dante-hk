@@ -65,7 +65,8 @@ export default function EnquiriesClient({ rows, error, isOwner = false }: { rows
   }
 
   function downloadCSV() {
-    const blob = new Blob([toCSV(filtered)], { type: "text/csv;charset=utf-8" });
+    // UTF-8 BOM so Excel decodes accents/dashes correctly instead of garbling them.
+    const blob = new Blob(["﻿" + toCSV(filtered)], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url; a.download = `enquiries-${filter}.csv`; a.click();

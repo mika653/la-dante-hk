@@ -3,6 +3,7 @@
 // plus the live course catalogue (so "B1", "kids", a teacher's name, "PLIDA" all
 // land somewhere useful). Pure client + in-memory match — no backend, instant.
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Search, X, BookOpen, FileText, CornerDownLeft } from "lucide-react";
 import { useCourses } from "@/lib/use-courses";
@@ -132,7 +133,11 @@ export default function SiteSearchOverlay({
 
   const noResults = q.trim().length > 0 && hits.length === 0;
 
-  return (
+  if (typeof document === "undefined") return null;
+  // Portal to <body>: the sticky nav header has a backdrop-filter, which makes it
+  // the containing block for fixed children — so a fixed overlay rendered inside
+  // the header would be sized to the header box, not the viewport.
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-start justify-center" role="dialog" aria-modal="true" aria-label={zh ? "搜尋" : "Search"}>
       <button type="button" aria-label={zh ? "關閉" : "Close"} onClick={onClose} className="absolute inset-0 bg-ink/40 backdrop-blur-sm" />
       <div className="relative mt-[10vh] mx-4 w-full max-w-xl frame bg-white overflow-hidden" style={{ boxShadow: "0 24px 64px -24px rgb(0 0 0 / 0.35)" }}>
@@ -194,6 +199,7 @@ export default function SiteSearchOverlay({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

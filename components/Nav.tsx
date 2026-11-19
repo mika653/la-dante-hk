@@ -283,9 +283,14 @@ export default function Nav() {
         </div>
       </div>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer — anchored to the header's bottom (top-full) rather than a
+          viewport-fixed overlay. The header's backdrop-filter makes it the
+          containing block, so a `fixed` child was being sized to the short header
+          box and the menu came out unusable at tablet / small-window widths; an
+          absolute panel hangs correctly below the header regardless of the
+          announcement bar or scroll position. */}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-[calc(2rem+4rem)] bottom-0 bg-cream overflow-y-auto border-t border-line">
+        <div className="lg:hidden absolute left-0 right-0 top-full max-h-[80vh] overflow-y-auto bg-cream border-t border-line shadow-[0_14px_28px_-16px_rgb(0_0_0_/_0.35)]">
           <div className="container-xl py-6">
             <ul className="divide-y divide-line">
               {navGroups.map((g) => (

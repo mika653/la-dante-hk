@@ -34,7 +34,8 @@ function coursesToCSV(rows: Course[]) {
   return [head.join(","), ...lines].join("\n");
 }
 function downloadCoursesCSV(rows: Course[]) {
-  const blob = new Blob([coursesToCSV(rows)], { type: "text/csv;charset=utf-8" });
+  // UTF-8 BOM so Excel decodes accents/dashes correctly instead of garbling them.
+  const blob = new Blob(["﻿" + coursesToCSV(rows)], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url; a.download = `courses-${todayISO()}.csv`; a.click();
