@@ -12,7 +12,9 @@ import crypto from "node:crypto";
 import { db } from "@/lib/db";
 import { users, leaveRequests, type Role, type LeaveType, type LeaveStatus } from "@/lib/db/schema";
 import { getSession, isAdmin } from "@/lib/auth";
-import { workingDays, canManageUser, canDecide } from "@/lib/leave-core";
+import { workingDays, canManageUser, canDecide, restDayHolidaysInLieu } from "@/lib/leave-core";
+import { getClosures } from "@/lib/closures-actions";
+import { holidaySet } from "@/lib/closures-shared";
 
 export type ActionResult = { ok: true; message?: string } | { ok: false; error: string };
 
@@ -52,8 +54,14 @@ export async function requestLeave(_prev: ActionResult | null, formData: FormDat
     .select({ annual: users.annualEntitlement, sick: users.sickEntitlement })
     .from(users)
     .where(eq(users.id, s.userId));
-  const entitlement = type === "annual" ? (u?.annual ?? 0) : (u?.sick ?? 0);
   const year = Number(startDate.slice(0, 4));
+  let entitlement = type === "annual" ? (u?.annual ?? 0) : (u?.sick ?? 0);
+  // Annual leave gets +1 day in lieu for each public holiday falling on the
+  // rest day (Sunday) that year.
+  if (type === "annual") {
+    const { holidays } = await getClosures();
+    entitlement += restDayHolidaysInLieu([...holidaySet(holidays)], year);
+  }
   const mine = await db
     .select({ days: leaveRequests.days, status: leaveRequests.status, startDate: leaveRequests.startDate, type: leaveRequests.type })
     .from(leaveRequests)

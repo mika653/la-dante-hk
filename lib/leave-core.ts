@@ -67,6 +67,22 @@ export function balanceFor(
   return { entitlement, approved, pending, remaining: Math.max(0, entitlement - approved) };
 }
 
+/**
+ * Days in lieu: the school grants one extra ANNUAL leave day for each public
+ * holiday that falls on the weekly rest day — Sunday, the only non-working day
+ * in `workingDays`. Pass the expanded holiday dates (e.g. [...holidaySet(list)]);
+ * only holidays in `year` count, and a multi-day break contributes one per Sunday.
+ */
+export function restDayHolidaysInLieu(holidayDates: Iterable<string>, year = currentYear()): number {
+  let n = 0;
+  for (const iso of holidayDates) {
+    const [y, m, d] = iso.split("-").map(Number);
+    if (!y || !m || !d || y !== year) continue;
+    if (new Date(y, m - 1, d).getDay() === 0) n++; // Sunday = the rest day
+  }
+  return n;
+}
+
 /** "2026-08-03" → "3/8/2026" (day/month/year, as Hong Kong reads it). */
 export function fmtDate(iso: string): string {
   const [y, m, d] = iso.split("-").map(Number);

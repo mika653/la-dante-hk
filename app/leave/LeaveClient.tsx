@@ -18,8 +18,8 @@ type Leave = {
 };
 
 export default function LeaveClient({
-  me, admin, myLeave, staff, teamLeave,
-}: { me: PublicUser; admin: boolean; myLeave: Leave[]; staff: PublicUser[]; teamLeave: Leave[] }) {
+  me, admin, myLeave, staff, teamLeave, annualBonus = 0,
+}: { me: PublicUser; admin: boolean; myLeave: Leave[]; staff: PublicUser[]; teamLeave: Leave[]; annualBonus?: number }) {
   const [tab, setTab] = useState<"me" | "team" | "staff">("me");
 
   return (
@@ -53,8 +53,8 @@ export default function LeaveClient({
           {admin && <TabBtn on={tab === "staff"} onClick={() => setTab("staff")}>Staff</TabBtn>}
         </div>
 
-        {tab === "me" && <MyLeave me={me} myLeave={myLeave} />}
-        {tab === "team" && admin && <TeamLeave me={me} staff={staff} teamLeave={teamLeave} />}
+        {tab === "me" && <MyLeave me={me} myLeave={myLeave} annualBonus={annualBonus} />}
+        {tab === "team" && admin && <TeamLeave me={me} staff={staff} teamLeave={teamLeave} annualBonus={annualBonus} />}
         {tab === "staff" && admin && <Staff me={me} staff={staff} />}
       </div>
     </main>
@@ -79,7 +79,7 @@ function Notice({ state }: { state: ActionResult | null }) {
 }
 
 // ---------------- MY LEAVE ----------------
-function MyLeave({ me, myLeave }: { me: PublicUser; myLeave: Leave[] }) {
+function MyLeave({ me, myLeave, annualBonus = 0 }: { me: PublicUser; myLeave: Leave[]; annualBonus?: number }) {
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(requestLeave, null);
   const [type, setType] = useState<LeaveType>("annual");
   const [halfDay, setHalfDay] = useState(false);
@@ -95,7 +95,8 @@ function MyLeave({ me, myLeave }: { me: PublicUser; myLeave: Leave[] }) {
     <div className="space-y-6">
       <div className="grid sm:grid-cols-2 gap-4">
         {(["annual", "sick"] as LeaveType[]).map((t) => {
-          const ent = t === "annual" ? me.annualEntitlement : me.sickEntitlement;
+          const bonus = t === "annual" ? annualBonus : 0;
+          const ent = (t === "annual" ? me.annualEntitlement : me.sickEntitlement) + bonus;
           const b = balanceFor(me.id, t, ent, myLeave);
           return (
             <div key={t} className="frame bg-white p-5">
@@ -107,6 +108,9 @@ function MyLeave({ me, myLeave }: { me: PublicUser; myLeave: Leave[] }) {
                 <div className="h-full bg-azzurro-deep" style={{ width: `${b.entitlement ? (b.approved / b.entitlement) * 100 : 0}%` }} />
               </div>
               <p className="mt-2 text-sm text-ink-muted">{b.approved} taken · {b.pending} pending</p>
+              {bonus > 0 && (
+                <p className="mt-1 text-xs text-azzurro-deep">Includes +{bonus} day{bonus === 1 ? "" : "s"} in lieu of public holiday{bonus === 1 ? "" : "s"} on your rest day.</p>
+              )}
             </div>
           );
         })}
@@ -197,7 +201,7 @@ function MyLeave({ me, myLeave }: { me: PublicUser; myLeave: Leave[] }) {
 }
 
 // ---------------- TEAM LEAVE (admin) ----------------
-function TeamLeave({ me, staff, teamLeave }: { me: PublicUser; staff: PublicUser[]; teamLeave: Leave[] }) {
+function TeamLeave({ me, staff, teamLeave, annualBonus = 0 }: { me: PublicUser; staff: PublicUser[]; teamLeave: Leave[]; annualBonus?: number }) {
   const [busy, startTransition] = useTransition();
   const [err, setErr] = useState<string | null>(null);
   const pending = teamLeave.filter((l) => l.status === "pending");
@@ -262,7 +266,7 @@ function TeamLeave({ me, staff, teamLeave }: { me: PublicUser; staff: PublicUser
           </thead>
           <tbody>
             {team.map((u) => {
-              const a = balanceFor(u.id, "annual", u.annualEntitlement, teamLeave);
+              const a = balanceFor(u.id, "annual", u.annualEntitlement + annualBonus, teamLeave);
               const s = balanceFor(u.id, "sick", u.sickEntitlement, teamLeave);
               return (
                 <tr key={u.id} className="border-t border-line">
