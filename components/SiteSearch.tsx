@@ -30,8 +30,7 @@ const PAGES: Page[] = [
   { label: "Test your level", labelZh: "測試你的程度", href: "/placement-test", group: "Courses", groupZh: "課程", keywords: "placement quiz cefr assessment find level" },
   { label: "Special offers", labelZh: "特別優惠", href: "/special-offers", group: "Courses", groupZh: "課程", keywords: "discount early bird promo gift card deal" },
   { label: "Events", labelZh: "活動", href: "/culture", group: "Culture", groupZh: "文化", keywords: "cultural aperitivo cinema talk" },
-  { label: "Workshops", labelZh: "工作坊", href: "/workshops", group: "Culture", groupZh: "文化", keywords: "wine cooking pizza bookclub" },
-  { label: "Library", labelZh: "圖書館", href: "/culture/library", group: "Culture", groupZh: "文化", keywords: "borrow book salotto presidio reading" },
+  { label: "Workshops", labelZh: "工作坊", href: "/culture#workshops", group: "Culture", groupZh: "文化", keywords: "wine cooking pizza bookclub" },
   { label: "PLIDA exam", labelZh: "PLIDA 考試", href: "/plida", group: "PLIDA", groupZh: "PLIDA", keywords: "certificate certification sessions application a1 a2 b1 b2 c1 c2 citizenship" },
   { label: "Membership", labelZh: "會員", href: "/membership", group: "Join Us", groupZh: "加入我們", keywords: "member perks privileges join benefits" },
   { label: "Donate", labelZh: "捐助", href: "/donate", group: "Join Us", groupZh: "加入我們", keywords: "support contribution" },
@@ -75,15 +74,15 @@ export default function SiteSearchOverlay({
   const inputRef = useRef<HTMLInputElement>(null);
   const itemRefs = useRef<Array<HTMLAnchorElement | null>>([]);
 
-  // Reset + focus whenever the box opens; lock body scroll while it's up.
+  // Reset + focus whenever the box opens. (The body scroll lock is owned by Nav,
+  // which locks on mobileOpen || searchOpen — see Nav.tsx — so we don't touch
+  // document.body.style.overflow here and can't fight that effect.)
   useEffect(() => {
     if (!open) return;
     setQ("");
     setActive(0);
     const id = requestAnimationFrame(() => inputRef.current?.focus());
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { cancelAnimationFrame(id); document.body.style.overflow = prev; };
+    return () => cancelAnimationFrame(id);
   }, [open]);
 
   const hits = useMemo<Hit[]>(() => {

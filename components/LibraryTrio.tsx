@@ -13,10 +13,13 @@ import type { Tone } from "@/components/WaveDivider";
 export default function LibraryTrio({ above = "white", below = "white" }: { above?: Tone; below?: Tone } = {}) {
   const { t, locale } = useT();
   const { sectionPhotos } = useSiteContent();
+  // The dedicated Library page was removed (per Bill), so these point at live
+  // destinations instead: the bookclub lives among Culture events, and library
+  // borrowing is a membership perk.
   const links = [
-    { label: t.library.bookclub, href: "/culture/library#bookclub" },
-    { label: t.library.libraryLink, href: "/culture/library#borrow" },
-    { label: t.library.events, href: "/membership" },
+    { label: t.library.bookclub, href: "/culture" },
+    { label: t.library.libraryLink, href: "/membership" },
+    { label: t.library.events, href: "/culture" },
   ];
 
   return (
@@ -50,7 +53,7 @@ export default function LibraryTrio({ above = "white", below = "white" }: { abov
             ))}
           </div>
 
-          <Link href={localizePath("/culture/library", locale)} className="btn btn-primary mt-8">
+          <Link href={localizePath("/culture", locale)} className="btn btn-primary mt-8">
             {t.library.cta} <ArrowRight size={16} />
           </Link>
         </div>

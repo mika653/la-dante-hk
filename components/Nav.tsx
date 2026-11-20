@@ -122,9 +122,13 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // One owner for the body scroll lock — the drawer AND the search overlay both
+  // live under Nav, so locking on (mobileOpen || searchOpen) avoids two effects
+  // fighting over document.body.style.overflow (which could leave it stuck).
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? "hidden" : "";
-  }, [mobileOpen]);
+    document.body.style.overflow = mobileOpen || searchOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen, searchOpen]);
 
   // Keyboard shortcuts: ⌘K / Ctrl+K anywhere, or "/" when not already typing.
   useEffect(() => {

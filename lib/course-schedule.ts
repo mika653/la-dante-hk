@@ -275,9 +275,10 @@ export function generateContinuation(
     startTime: startTime ?? undefined,
     endTime: endTime ?? undefined,
     lessons,
-    // Store the computed term so startISO/endISO and the published schedule all
-    // agree and students can see every lesson date (not a bare start/end).
-    lessonDates: dates.length > 0 ? dates : undefined,
+    // Leave the schedule on auto (no manual override) so the draft opens editable
+    // in the admin — changing the start date / class days / weeks recomputes it.
+    // startISO is already the first real lesson, so the public dates stay consistent.
+    lessonDates: undefined,
     earlyBirdDueISO,
     earlyBirdFeeHKD: parent.earlyBirdFeeHKD,
     courseCode: continuationCode(parent.courseCode, String(parent.level), next),

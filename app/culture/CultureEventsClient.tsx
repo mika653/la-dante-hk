@@ -1,11 +1,18 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Calendar, MapPin, ImageIcon, ChevronDown, ExternalLink } from "lucide-react";
 import { useEvents, type EventItem } from "@/lib/use-events";
+import { todayISO } from "@/lib/course-schedule";
 import EventRegisterButton from "@/components/EventRegisterButton";
 
 export default function CultureEventsClient() {
-  const events = useEvents(true);
+  const all = useEvents(true);
+  // "Upcoming" means upcoming: show today's and future events, soonest first.
+  // (The admin list stays newest-first for management.)
+  const events = useMemo(() => {
+    const today = todayISO();
+    return all.filter((e) => e.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+  }, [all]);
 
   return (
     <section className="bg-cream py-14">
@@ -25,13 +32,20 @@ export default function CultureEventsClient() {
 
 function EventCard({ e }: { e: EventItem }) {
   const [open, setOpen] = useState(false);
+  const [clamped, setClamped] = useState(false);
+  const descRef = useRef<HTMLParagraphElement>(null);
   const d = new Date(e.date);
   const mon = d.toLocaleDateString("en-GB", { month: "short" });
   const day = d.getDate();
   const year = d.getFullYear();
-  // Long descriptions are collapsed to a few lines with a "Details" toggle, so
-  // the list stays scannable (per Giulia / Johnny).
-  const longDesc = !!e.description && e.description.length > 140;
+
+  // Show the "Details" toggle only when the description actually overflows the
+  // 2-line clamp (measured), so medium descriptions that wrap on mobile aren't
+  // silently cut off with no way to expand.
+  useEffect(() => {
+    const el = descRef.current;
+    if (el) setClamped(el.scrollHeight > el.clientHeight + 2);
+  }, [e.description]);
 
   return (
     <div className="frame p-5 md:p-6 bg-white grid md:grid-cols-[auto_auto_1fr_auto] gap-4 items-center">
@@ -50,15 +64,15 @@ function EventCard({ e }: { e: EventItem }) {
         <p className="text-xs uppercase tracking-wider text-azzurro-deep font-medium">{e.kind}</p>
         <h3 className="mt-1 font-semibold text-lg leading-tight">{e.title}</h3>
         {e.description && (
-          <p className={`mt-1 text-sm text-ink-muted ${open ? "" : "line-clamp-2"}`}>{e.description}</p>
+          <p ref={descRef} className={`mt-1 text-sm text-ink-muted ${open ? "" : "line-clamp-2"}`}>{e.description}</p>
         )}
         <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted">
           <span className="inline-flex items-center gap-1"><Calendar size={12} />{e.date}</span>
           <span className="inline-flex items-center gap-1"><MapPin size={12} />{e.location}</span>
         </div>
-        {(longDesc || e.bookingUrl) && (
+        {(clamped || open || e.bookingUrl) && (
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-            {longDesc && (
+            {(clamped || open) && (
               <button type="button" onClick={() => setOpen((v) => !v)} className="inline-flex items-center gap-1 text-[13px] font-medium text-azzurro-deep hover:underline">
                 {open ? "Show less" : "Details"}
                 <ChevronDown size={14} className={`transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />

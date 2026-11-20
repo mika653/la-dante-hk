@@ -30,8 +30,9 @@ const CATEGORIES: Array<{
 // it lands in the right section however the office named it. Defaults to Children.
 function kidsCategory(c: Course): CatKey {
   const t = `${c.title} ${String(c.level)}`.toLowerCase();
-  if (/playgroup|piccolissimi|toddler|pre-?school|3\s*[–-]\s*6/.test(t)) return "playgroup";
-  if (/teen|ragazzi|teenager|adolescent|青少年/.test(t)) return "teenagers";
+  if (/playgroup|piccol|toddler|pre-?school|幼兒|3\s*[–-]\s*6/.test(t)) return "playgroup";
+  // Word-boundary "teen" so it doesn't match thirteen/fourteen/fifteen/canteen.
+  if (/teenager|teenage|\bteens?\b|ragazzi|adolescent|giovani|青少年/.test(t)) return "teenagers";
   return "children";
 }
 
