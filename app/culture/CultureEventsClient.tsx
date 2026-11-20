@@ -87,7 +87,7 @@ function EventCard({ e }: { e: EventItem }) {
           </div>
         )}
       </div>
-      <EventRegisterButton eventId={e.id} eventTitle={e.title} eventDate={e.date} />
+      <EventRegisterButton eventId={e.id} eventTitle={e.title} eventDate={e.date} fields={e.regFields} />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { Plus, Trash2, Eye, EyeOff, Check, ExternalLink, Calendar, MapPin, Image
 import MediaPicker from "@/components/MediaPicker";
 import { getEvents, addEvent, updateEvent, removeEvent, type EventItem, type EventKind } from "@/lib/use-events";
 import { formatDMY } from "@/lib/utils";
+import { REG_FIELDS, DEFAULT_REG_FIELDS } from "@/lib/event-registration";
 
 const KINDS: EventKind[] = ["Bookclub", "Film", "Aperitivo", "Workshop", "Culture", "Trip", "Other"];
 
@@ -28,6 +29,10 @@ export default function AdminEventsPage() {
   const [bookingUrl, setBookingUrl] = useState("");
   const [published, setPublished] = useState(true);
   const [image, setImage] = useState("");
+  const [regFields, setRegFields] = useState<string[]>(DEFAULT_REG_FIELDS);
+
+  const toggleRegField = (key: string) =>
+    setRegFields((cur) => (cur.includes(key) ? cur.filter((k) => k !== key) : [...cur, key]));
 
   const refresh = () => getEvents().then((l) => setList(l.slice().sort((a, b) => b.date.localeCompare(a.date)))).catch((e) => setErr(errText(e)));
   useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
@@ -36,6 +41,7 @@ export default function AdminEventsPage() {
     setEditingId(null);
     setDate(""); setTitle(""); setKind("Workshop"); setLocation("Wanchai");
     setDescription(""); setBookingUrl(""); setPublished(true); setImage("");
+    setRegFields(DEFAULT_REG_FIELDS);
   }
   function startCreate() { resetForm(); setShowForm(true); }
   function startEdit(ev: EventItem) {
@@ -43,6 +49,7 @@ export default function AdminEventsPage() {
     setDate(ev.date); setTitle(ev.title); setKind(ev.kind); setLocation(ev.location);
     setDescription(ev.description ?? ""); setBookingUrl(ev.bookingUrl ?? "");
     setPublished(ev.published); setImage(ev.image ?? "");
+    setRegFields(ev.regFields && ev.regFields.length > 0 ? ev.regFields : DEFAULT_REG_FIELDS);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -50,7 +57,7 @@ export default function AdminEventsPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setErr(null);
-    const payload = { date, title, kind: kind as EventKind, location, description: description || undefined, bookingUrl: bookingUrl || undefined, image: image || undefined, published };
+    const payload = { date, title, kind: kind as EventKind, location, description: description || undefined, bookingUrl: bookingUrl || undefined, image: image || undefined, published, regFields };
     try {
       if (editingId) {
         await updateEvent(editingId, payload);
@@ -129,6 +136,21 @@ export default function AdminEventsPage() {
               </div>
             </div>
             <label className="text-sm font-medium md:col-span-2">Description <span className="text-ink-muted font-normal">(optional)</span><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="A sentence or two about what guests can expect." className="mt-1 w-full p-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
+          </div>
+          <div className="pt-3 border-t border-line">
+            <p className="text-sm font-medium">Registration form questions</p>
+            <p className="text-xs text-ink-muted mt-0.5">Tick the questions to ask on this event&apos;s sign-up form. First name, surname and email are always asked.</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {REG_FIELDS.map((f) => {
+                const on = !!f.always || regFields.includes(f.key);
+                return (
+                  <label key={f.key} className={`inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full border select-none ${on ? "bg-azzurro-soft border-azzurro-deep" : "border-line"} ${f.always ? "opacity-70 cursor-default" : "cursor-pointer"}`}>
+                    <input type="checkbox" checked={on} disabled={!!f.always} onChange={() => toggleRegField(f.key)} className="w-3.5 h-3.5 accent-azzurro-deep" />
+                    {f.label}
+                  </label>
+                );
+              })}
+            </div>
           </div>
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} className="accent-azzurro-deep" />

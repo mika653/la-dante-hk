@@ -145,8 +145,9 @@ export const eventRegistrations = pgTable("event_registrations", {
   name: text("name").notNull(),
   email: text("email").notNull(),
   phone: text("phone"),
-  ageGroup: text("age_group"),               // "Under 18" | "18-24" | ...
+  ageGroup: text("age_group"),               // "Under 18" | "18-24" | ... (legacy; superseded by `answers`)
   isStudent: boolean("is_student").notNull().default(false),
+  answers: jsonb("answers").$type<Record<string, string>>(),  // custom registration answers (source, member, newsletter, consent, …)
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -196,6 +197,7 @@ export const events = pgTable("events", {
   bookingUrl: text("booking_url"),
   image: text("image"),                      // event graphic URL (Media Library); placeholder shown if blank
   published: boolean("published").notNull().default(true),
+  regFields: jsonb("reg_fields").$type<string[]>(),  // which registration questions this event shows (null = default set)
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

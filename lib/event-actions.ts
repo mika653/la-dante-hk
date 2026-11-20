@@ -5,9 +5,9 @@
 import { revalidatePath } from "next/cache";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { eventRegistrations, type EventRegistrationRow } from "@/lib/db/schema";
+import { eventRegistrations, events, type EventRegistrationRow } from "@/lib/db/schema";
 import { requireAdminFresh, requireOwnerFresh } from "@/lib/auth-guards";
-import { AGE_GROUPS } from "@/lib/event-constants";
+import { activeRegFields } from "@/lib/event-registration";
 
 export type RegisterState = { ok?: boolean; error?: string };
 
@@ -20,24 +20,47 @@ export async function registerForEvent(_prev: RegisterState, formData: FormData)
   const eventId = clip(formData.get("eventId"), 80);
   const eventTitle = clip(formData.get("eventTitle"), 200);
   const eventDate = clip(formData.get("eventDate"), 10) || null;
-  const name = clip(formData.get("name"), 120);
+  const firstName = clip(formData.get("firstName"), 80);
+  const surname = clip(formData.get("surname"), 80);
   const email = clip(formData.get("email"), 200);
   const phone = clip(formData.get("phone"), 40);
-  const ageRaw = clip(formData.get("ageGroup"), 20);
-  const ageGroup = (AGE_GROUPS as readonly string[]).includes(ageRaw) ? ageRaw : null;
-  const isStudent = String(formData.get("isStudent") ?? "") === "yes";
+  let source = clip(formData.get("source"), 120);
+  const sourceOther = clip(formData.get("sourceOther"), 120);
+  if (source === "Other") source = sourceOther || "Other";
+  const memberRaw = clip(formData.get("member"), 10);
+  const newsletter = String(formData.get("newsletter") ?? "") === "yes";
+  const consent = String(formData.get("consent") ?? "") === "yes";
+  const name = [firstName, surname].filter(Boolean).join(" ").trim();
 
   if (!eventId || !eventTitle) return { error: "Something's off with this event — please refresh and try again." };
-  if (name.length < 2) return { error: "Please tell us your name." };
+  if (name.length < 2) return { error: "Please tell us your first name and surname." };
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { error: "That email doesn't look right." };
+
+  // Trusted check of which questions this event requires (don't rely on the form).
+  let keys = activeRegFields(undefined);
+  try {
+    const [ev] = await db.select({ regFields: events.regFields }).from(events).where(eq(events.id, eventId));
+    keys = activeRegFields(ev?.regFields);
+  } catch { /* fall back to the default set */ }
+  const has = (k: string) => keys.includes(k as never);
+  if (has("source") && !source) return { error: "Please tell us how you found out about the event." };
+  if (has("member") && !/^(yes|no)$/i.test(memberRaw)) return { error: "Please tell us if you're a member." };
+  if (has("consent") && !consent) return { error: "Please tick the privacy consent to register." };
+
+  const answers: Record<string, string> = {};
+  if (has("firstName")) answers.firstName = firstName;
+  if (has("surname")) answers.surname = surname;
+  if (has("source") && source) answers.source = source;
+  if (has("member") && memberRaw) answers.member = /^yes$/i.test(memberRaw) ? "Yes" : "No";
+  if (has("newsletter")) answers.newsletter = newsletter ? "Yes" : "No";
+  if (has("consent")) answers.consent = consent ? "Yes" : "No";
 
   try {
     await db.insert(eventRegistrations).values({
       eventId, eventTitle, eventDate,
       name, email,
       phone: phone || null,
-      ageGroup,
-      isStudent,
+      answers,
     });
   } catch {
     return { error: "We couldn't save that — please try again, or email dantealighieri@ladante.cc." };

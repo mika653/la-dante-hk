@@ -6,17 +6,18 @@ import { deleteRegistration } from "@/lib/event-actions";
 type Row = {
   id: string; eventId: string; eventTitle: string; eventDate: string | null;
   name: string; email: string; phone: string | null; ageGroup: string | null;
-  isStudent: boolean; createdAt: string;
+  isStudent: boolean; answers: Record<string, string> | null; createdAt: string;
 };
 
 function fmt(iso: string) { const d = new Date(iso); return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`; }
 const yearOf = (r: Row) => (r.eventDate ?? r.createdAt).slice(0, 4);
+const ans = (r: Row, k: string) => r.answers?.[k] ?? "";
 
 function csv(rows: Row[]) {
-  const head = ["Event", "Event date", "Name", "Email", "Phone", "Age group", "Student", "Registered"];
+  const head = ["Event", "Event date", "Name", "Email", "Phone", "Source", "Member", "Newsletter", "Consent", "Age group", "Student", "Registered"];
   const esc = (v: string) => `"${(v ?? "").replace(/"/g, '""')}"`;
   const lines = rows.map((r) =>
-    [r.eventTitle, r.eventDate ?? "", r.name, r.email, r.phone ?? "", r.ageGroup ?? "", r.isStudent ? "Yes" : "No", fmt(r.createdAt)]
+    [r.eventTitle, r.eventDate ?? "", r.name, r.email, r.phone ?? "", ans(r, "source"), ans(r, "member"), ans(r, "newsletter"), ans(r, "consent"), r.ageGroup ?? "", r.isStudent ? "Yes" : "No", fmt(r.createdAt)]
       .map((v) => esc(String(v))).join(","));
   return [head.join(","), ...lines].join("\n");
 }
@@ -142,8 +143,8 @@ export default function RegistrationsClient({ rows, error, isOwner = false }: { 
                         <th className="px-5 py-2 text-left font-medium">Name</th>
                         <th className="px-5 py-2 text-left font-medium">Email</th>
                         <th className="px-5 py-2 text-left font-medium">Phone</th>
-                        <th className="px-5 py-2 text-left font-medium">Age</th>
-                        <th className="px-5 py-2 text-left font-medium">Student</th>
+                        <th className="px-5 py-2 text-left font-medium">Source</th>
+                        <th className="px-5 py-2 text-left font-medium">Member</th>
                         <th className="px-5 py-2 text-left font-medium">Registered</th>
                         {isOwner && <th className="px-3 py-2 sticky right-0 bg-cream-2"><span className="sr-only">Actions</span></th>}
                       </tr>
@@ -154,8 +155,8 @@ export default function RegistrationsClient({ rows, error, isOwner = false }: { 
                           <td className="px-5 py-3 font-medium">{r.name}</td>
                           <td className="px-5 py-3"><a href={`mailto:${r.email}`} className="text-azzurro-deep hover:underline">{r.email}</a></td>
                           <td className="px-5 py-3 text-ink-muted">{r.phone ?? "—"}</td>
-                          <td className="px-5 py-3 text-ink-muted">{r.ageGroup ?? "—"}</td>
-                          <td className="px-5 py-3">{r.isStudent ? <span className="text-xs px-2 py-0.5 rounded-full bg-azzurro/15 text-azzurro-deep">Student</span> : "—"}</td>
+                          <td className="px-5 py-3 text-ink-muted">{ans(r, "source") || "—"}</td>
+                          <td className="px-5 py-3 text-ink-muted">{ans(r, "member") || "—"}</td>
                           <td className="px-5 py-3 text-ink-muted">{fmt(r.createdAt)}</td>
                           {isOwner && (
                             <td className="px-3 py-3 text-right sticky right-0 bg-white shadow-[-6px_0_6px_-6px_rgba(25,25,25,0.12)]">

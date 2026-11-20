@@ -13,6 +13,7 @@ export type EventItem = {
   bookingUrl?: string;
   image?: string;    // event graphic (shown left of the date tile)
   published: boolean;
+  regFields?: string[];  // which registration questions this event shows (undefined = default set)
 };
 
 // Fallback shown for an instant first paint and if the API is briefly down; also

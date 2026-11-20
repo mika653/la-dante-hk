@@ -23,7 +23,7 @@ export default async function AdminRegistrationsPage() {
       rows={rows.map((r) => ({
         id: r.id, eventId: r.eventId, eventTitle: r.eventTitle, eventDate: r.eventDate,
         name: r.name, email: r.email, phone: r.phone, ageGroup: r.ageGroup,
-        isStudent: r.isStudent, createdAt: r.createdAt.toISOString(),
+        isStudent: r.isStudent, answers: r.answers ?? null, createdAt: r.createdAt.toISOString(),
       }))}
     />
   );

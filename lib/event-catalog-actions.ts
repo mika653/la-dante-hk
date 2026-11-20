@@ -18,6 +18,7 @@ function rowToEvent(r: EventRow): EventItem {
     bookingUrl: r.bookingUrl ?? undefined,
     image: r.image ?? undefined,
     published: r.published,
+    ...(Array.isArray(r.regFields) && r.regFields.length > 0 ? { regFields: r.regFields } : {}),
   };
 }
 
@@ -43,6 +44,7 @@ export async function createEvent(e: Omit<EventItem, "id">): Promise<EventItem> 
     description: e.description ?? null, bookingUrl: e.bookingUrl ?? null,
     image: e.image ?? null,
     published: e.published,
+    regFields: Array.isArray(e.regFields) && e.regFields.length > 0 ? e.regFields : null,
   });
   refresh();
   return { ...e, id };
@@ -59,6 +61,7 @@ export async function patchEvent(id: string, patch: Partial<EventItem>): Promise
   if (patch.bookingUrl !== undefined) set.bookingUrl = patch.bookingUrl || null;
   if (patch.image !== undefined) set.image = patch.image || null;
   if (patch.published !== undefined) set.published = !!patch.published;
+  if (patch.regFields !== undefined) set.regFields = Array.isArray(patch.regFields) && patch.regFields.length > 0 ? patch.regFields : null;
   if (Object.keys(set).length === 0) return;
   set.updatedAt = new Date();
   await db.update(events).set(set).where(eq(events.id, id));
