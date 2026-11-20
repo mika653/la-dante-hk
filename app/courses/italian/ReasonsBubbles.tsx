@@ -41,52 +41,6 @@ const REASONS: Reason[] = [
     body: "As widely proven, learning a new language improves cognitive functions, such as problem-solving skills, memory, and multitasking abilities." },
 ];
 
-function ThinkingMascot({ className = "" }: { className?: string }) {
-  // A cute cartoon person thinking — hand on chin, a thought bubble with a "?",
-  // raised brows + eyes glancing up. Brand palette, simple rounded shapes.
-  return (
-    <svg viewBox="0 0 240 240" className={className} role="img" aria-label="A cartoon person thinking">
-      <g className="rb-float">
-        {/* thought bubble trail + cloud with a question mark */}
-        <circle cx="150" cy="62" r="4.5" fill="#ffed4e" stroke="#191919" strokeWidth="2" />
-        <circle cx="165" cy="50" r="6.5" fill="#ffed4e" stroke="#191919" strokeWidth="2" />
-        <ellipse cx="194" cy="36" rx="34" ry="24" fill="#ffed4e" stroke="#191919" strokeWidth="2.5" />
-        <text x="194" y="45" textAnchor="middle" className="font-heading" fontWeight="800" fontSize="26" fill="#191919">?</text>
-        {/* resting arm (figure's right) */}
-        <path d="M92,174 Q74,186 76,202" fill="none" stroke="#075985" strokeWidth="18" strokeLinecap="round" />
-        <circle cx="76" cy="204" r="10" fill="#f2c9a1" stroke="#191919" strokeWidth="2" />
-        {/* thinking arm — up to the chin */}
-        <path d="M150,176 Q152,148 134,134" fill="none" stroke="#075985" strokeWidth="18" strokeLinecap="round" />
-        {/* neck */}
-        <rect x="111" y="122" width="18" height="32" fill="#f2c9a1" />
-        {/* body / shirt */}
-        <path d="M78,214 Q78,150 120,150 Q162,150 162,214 Z" fill="#075985" stroke="#191919" strokeWidth="3" strokeLinejoin="round" />
-        <path d="M108,152 L120,165 L132,152" fill="none" stroke="#a6e4f8" strokeWidth="4" strokeLinecap="round" />
-        {/* head */}
-        <circle cx="120" cy="94" r="42" fill="#f2c9a1" stroke="#191919" strokeWidth="3" />
-        {/* hair / bangs */}
-        <path d="M80,98 Q76,54 120,52 Q164,54 160,98 Q150,78 120,78 Q90,78 80,98 Z" fill="#191919" />
-        {/* ears */}
-        <circle cx="80" cy="99" r="7" fill="#f2c9a1" stroke="#191919" strokeWidth="2" />
-        <circle cx="160" cy="99" r="7" fill="#f2c9a1" stroke="#191919" strokeWidth="2" />
-        {/* raised brows (pondering) */}
-        <path d="M98,85 Q106,80 114,84" fill="none" stroke="#191919" strokeWidth="3" strokeLinecap="round" />
-        <path d="M126,84 Q134,80 142,85" fill="none" stroke="#191919" strokeWidth="3" strokeLinecap="round" />
-        {/* cheeks */}
-        <circle cx="101" cy="106" r="8" fill="#dc2626" opacity="0.4" />
-        <circle cx="139" cy="106" r="8" fill="#dc2626" opacity="0.4" />
-        {/* eyes glancing up */}
-        <circle cx="107" cy="95" r="5" fill="#191919" />
-        <circle cx="133" cy="95" r="5" fill="#191919" />
-        {/* pensive mouth (small, to one side) */}
-        <path d="M110,114 Q116,118 122,115" fill="none" stroke="#191919" strokeWidth="4" strokeLinecap="round" />
-        {/* hand resting on the chin — drawn last so it sits on top */}
-        <circle cx="132" cy="128" r="12" fill="#f2c9a1" stroke="#191919" strokeWidth="2" />
-      </g>
-    </svg>
-  );
-}
-
 export default function ReasonsBubbles() {
   const [openKey, setOpenKey] = useState<string | null>(null);
   const triggers = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -148,7 +102,8 @@ export default function ReasonsBubbles() {
             <circle cx="360" cy="360" r="260" fill="none" stroke="#a6e4f8" strokeOpacity="0.6" strokeWidth="3" strokeDasharray="2 14" strokeLinecap="round" />
           </svg>
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[240px] z-10">
-            <ThinkingMascot className="w-full h-auto" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/why-italian-3d.png" alt="A student thinking about why to study Italian" className="rb-float w-full h-auto rounded-full bg-white shadow-[var(--shadow-card)]" />
           </div>
           {REASONS.map((r) => (
             // 3 layers so the centering transform and the float transform don't fight:
@@ -173,7 +128,8 @@ export default function ReasonsBubbles() {
 
         {/* Mobile / tablet: figure + flex-wrap cluster */}
         <div className="lg:hidden">
-          <div className="mx-auto w-40"><ThinkingMascot className="w-full h-auto" /></div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/why-italian-3d.png" alt="A student thinking about why to study Italian" className="mx-auto w-40 h-40 rounded-full bg-white shadow-[var(--shadow-card)]" />
           <div className="mt-6 flex flex-wrap justify-center gap-4">
             {REASONS.map((r) => (
               <button
