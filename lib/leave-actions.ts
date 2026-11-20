@@ -144,6 +144,9 @@ export async function addUser(_prev: ActionResult | null, formData: FormData): P
   const sick = Number(formData.get("sick") ?? 14);
   const partTime = String(formData.get("partTime") ?? "") === "1";
   const restDays = formData.getAll("restDay").map((v) => Number(v)).filter((n) => n >= 1 && n <= 6);
+  const startDateRaw = String(formData.get("startDate") ?? "");
+  const startDate = ISO.test(startDateRaw) ? startDateRaw : null;
+  const designation = String(formData.get("designation") ?? "").trim().slice(0, 80) || null;
 
   if (!name) return { ok: false, error: "Name is required." };
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, error: "That email doesn't look right." };
@@ -165,6 +168,8 @@ export async function addUser(_prev: ActionResult | null, formData: FormData): P
     sickEntitlement: sick,
     partTime,
     restDays: restDays.length ? restDays : null,
+    startDate,
+    designation,
   });
 
   revalidatePath("/leave");
@@ -194,7 +199,7 @@ export async function resetUserPassword(id: string): Promise<ActionResult> {
 
 export async function updateUser(
   id: string,
-  patch: { role?: Role; annualEntitlement?: number; sickEntitlement?: number; active?: boolean; partTime?: boolean; restDays?: number[] },
+  patch: { role?: Role; annualEntitlement?: number; sickEntitlement?: number; active?: boolean; partTime?: boolean; restDays?: number[]; startDate?: string | null; designation?: string | null },
 ): Promise<ActionResult> {
   const s = await requireSession();
   if (!isAdmin(s.role)) return { ok: false, error: "You can't edit staff." };
@@ -228,6 +233,8 @@ export async function updateUser(
     const rd = (Array.isArray(patch.restDays) ? patch.restDays : []).filter((n) => n >= 1 && n <= 6);
     set.restDays = rd.length ? [...new Set(rd)].sort() : null;
   }
+  if (patch.startDate !== undefined) set.startDate = patch.startDate && ISO.test(patch.startDate) ? patch.startDate : null;
+  if (patch.designation !== undefined) set.designation = typeof patch.designation === "string" && patch.designation.trim() ? patch.designation.trim().slice(0, 80) : null;
   if (patch.annualEntitlement !== undefined) {
     if (!Number.isInteger(patch.annualEntitlement) || patch.annualEntitlement < 0 || patch.annualEntitlement > 365) {
       return { ok: false, error: "Annual days look wrong." };

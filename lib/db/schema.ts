@@ -20,6 +20,8 @@ export const users = pgTable("users", {
   // Weekly rest day(s) as weekday numbers 1=Mon … 6=Sat (Sunday is everyone's
   // day off and never stored here). Used for the holiday-in-lieu rule.
   restDays: jsonb("rest_days").$type<number[]>(),
+  startDate: date("start_date"),   // employment start date (when they started working), "YYYY-MM-DD"
+  designation: text("designation"), // job title / designation, free text
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

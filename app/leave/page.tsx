@@ -30,6 +30,8 @@ const publicUser = {
   sickEntitlement: users.sickEntitlement,
   partTime: users.partTime,
   restDays: users.restDays,
+  startDate: users.startDate,
+  designation: users.designation,
   active: users.active,
 };
 

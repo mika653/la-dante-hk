@@ -10,7 +10,7 @@ import { logoutAction } from "@/lib/auth-actions";
 
 type PublicUser = {
   id: string; email: string; name: string; role: Role;
-  annualEntitlement: number; sickEntitlement: number; partTime: boolean; restDays: number[] | null; active: boolean;
+  annualEntitlement: number; sickEntitlement: number; partTime: boolean; restDays: number[] | null; startDate: string | null; designation: string | null; active: boolean;
 };
 
 // Weekday labels for rest-day pickers (1=Mon … 6=Sat; Sunday is everyone's day off).
@@ -351,6 +351,8 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
               {ownerOnly && <option value="owner">Owner</option>}
             </select>
           </label>
+          <label className="text-sm font-medium">Employment start <span className="text-ink-muted font-normal">(when they started working)</span><input name="startDate" type="date" className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" /></label>
+          <label className="text-sm font-medium">Designation <span className="text-ink-muted font-normal">(e.g. Senior Teacher)</span><input name="designation" maxLength={80} placeholder="Job title / designation" className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" /></label>
           <div className="grid grid-cols-2 gap-3">
             <label className="text-sm font-medium">Annual days<input name="annual" type="number" defaultValue={14} className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" /></label>
             <label className="text-sm font-medium">Sick days<input name="sick" type="number" defaultValue={14} className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" /></label>
@@ -388,11 +390,13 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
           </div>
         )}
         <div className="overflow-x-auto">
-        <table className="w-full text-sm min-w-[920px]">
+        <table className="w-full text-sm min-w-[1140px]">
           <thead className="text-xs uppercase tracking-wider text-ink-muted">
             <tr>
               <th className="px-5 py-2 text-left font-medium">Name</th>
               <th className="px-5 py-2 text-left font-medium">Role</th>
+              <th className="px-5 py-2 text-left font-medium">Employment start</th>
+              <th className="px-5 py-2 text-left font-medium">Designation</th>
               <th className="px-5 py-2 text-left font-medium">Annual</th>
               <th className="px-5 py-2 text-left font-medium">Sick</th>
               <th className="px-5 py-2 text-left font-medium">Type</th>
@@ -414,6 +418,16 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
                         <option value="teacher">Teacher</option><option value="manager">Manager</option><option value="owner">Owner</option>
                       </select>
                     ) : <span>{roleLabel[u.role]}</span>}
+                  </td>
+                  <td className="px-5 py-3">
+                    {editable ? (
+                      <input type="date" defaultValue={u.startDate ?? ""} onBlur={(e) => { const v = e.target.value || null; if (v !== (u.startDate ?? null)) patch(u.id, { startDate: v }); }} className="h-8 px-2 rounded-lg border border-line text-xs" />
+                    ) : <span className="text-xs text-ink-muted">{u.startDate ? fmtDate(u.startDate) : "—"}</span>}
+                  </td>
+                  <td className="px-5 py-3">
+                    {editable ? (
+                      <input type="text" maxLength={80} defaultValue={u.designation ?? ""} onBlur={(e) => { const v = e.target.value.trim() || null; if (v !== (u.designation ?? null)) patch(u.id, { designation: v }); }} placeholder="—" className="w-36 h-8 px-2 rounded-lg border border-line text-xs" />
+                    ) : <span className="text-xs text-ink-muted">{u.designation || "—"}</span>}
                   </td>
                   <td className="px-5 py-3">
                     {editable ? <input type="number" defaultValue={u.annualEntitlement} onBlur={(e) => { const v = Number(e.target.value); if (v !== u.annualEntitlement) patch(u.id, { annualEntitlement: v }); }} className="w-16 h-8 px-2 rounded-lg border border-line" /> : u.annualEntitlement}
