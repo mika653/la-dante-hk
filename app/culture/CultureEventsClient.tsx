@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Calendar, MapPin, ImageIcon, ChevronDown, ExternalLink } from "lucide-react";
 import { useEvents, type EventItem } from "@/lib/use-events";
 import { todayISO } from "@/lib/course-schedule";
+import { formatDMY } from "@/lib/utils";
 import EventRegisterButton from "@/components/EventRegisterButton";
 
 export default function CultureEventsClient() {
@@ -67,7 +68,7 @@ function EventCard({ e }: { e: EventItem }) {
           <p ref={descRef} className={`mt-1 text-sm text-ink-muted ${open ? "" : "line-clamp-2"}`}>{e.description}</p>
         )}
         <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted">
-          <span className="inline-flex items-center gap-1"><Calendar size={12} />{e.date}</span>
+          <span className="inline-flex items-center gap-1"><Calendar size={12} />{formatDMY(e.date)}</span>
           <span className="inline-flex items-center gap-1"><MapPin size={12} />{e.location}</span>
         </div>
         {(clamped || open || e.bookingUrl) && (

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Plus, Trash2, Eye, EyeOff, Check, ExternalLink, Calendar, MapPin, ImageIcon, X, Pencil } from "lucide-react";
 import MediaPicker from "@/components/MediaPicker";
 import { getEvents, addEvent, updateEvent, removeEvent, type EventItem, type EventKind } from "@/lib/use-events";
+import { formatDMY } from "@/lib/utils";
 
 const KINDS: EventKind[] = ["Bookclub", "Film", "Aperitivo", "Workshop", "Culture", "Trip", "Other"];
 
@@ -164,7 +165,7 @@ export default function AdminEventsPage() {
                 <p className="text-[11px] uppercase tracking-widest text-azzurro-deep font-medium">{e.kind}</p>
                 <h3 className="mt-1 font-semibold text-lg leading-tight">{e.title}</h3>
                 <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted">
-                  <span className="inline-flex items-center gap-1"><Calendar size={12} />{e.date}</span>
+                  <span className="inline-flex items-center gap-1"><Calendar size={12} />{formatDMY(e.date)}</span>
                   <span className="inline-flex items-center gap-1"><MapPin size={12} />{e.location}</span>
                 </div>
                 {e.description && <p className="mt-2 text-sm text-ink-muted line-clamp-2">{e.description}</p>}

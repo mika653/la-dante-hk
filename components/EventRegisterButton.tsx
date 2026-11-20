@@ -3,6 +3,7 @@ import { useActionState, useEffect, useState } from "react";
 import { X, Check, Ticket } from "lucide-react";
 import { registerForEvent, type RegisterState } from "@/lib/event-actions";
 import { AGE_GROUPS } from "@/lib/event-constants";
+import { formatDMY } from "@/lib/utils";
 
 export default function EventRegisterButton({
   eventId, eventTitle, eventDate, className = "",
@@ -50,7 +51,7 @@ export default function EventRegisterButton({
 
                 <p className="eyebrow">Register</p>
                 <h3 className="mt-1 text-xl font-heading font-bold text-balance">{eventTitle}</h3>
-                {eventDate && <p className="mt-1 text-sm text-ink-muted">{eventDate}</p>}
+                {eventDate && <p className="mt-1 text-sm text-ink-muted">{formatDMY(eventDate)}</p>}
 
                 <div className="mt-5 space-y-3">
                   <label className="block text-sm font-medium">Name<input name="name" required className={input} /></label>
