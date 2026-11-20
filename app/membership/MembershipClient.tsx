@@ -3,6 +3,7 @@ import { useState } from "react";
 import { formatHKD } from "@/lib/utils";
 import { Check, ArrowLeft, ArrowRight, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
+import { usePricing } from "@/lib/use-pricing";
 
 type Step = 1 | 2 | 3 | 4;
 type PlanId = "individual";
@@ -60,7 +61,14 @@ export default function MembershipClient() {
   const [newsletter, setNewsletter] = useState(true);
   const [done, setDone] = useState(false);
 
-  const plan = membershipPlans.find((p) => p.id === planId);
+  const pricing = usePricing();
+  // Apply the office-editable prices to the individual plan.
+  const plans = membershipPlans.map((p) =>
+    p.id === "individual"
+      ? { ...p, priceHKD: pricing.individualFirstYear, renewal: `then ${formatHKD(pricing.individualRenewal)} / year renewal` }
+      : p,
+  );
+  const plan = plans.find((p) => p.id === planId);
 
   function toggleInterest(i: string) {
     setInterests((list) => (list.includes(i) ? list.filter((x) => x !== i) : [...list, i]));
@@ -113,7 +121,7 @@ export default function MembershipClient() {
             <h2 className="text-2xl md:text-3xl text-balance">Choose your membership.</h2>
             <p className="mt-2 text-ink-muted">Join as an individual member, or support Dante as a sponsor. Enrolling in a course? Your student membership is added to your course invoice automatically.</p>
             <div className="mt-8 grid sm:grid-cols-2 gap-5 max-w-3xl">
-              {membershipPlans.map((p) => {
+              {plans.map((p) => {
                 const selected = planId === p.id;
                 return (
                   <button
@@ -157,7 +165,7 @@ export default function MembershipClient() {
                 <span className="inline-block self-start px-2.5 py-1 rounded-full text-xs font-medium uppercase tracking-wider bg-azzurro text-ink">Companies & patrons</span>
                 <h3 className="mt-3 text-xl font-heading font-bold">Sponsorship / Corporate</h3>
                 <p className="mt-2 text-ink-muted text-sm">Support Dante&apos;s mission at one of three levels — Silver, Gold or Diamond — with the option to sponsor a classroom.</p>
-                <p className="mt-4 text-3xl font-heading font-extrabold">{formatHKD(7500)}<span className="text-sm font-medium text-ink-muted"> – {formatHKD(55000)}</span></p>
+                <p className="mt-4 text-3xl font-heading font-extrabold">{formatHKD(pricing.sponsorSilver)}<span className="text-sm font-medium text-ink-muted"> – {formatHKD(pricing.sponsorDiamond)}</span></p>
                 <span className="mt-auto pt-6 inline-flex items-center gap-2 text-sm font-medium text-azzurro-deep">See sponsorship levels <ArrowRight size={14} /></span>
               </a>
             </div>

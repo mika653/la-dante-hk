@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { formatHKD } from "@/lib/utils";
 import { Check, Mail, Gem, Award, Medal, DoorOpen, Megaphone, BookImage, type LucideIcon } from "lucide-react";
+import { usePricing } from "@/lib/use-pricing";
 
 const CONTACT = "dantealighieri@ladante.cc";
 
@@ -48,7 +49,13 @@ const classroomPerks: { Icon: LucideIcon; label: string }[] = [
 
 export default function SponsorshipSection() {
   const [selected, setSelected] = useState<TierId | null>(null);
-  const chosen = tiers.find((t) => t.id === selected);
+  const pricing = usePricing();
+  // Apply the office-editable tier prices.
+  const tierList = tiers.map((t) => ({
+    ...t,
+    priceHKD: t.id === "silver" ? pricing.sponsorSilver : t.id === "gold" ? pricing.sponsorGold : pricing.sponsorDiamond,
+  }));
+  const chosen = tierList.find((t) => t.id === selected);
 
   const subject = chosen ? `Sponsorship enquiry — ${chosen.name} (${formatHKD(chosen.priceHKD)})` : "Sponsorship enquiry";
   const mailHref = `mailto:${CONTACT}?subject=${encodeURIComponent(subject)}`;
@@ -60,13 +67,13 @@ export default function SponsorshipSection() {
           <p className="eyebrow text-cream/70!">Corporate sponsorship</p>
           <h2 className="mt-3 text-3xl md:text-5xl font-heading font-bold text-balance text-cream!">Put your brand behind Italian&nbsp;culture.</h2>
           <p className="mt-4 text-cream/80">
-            For individuals or companies who want to support Dante&apos;s mission. Three sponsorship levels from {formatHKD(7500)} to {formatHKD(55000)} — each with logo placement, course and team-building discounts, lesson hours, member cards for your team, and an invitation to our annual Dante&nbsp;dinner.
+            For individuals or companies who want to support Dante&apos;s mission. Three sponsorship levels from {formatHKD(pricing.sponsorSilver)} to {formatHKD(pricing.sponsorDiamond)} — each with logo placement, course and team-building discounts, lesson hours, member cards for your team, and an invitation to our annual Dante&nbsp;dinner.
           </p>
         </div>
 
         {/* Tiers */}
         <div className="mt-10 grid md:grid-cols-3 gap-5">
-          {tiers.map((t) => {
+          {tierList.map((t) => {
             const isSel = selected === t.id;
             const Icon = t.Icon;
             return (
