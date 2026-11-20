@@ -79,6 +79,7 @@ export const CIRCLE_BANNER_PAGES: { path: string; label: string }[] = [
   { path: "/special-offers", label: "Special offers" },
   { path: "/placement-test", label: "Placement test" },
   { path: "/plida", label: "PLIDA" },
+  { path: "/culture/library", label: "Library" },
   { path: "/membership", label: "Membership" },
   { path: "/donate", label: "Donate" },
   { path: "/gift", label: "Gift" },

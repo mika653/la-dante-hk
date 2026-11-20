@@ -1,5 +1,6 @@
 import PageHeader from "@/components/PageHeader";
 import WorkshopsGrid from "@/components/WorkshopsGrid";
+import EnquiryForm from "@/components/EnquiryForm";
 import CultureEventsClient from "../../culture/CultureEventsClient";
 
 export default function Culture() {
@@ -7,12 +8,18 @@ export default function Culture() {
     <>
       <PageHeader
         eyebrow="文化"
-        title="活動與工作坊。"
+        title="活動、工作坊、圖書館。"
         subtitle="課本以外的意大利。電影放映、aperitivi、讀書會與工作坊 — 會員及非會員均歡迎參加。"
         crumbs={[{ label: "主頁", href: "/zh" }, { label: "文化" }]}
       />
       <CultureEventsClient />
       <WorkshopsGrid />
+
+      <section id="enquire" className="bg-cream py-14 md:py-20 scroll-mt-24">
+        <div className="container-xl max-w-2xl">
+          <EnquiryForm type="event" />
+        </div>
+      </section>
     </>
   );
 }

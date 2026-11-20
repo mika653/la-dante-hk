@@ -31,6 +31,7 @@ const PAGES: Page[] = [
   { label: "Special offers", labelZh: "特別優惠", href: "/special-offers", group: "Courses", groupZh: "課程", keywords: "discount early bird promo gift card deal" },
   { label: "Events", labelZh: "活動", href: "/culture", group: "Culture", groupZh: "文化", keywords: "cultural aperitivo cinema talk" },
   { label: "Workshops", labelZh: "工作坊", href: "/culture#workshops", group: "Culture", groupZh: "文化", keywords: "wine cooking pizza bookclub" },
+  { label: "Library", labelZh: "圖書館", href: "/culture/library", group: "Culture", groupZh: "文化", keywords: "borrow book salotto presidio reading" },
   { label: "PLIDA exam", labelZh: "PLIDA 考試", href: "/plida", group: "PLIDA", groupZh: "PLIDA", keywords: "certificate certification sessions application a1 a2 b1 b2 c1 c2 citizenship" },
   { label: "Membership", labelZh: "會員", href: "/membership", group: "Join Us", groupZh: "加入我們", keywords: "member perks privileges join benefits" },
   { label: "Donate", labelZh: "捐助", href: "/donate", group: "Join Us", groupZh: "加入我們", keywords: "support contribution" },

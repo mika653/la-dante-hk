@@ -45,6 +45,12 @@ const COPY: Record<EnquiryType, Copy> = {
     showLevel: false,
     timingLabel: "Preferred timing", messageLabel: "Message",
   },
+  event: {
+    title: "Don't see an event for you?",
+    blurb: "Tell us what you'd love — a film night, a talk, a tasting, a bookclub title — and we'll let you know when something fits, or open it when enough people are keen.",
+    showLevel: false,
+    timingLabel: "What kind of event / topic", messageLabel: "Anything else",
+  },
   special: {
     title: "Suggest a special course",
     blurb: "Have a specific interest — conversation, grammar, PLIDA prep, creative writing, something else? Tell us and we'll consider it for the next round.",
