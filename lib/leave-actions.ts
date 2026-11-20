@@ -51,16 +51,16 @@ export async function requestLeave(_prev: ActionResult | null, formData: FormDat
   // Don't let anyone request more than their yearly entitlement (counting days
   // already approved OR still pending for that type this year).
   const [u] = await db
-    .select({ annual: users.annualEntitlement, sick: users.sickEntitlement })
+    .select({ annual: users.annualEntitlement, sick: users.sickEntitlement, restDays: users.restDays })
     .from(users)
     .where(eq(users.id, s.userId));
   const year = Number(startDate.slice(0, 4));
   let entitlement = type === "annual" ? (u?.annual ?? 0) : (u?.sick ?? 0);
-  // Annual leave gets +1 day in lieu for each public holiday falling on the
-  // rest day (Sunday) that year.
+  // Annual leave gets +1 day in lieu for each public holiday that falls on this
+  // person's rest day(s) that year (Sunday never counts).
   if (type === "annual") {
     const { holidays } = await getClosures();
-    entitlement += restDayHolidaysInLieu([...holidaySet(holidays)], year);
+    entitlement += restDayHolidaysInLieu([...holidaySet(holidays)], u?.restDays, year);
   }
   const mine = await db
     .select({ days: leaveRequests.days, status: leaveRequests.status, startDate: leaveRequests.startDate, type: leaveRequests.type })
@@ -143,6 +143,7 @@ export async function addUser(_prev: ActionResult | null, formData: FormData): P
   const annual = Number(formData.get("annual") ?? 14);
   const sick = Number(formData.get("sick") ?? 14);
   const partTime = String(formData.get("partTime") ?? "") === "1";
+  const restDays = formData.getAll("restDay").map((v) => Number(v)).filter((n) => n >= 1 && n <= 6);
 
   if (!name) return { ok: false, error: "Name is required." };
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, error: "That email doesn't look right." };
@@ -163,6 +164,7 @@ export async function addUser(_prev: ActionResult | null, formData: FormData): P
     annualEntitlement: annual,
     sickEntitlement: sick,
     partTime,
+    restDays: restDays.length ? restDays : null,
   });
 
   revalidatePath("/leave");
@@ -192,7 +194,7 @@ export async function resetUserPassword(id: string): Promise<ActionResult> {
 
 export async function updateUser(
   id: string,
-  patch: { role?: Role; annualEntitlement?: number; sickEntitlement?: number; active?: boolean; partTime?: boolean },
+  patch: { role?: Role; annualEntitlement?: number; sickEntitlement?: number; active?: boolean; partTime?: boolean; restDays?: number[] },
 ): Promise<ActionResult> {
   const s = await requireSession();
   if (!isAdmin(s.role)) return { ok: false, error: "You can't edit staff." };
@@ -222,6 +224,10 @@ export async function updateUser(
   if (patch.role) set.role = patch.role;
   if (patch.active !== undefined) set.active = patch.active;
   if (patch.partTime !== undefined) set.partTime = !!patch.partTime;
+  if (patch.restDays !== undefined) {
+    const rd = (Array.isArray(patch.restDays) ? patch.restDays : []).filter((n) => n >= 1 && n <= 6);
+    set.restDays = rd.length ? [...new Set(rd)].sort() : null;
+  }
   if (patch.annualEntitlement !== undefined) {
     if (!Number.isInteger(patch.annualEntitlement) || patch.annualEntitlement < 0 || patch.annualEntitlement > 365) {
       return { ok: false, error: "Annual days look wrong." };

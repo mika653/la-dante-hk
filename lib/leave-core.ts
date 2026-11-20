@@ -69,16 +69,19 @@ export function balanceFor(
 
 /**
  * Days in lieu: the school grants one extra ANNUAL leave day for each public
- * holiday that falls on the weekly rest day — Sunday, the only non-working day
- * in `workingDays`. Pass the expanded holiday dates (e.g. [...holidaySet(list)]);
- * only holidays in `year` count, and a multi-day break contributes one per Sunday.
+ * holiday that falls on the person's weekly rest day(s). Rest days are weekday
+ * numbers 1=Mon … 6=Sat; Sunday (0) is everyone's day off and never counts.
+ * Pass the expanded holiday dates (e.g. [...holidaySet(list)]); only holidays in
+ * `year` count, and a multi-day break contributes one per matching day.
  */
-export function restDayHolidaysInLieu(holidayDates: Iterable<string>, year = currentYear()): number {
+export function restDayHolidaysInLieu(holidayDates: Iterable<string>, restDays: number[] | null | undefined, year = currentYear()): number {
+  const days = new Set((restDays ?? []).filter((d) => d >= 1 && d <= 6)); // never Sunday
+  if (days.size === 0) return 0;
   let n = 0;
   for (const iso of holidayDates) {
     const [y, m, d] = iso.split("-").map(Number);
     if (!y || !m || !d || y !== year) continue;
-    if (new Date(y, m - 1, d).getDay() === 0) n++; // Sunday = the rest day
+    if (days.has(new Date(y, m - 1, d).getDay())) n++;
   }
   return n;
 }

@@ -17,6 +17,9 @@ export const users = pgTable("users", {
   // Part-time staff — a plain flag for the office; leave entitlements stay the
   // numbers an admin sets (not auto-prorated). Additive, defaults false.
   partTime: boolean("part_time").notNull().default(false),
+  // Weekly rest day(s) as weekday numbers 1=Mon … 6=Sat (Sunday is everyone's
+  // day off and never stored here). Used for the holiday-in-lieu rule.
+  restDays: jsonb("rest_days").$type<number[]>(),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

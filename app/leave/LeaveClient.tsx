@@ -4,22 +4,28 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check, X, Plus, UserPlus, LogOut, KeyRound, Trash2 } from "lucide-react";
 import type { Role, LeaveType, LeaveStatus } from "@/lib/db/schema";
-import { balanceFor, workingDays, roleLabel, statusStyle, currentYear, fmtDate, canManageUser, canDecide } from "@/lib/leave-core";
+import { balanceFor, workingDays, roleLabel, statusStyle, currentYear, fmtDate, canManageUser, canDecide, restDayHolidaysInLieu } from "@/lib/leave-core";
 import { requestLeave, cancelLeave, decideLeave, addUser, updateUser, resetUserPassword, deleteUser, type ActionResult } from "@/lib/leave-actions";
 import { logoutAction } from "@/lib/auth-actions";
 
 type PublicUser = {
   id: string; email: string; name: string; role: Role;
-  annualEntitlement: number; sickEntitlement: number; partTime: boolean; active: boolean;
+  annualEntitlement: number; sickEntitlement: number; partTime: boolean; restDays: number[] | null; active: boolean;
 };
+
+// Weekday labels for rest-day pickers (1=Mon … 6=Sat; Sunday is everyone's day off).
+const REST_DAYS: Array<{ n: number; label: string }> = [
+  { n: 1, label: "Mon" }, { n: 2, label: "Tue" }, { n: 3, label: "Wed" },
+  { n: 4, label: "Thu" }, { n: 5, label: "Fri" }, { n: 6, label: "Sat" },
+];
 type Leave = {
   id: string; userId: string; type: LeaveType;
   startDate: string; endDate: string; days: number; reason: string | null; status: LeaveStatus;
 };
 
 export default function LeaveClient({
-  me, admin, myLeave, staff, teamLeave, annualBonus = 0,
-}: { me: PublicUser; admin: boolean; myLeave: Leave[]; staff: PublicUser[]; teamLeave: Leave[]; annualBonus?: number }) {
+  me, admin, myLeave, staff, teamLeave, holidayDates = [],
+}: { me: PublicUser; admin: boolean; myLeave: Leave[]; staff: PublicUser[]; teamLeave: Leave[]; holidayDates?: string[] }) {
   const [tab, setTab] = useState<"me" | "team" | "staff">("me");
 
   return (
@@ -53,8 +59,8 @@ export default function LeaveClient({
           {admin && <TabBtn on={tab === "staff"} onClick={() => setTab("staff")}>Staff</TabBtn>}
         </div>
 
-        {tab === "me" && <MyLeave me={me} myLeave={myLeave} annualBonus={annualBonus} />}
-        {tab === "team" && admin && <TeamLeave me={me} staff={staff} teamLeave={teamLeave} annualBonus={annualBonus} />}
+        {tab === "me" && <MyLeave me={me} myLeave={myLeave} holidayDates={holidayDates} />}
+        {tab === "team" && admin && <TeamLeave me={me} staff={staff} teamLeave={teamLeave} holidayDates={holidayDates} />}
         {tab === "staff" && admin && <Staff me={me} staff={staff} />}
       </div>
     </main>
@@ -79,7 +85,8 @@ function Notice({ state }: { state: ActionResult | null }) {
 }
 
 // ---------------- MY LEAVE ----------------
-function MyLeave({ me, myLeave, annualBonus = 0 }: { me: PublicUser; myLeave: Leave[]; annualBonus?: number }) {
+function MyLeave({ me, myLeave, holidayDates = [] }: { me: PublicUser; myLeave: Leave[]; holidayDates?: string[] }) {
+  const annualBonus = restDayHolidaysInLieu(holidayDates, me.restDays);
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(requestLeave, null);
   const [type, setType] = useState<LeaveType>("annual");
   const [halfDay, setHalfDay] = useState(false);
@@ -201,7 +208,7 @@ function MyLeave({ me, myLeave, annualBonus = 0 }: { me: PublicUser; myLeave: Le
 }
 
 // ---------------- TEAM LEAVE (admin) ----------------
-function TeamLeave({ me, staff, teamLeave, annualBonus = 0 }: { me: PublicUser; staff: PublicUser[]; teamLeave: Leave[]; annualBonus?: number }) {
+function TeamLeave({ me, staff, teamLeave, holidayDates = [] }: { me: PublicUser; staff: PublicUser[]; teamLeave: Leave[]; holidayDates?: string[] }) {
   const [busy, startTransition] = useTransition();
   const [err, setErr] = useState<string | null>(null);
   const pending = teamLeave.filter((l) => l.status === "pending");
@@ -266,7 +273,7 @@ function TeamLeave({ me, staff, teamLeave, annualBonus = 0 }: { me: PublicUser; 
           </thead>
           <tbody>
             {team.map((u) => {
-              const a = balanceFor(u.id, "annual", u.annualEntitlement + annualBonus, teamLeave);
+              const a = balanceFor(u.id, "annual", u.annualEntitlement + restDayHolidaysInLieu(holidayDates, u.restDays), teamLeave);
               const s = balanceFor(u.id, "sick", u.sickEntitlement, teamLeave);
               return (
                 <tr key={u.id} className="border-t border-line">
@@ -291,6 +298,17 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
   const [err, setErr] = useState<string | null>(null);
   const [resetMsg, setResetMsg] = useState<string | null>(null);
   const ownerOnly = me.role === "owner";
+  // Local rest-day state for instant toggle feedback (the staff list isn't refetched).
+  const [restState, setRestState] = useState<Record<string, number[]>>(
+    () => Object.fromEntries(staff.map((u) => [u.id, u.restDays ?? []])),
+  );
+
+  function toggleRest(id: string, n: number) {
+    const cur = restState[id] ?? [];
+    const next = cur.includes(n) ? cur.filter((x) => x !== n) : [...cur, n].sort();
+    setRestState((s) => ({ ...s, [id]: next }));
+    patch(id, { restDays: next });
+  }
 
   function patch(id: string, p: Parameters<typeof updateUser>[1]) {
     setErr(null);
@@ -342,6 +360,17 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
           <input type="checkbox" name="partTime" value="1" className="w-4 h-4 accent-azzurro-deep" />
           Part-time
         </label>
+        <fieldset className="mt-4">
+          <legend className="text-sm font-medium">Rest day(s) <span className="text-ink-muted font-normal">(besides Sunday)</span></legend>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {REST_DAYS.map((d) => (
+              <label key={d.n} className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full border border-line cursor-pointer select-none has-[:checked]:bg-azzurro-soft has-[:checked]:border-azzurro-deep">
+                <input type="checkbox" name="restDay" value={d.n} className="w-3.5 h-3.5 accent-azzurro-deep" /> {d.label}
+              </label>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-ink-muted">A public holiday on a rest day adds one annual-leave day in lieu.</p>
+        </fieldset>
         <div className="mt-4 flex justify-end">
           <button type="submit" disabled={pending} className="btn btn-primary disabled:opacity-50"><Plus size={16} /> {pending ? "Adding…" : "Add user"}</button>
         </div>
@@ -359,7 +388,7 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
           </div>
         )}
         <div className="overflow-x-auto">
-        <table className="w-full text-sm min-w-[720px]">
+        <table className="w-full text-sm min-w-[920px]">
           <thead className="text-xs uppercase tracking-wider text-ink-muted">
             <tr>
               <th className="px-5 py-2 text-left font-medium">Name</th>
@@ -367,6 +396,7 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
               <th className="px-5 py-2 text-left font-medium">Annual</th>
               <th className="px-5 py-2 text-left font-medium">Sick</th>
               <th className="px-5 py-2 text-left font-medium">Type</th>
+              <th className="px-5 py-2 text-left font-medium">Rest days</th>
               <th className="px-5 py-2 text-left font-medium">Status</th>
               <th className="px-5 py-2 text-left font-medium">Password</th>
               <th className="px-5 py-2 text-left font-medium">Remove</th>
@@ -395,6 +425,18 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
                     {editable ? (
                       <button type="button" onClick={() => patch(u.id, { partTime: !u.partTime })} className={`text-xs px-2 py-1 rounded-full ${u.partTime ? "bg-sole/50 text-ink" : "bg-ink/5 text-ink-muted"}`}>{u.partTime ? "Part-time" : "Full-time"}</button>
                     ) : <span className={`text-xs px-2 py-1 rounded-full ${u.partTime ? "bg-sole/50 text-ink" : "bg-ink/5 text-ink-muted"}`}>{u.partTime ? "Part-time" : "Full-time"}</span>}
+                  </td>
+                  <td className="px-5 py-3">
+                    {editable ? (
+                      <div className="flex gap-1">
+                        {REST_DAYS.map((d) => {
+                          const on = (restState[u.id] ?? []).includes(d.n);
+                          return (
+                            <button key={d.n} type="button" title={d.label} onClick={() => toggleRest(u.id, d.n)} className={`w-7 h-7 rounded-md text-[11px] font-semibold ${on ? "bg-azzurro-deep text-cream" : "bg-ink/5 text-ink-muted hover:bg-ink/10"}`}>{d.label[0]}</button>
+                          );
+                        })}
+                      </div>
+                    ) : <span className="text-xs text-ink-muted">{(u.restDays ?? []).length ? (u.restDays ?? []).map((n) => REST_DAYS.find((r) => r.n === n)?.label).join(", ") : "—"}</span>}
                   </td>
                   <td className="px-5 py-3">
                     {editable && u.id !== me.id ? (

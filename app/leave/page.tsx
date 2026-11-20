@@ -11,7 +11,6 @@ import { db } from "@/lib/db";
 import { users, leaveRequests } from "@/lib/db/schema";
 import { getClosures } from "@/lib/closures-actions";
 import { holidaySet } from "@/lib/closures-shared";
-import { restDayHolidaysInLieu, currentYear } from "@/lib/leave-core";
 import LeaveClient from "./LeaveClient";
 
 // Session-dependent: never prerender this, and never cache one person's data
@@ -30,6 +29,7 @@ const publicUser = {
   annualEntitlement: users.annualEntitlement,
   sickEntitlement: users.sickEntitlement,
   partTime: users.partTime,
+  restDays: users.restDays,
   active: users.active,
 };
 
@@ -51,10 +51,10 @@ export default async function LeavePage() {
   const staff = admin ? await db.select(publicUser).from(users).orderBy(users.name) : [];
   const teamLeave = admin ? await db.select().from(leaveRequests).orderBy(leaveRequests.startDate) : [];
 
-  // Extra annual-leave days in lieu of public holidays that land on the rest day
-  // (Sunday) this year — same for everyone.
+  // The year's public-holiday dates (ranges expanded); the client computes each
+  // person's holiday-in-lieu days from their own rest days.
   const { holidays } = await getClosures();
-  const annualBonus = restDayHolidaysInLieu([...holidaySet(holidays)], currentYear());
+  const holidayDates = [...holidaySet(holidays)];
 
   return (
     <LeaveClient
@@ -63,7 +63,7 @@ export default async function LeavePage() {
       myLeave={myLeave.map(serialise)}
       staff={staff}
       teamLeave={teamLeave.map(serialise)}
-      annualBonus={annualBonus}
+      holidayDates={holidayDates}
     />
   );
 }
