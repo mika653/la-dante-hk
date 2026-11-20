@@ -49,16 +49,15 @@ export function nextPlidaSession(todayISO: string): { session: PlidaSession; ope
   return upcoming[0] ? { session: upcoming[0], open: false } : null;
 }
 
-const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const DAYS_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const DAYS_ZH = ["日", "一", "二", "三", "四", "五", "六"];
 
 function parts(iso: string) {
   const [y, m, d] = iso.split("-").map(Number);
   return { y, m, d, dow: new Date(Date.UTC(y, m - 1, d)).getUTCDay() };
 }
-export function fmtPlidaDate(iso: string, locale: "en" | "zh" = "en", withDay = false): string {
-  const { y, m, d, dow } = parts(iso);
-  if (locale === "zh") return `${y} 年 ${m} 月 ${d} 日${withDay ? `（星期${DAYS_ZH[dow]}）` : ""}`;
-  return `${withDay ? `${DAYS_EN[dow]}, ` : ""}${d} ${MONTHS_EN[m - 1]} ${y}`;
+// Dates are shown as DD/MM/YYYY everywhere on the site (per the client), so PLIDA
+// uses the same numeric format in both locales. The locale/withDay params are kept
+// for call-site compatibility but no longer change the format.
+export function fmtPlidaDate(iso: string, _locale: "en" | "zh" = "en", _withDay = false): string {
+  const { y, m, d } = parts(iso);
+  return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`;
 }

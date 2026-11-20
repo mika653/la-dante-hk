@@ -5,11 +5,11 @@ import { ArrowLeft, Plus, Trash2, Check, RotateCcw, CalendarDays, GraduationCap,
 import { useClosures } from "@/lib/use-closures";
 import { addHoliday, addPlidaDate, removeClosure, resetHolidays, resetPlidaDates } from "@/lib/closures-actions";
 
-const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+// DD/MM/YYYY — the one date format used across the whole site.
 function fmt(iso: string) {
   const [y, m, d] = iso.split("-").map(Number);
-  return `${WD[new Date(y, m - 1, d).getDay()]} ${d} ${MO[m - 1]} ${y}`;
+  if (!y || !m || !d) return iso;
+  return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`;
 }
 function errText(e: unknown) {
   const m = e instanceof Error ? e.message : String(e);

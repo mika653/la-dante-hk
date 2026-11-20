@@ -5,8 +5,8 @@ import EnquiryForm from "@/components/EnquiryForm";
 
 export default function PLIDA() {
   const sessions = [
-    { date: "14 June 2026", deadline: "10 May 2026", levels: "A1 · A2 · B1 · B2 · C1 · C2" },
-    { date: "15 November 2026", deadline: "10 October 2026", levels: "A1 · A2 · B1 · B2 · C1 · C2" },
+    { date: "14/06/2026", deadline: "10/05/2026", levels: "A1 · A2 · B1 · B2 · C1 · C2" },
+    { date: "15/11/2026", deadline: "10/10/2026", levels: "A1 · A2 · B1 · B2 · C1 · C2" },
   ];
   return (
     <>
