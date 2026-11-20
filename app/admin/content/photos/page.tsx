@@ -13,13 +13,21 @@ import MediaPicker from "@/components/MediaPicker";
 export default function SectionPhotosEditor() {
   const [workshops, setWorkshops] = useState<string[]>(defaultSectionPhotos.workshops);
   const [mosaic, setMosaic] = useState<string[]>(defaultSectionPhotos.mosaic);
+  const [teamSlideshow, setTeamSlideshow] = useState<string[]>([]);
+  const [classroomMap, setClassroomMap] = useState<string[]>([]);
   const [banners, setBanners] = useState<PageHeaderPhotos>({});
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    getSiteContent().then((c) => { setWorkshops(c.sectionPhotos.workshops); setMosaic(c.sectionPhotos.mosaic); setBanners(c.pageHeaders ?? {}); }).catch(() => {});
+    getSiteContent().then((c) => {
+      setWorkshops(c.sectionPhotos.workshops);
+      setMosaic(c.sectionPhotos.mosaic);
+      setTeamSlideshow(c.sectionPhotos.teamSlideshow ?? []);
+      setClassroomMap(c.sectionPhotos.classroomMap ?? []);
+      setBanners(c.pageHeaders ?? {});
+    }).catch(() => {});
   }, []);
 
   async function save() {
@@ -29,6 +37,8 @@ export default function SectionPhotosEditor() {
       const sectionPhotos: SectionPhotos = {
         workshops: workshops.map((s) => s.trim()).filter(Boolean),
         mosaic: mosaic.map((s) => s.trim()).filter(Boolean),
+        teamSlideshow: teamSlideshow.map((s) => s.trim()).filter(Boolean),
+        classroomMap: classroomMap.map((s) => s.trim()).filter(Boolean),
       };
       const res = await saveSiteContent({ ...current, sectionPhotos, pageHeaders: banners });
       if (!res.ok) { setErr(res.error === "Not authorised" ? "You need to be signed in as an owner or manager to save." : (res.error ?? "Couldn't save.")); return; }
@@ -66,6 +76,28 @@ export default function SectionPhotosEditor() {
           setItems={setMosaic}
           onReset={() => setMosaic(defaultSectionPhotos.mosaic)}
           thumbClass="w-20 h-28"
+        />
+      </div>
+
+      <div className="mt-12">
+        <PhotoList
+          title="Team photo slideshow (About page)"
+          hint="Shown as a slideshow at the top of the 'Our team' section on the About page, in place of the monogram circles. Landscape (16:9) images look best. Leave empty to keep the circles."
+          items={teamSlideshow}
+          setItems={setTeamSlideshow}
+          onReset={() => setTeamSlideshow([])}
+          thumbClass="w-32 h-20"
+        />
+      </div>
+
+      <div className="mt-12">
+        <PhotoList
+          title="Classroom map (Sponsors)"
+          hint="A picture of the classroom/school map, shown under the classroom sponsors on the sponsorship section. Usually one image."
+          items={classroomMap}
+          setItems={setClassroomMap}
+          onReset={() => setClassroomMap([])}
+          thumbClass="w-32 h-24"
         />
       </div>
 

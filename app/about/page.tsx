@@ -1,5 +1,6 @@
 import PageHeader from "@/components/PageHeader";
 import Image from "next/image";
+import TeamSlideshow from "@/components/TeamSlideshow";
 
 export default function About() {
   // --- Team section data (Giulia's structure: Board → Management → Teachers) ---
@@ -12,12 +13,6 @@ export default function About() {
       .slice(0, 2)
       .join("")
       .toUpperCase();
-
-  const avatarColors = [
-    "bg-ink text-cream",
-    "bg-azzurro-deep text-cream",
-    "bg-azzurro text-ink",
-  ];
 
   const board = [
     { name: "Bruno Feltracco", role: "President" },
@@ -112,21 +107,8 @@ export default function About() {
             Italian to life every day &mdash; the people behind La&nbsp;Dante.
           </p>
 
-          {/* Collage — a montage of monogram avatars for the whole team */}
-          <div
-            aria-hidden="true"
-            className="mt-10 flex flex-wrap justify-center gap-y-3"
-          >
-            {everyone.map((p, i) => (
-              <div
-                key={`collage-${p.name}`}
-                title={p.name}
-                className={`-ml-3 first:ml-0 w-14 h-14 md:w-16 md:h-16 rounded-full ring-4 ring-sole ${avatarColors[i % avatarColors.length]} font-heading font-extrabold text-base md:text-lg inline-flex items-center justify-center`}
-              >
-                {initials(p.name)}
-              </div>
-            ))}
-          </div>
+          {/* Team photo slideshow (office-uploaded); falls back to monogram circles. */}
+          <TeamSlideshow names={everyone.map((p) => p.name)} />
 
           {/* 1. Board of Directors */}
           <div className="mt-16 pt-12 border-t border-ink/10">

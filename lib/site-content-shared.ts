@@ -16,7 +16,7 @@ export type HeroContent = {
 export type CarouselSlide = { id: string; src: string; alt: string; caption: string };
 
 // Editable photo sets for homepage sections (swappable from the Media Library).
-export type SectionPhotos = { workshops: string[]; mosaic: string[] };
+export type SectionPhotos = { workshops: string[]; mosaic: string[]; teamSlideshow: string[]; classroomMap: string[] };
 
 // Editable sponsors (classroom A–G, gold, silver tiers).
 export type SponsorItem = { name: string; logo: string; room?: string };
@@ -126,6 +126,9 @@ export const defaultCarousel: CarouselSlide[] = [
 export const defaultSectionPhotos: SectionPhotos = {
   workshops: ["/workshops/1.jpg", "/workshops/2.jpg", "/workshops/3.jpg", "/workshops/4.jpg", "/workshops/5.jpg", "/workshops/6.jpg"],
   mosaic: ["/mosaic/1.jpg", "/mosaic/2.jpg", "/mosaic/3.jpg", "/mosaic/4.jpg", "/mosaic/5.jpg", "/mosaic/6.jpg", "/mosaic/7.jpg", "/mosaic/8.jpg", "/mosaic/9.jpg", "/mosaic/10.jpg"],
+  // Office-managed; empty by default so nothing shows until photos are uploaded.
+  teamSlideshow: [],
+  classroomMap: [],
 };
 
 export const defaultSponsors: Sponsors = {
@@ -219,6 +222,9 @@ export function normaliseSiteContent(parsed: unknown): SiteContent {
     Array.isArray(a) && a.filter((x) => typeof x === "string" && x.trim()).length > 0
       ? (a as string[]).filter((x) => typeof x === "string" && x.trim())
       : fallback;
+  // Keep a saved list as-is (even when empty); no default fallback.
+  const cleanList = (a: unknown): string[] =>
+    Array.isArray(a) ? (a as unknown[]).filter((x): x is string => typeof x === "string" && x.trim().length > 0) : [];
   // Sponsors: keep a saved list (even if emptied) but clean rows; fall back to
   // defaults only when the tier was never saved.
   const tier = (a: unknown, fallback: SponsorItem[]): SponsorItem[] =>
@@ -232,6 +238,9 @@ export function normaliseSiteContent(parsed: unknown): SiteContent {
     sectionPhotos: {
       workshops: nonEmpty(sp.workshops, defaultSectionPhotos.workshops),
       mosaic: nonEmpty(sp.mosaic, defaultSectionPhotos.mosaic),
+      // Optional office uploads — keep whatever was saved (possibly empty), no fallback.
+      teamSlideshow: cleanList(sp.teamSlideshow),
+      classroomMap: cleanList(sp.classroomMap),
     },
     sponsors: {
       classroom: tier(sponsors.classroom, defaultSponsors.classroom),

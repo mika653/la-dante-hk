@@ -5,8 +5,9 @@ import { useSiteContent } from "@/lib/site-content";
 
 export default function SponsorsStrip() {
   const { t } = useT();
-  const { sponsors } = useSiteContent();
+  const { sponsors, sectionPhotos } = useSiteContent();
   const classroomSponsors = sponsors.classroom;
+  const classroomMap = sectionPhotos.classroomMap ?? [];
   return (
     <section className="bg-paper py-16 md:py-24 border-t border-line">
       <div className="container-xl text-center">
@@ -25,6 +26,16 @@ export default function SponsorsStrip() {
               </div>
             ))}
           </div>
+          {classroomMap.length > 0 && (
+            <div className="mt-6 max-w-3xl mx-auto">
+              {classroomMap.map((src, i) => (
+                <div key={i} className="frame bg-white p-2 overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="Classroom map" className="w-full h-auto rounded-xl" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="mt-12">

@@ -1,5 +1,6 @@
 import PageHeader from "@/components/PageHeader";
 import Image from "next/image";
+import TeamSlideshow from "@/components/TeamSlideshow";
 
 export default function AboutZh() {
   return (
@@ -59,6 +60,7 @@ export default function AboutZh() {
         <div className="container-xl">
           <p className="eyebrow">團隊與董事會</p>
           <h2 className="mt-3 text-3xl md:text-5xl">你將會遇見的面孔。</h2>
+          <TeamSlideshow names={[]} />
           <div className="mt-10 grid sm:grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { name: "Giulia Capasso", role: "校務統籌" },
