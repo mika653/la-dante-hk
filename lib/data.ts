@@ -35,6 +35,7 @@ export type Course = {
   earlyBirdDueISO?: string;   // early-bird deadline
   earlyBirdFeeHKD?: number;   // discounted early-bird fee
   textbook?: string;          // course textbook, e.g. "Nuovo Espresso 1 Plus"
+  coverImage?: string;        // optional course graphic shown on the card (e.g. special courses)
   archived?: boolean;         // hidden from the public site (auto once it has started)
   skipPlida?: boolean;        // also skip sessions that land on PLIDA exam days
   continuationOf?: string;    // id of the course this one continues from

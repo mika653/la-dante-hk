@@ -81,6 +81,7 @@ export const courses = pgTable("courses", {
   continuationOf: text("continuation_of"),
   description: text("description"),                        // public course description (auto-fill editable in Course defaults)
   textbook: text("textbook"),                             // course textbook, e.g. "Nuovo Espresso 1 Plus"
+  coverImage: text("cover_image"),                        // optional course graphic (Media Library URL), e.g. for special courses
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

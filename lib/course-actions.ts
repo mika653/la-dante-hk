@@ -79,6 +79,7 @@ export async function patchCourse(id: string, patch: Partial<Course>): Promise<v
   if (patch.courseCode !== undefined) set.courseCode = patch.courseCode ?? null;
   if (patch.description !== undefined) set.description = typeof patch.description === "string" && patch.description.trim() ? patch.description : null;
   if (patch.textbook !== undefined) set.textbook = typeof patch.textbook === "string" && patch.textbook.trim() ? patch.textbook : null;
+  if (patch.coverImage !== undefined) set.coverImage = typeof patch.coverImage === "string" && patch.coverImage.trim() ? patch.coverImage : null;
 
   if (Object.keys(set).length === 0) return;
   set.updatedAt = new Date();

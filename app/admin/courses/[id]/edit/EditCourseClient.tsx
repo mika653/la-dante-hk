@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Sparkles, RefreshCw, Plus, Trash2, Wand2 } from "lucide-react";
+import { ArrowLeft, Save, Sparkles, RefreshCw, Plus, Trash2, Wand2, ImageIcon, X } from "lucide-react";
+import MediaPicker from "@/components/MediaPicker";
 import { getCourses, updateCourse } from "@/lib/admin-store";
 import type { Course, Language, CourseType } from "@/lib/data";
 import { TEXTBOOK_OPTIONS } from "@/lib/data";
@@ -66,6 +67,7 @@ export default function EditCourseClient({ id }: { id: string }) {
   const [earlyBirdDueISO, setEarlyBirdDueISO] = useState("");
   const [earlyBirdFeeHKD, setEarlyBirdFeeHKD] = useState<number | "">("");
   const [textbook, setTextbook] = useState("");
+  const [coverImage, setCoverImage] = useState("");
   const [skipPlida, setSkipPlida] = useState(false);
   const [weekdays, setWeekdays] = useState<number[]>([]);       // all class days
   const [lessonDates, setLessonDates] = useState<string[]>([]); // manual date overrides; [] = auto
@@ -103,6 +105,7 @@ export default function EditCourseClient({ id }: { id: string }) {
       setEarlyBirdDueISO((c.earlyBirdDueISO || "").slice(0, 10));
       setEarlyBirdFeeHKD(typeof c.earlyBirdFeeHKD === "number" ? c.earlyBirdFeeHKD : "");
       setTextbook(c.textbook || "");
+      setCoverImage(c.coverImage || "");
       setSkipPlida(!!c.skipPlida);
       // All class days: stored, else every day named in the label (so a legacy
       // "Mon/Wed" intensive opens as twice a week), else the start date's day.
@@ -219,6 +222,7 @@ export default function EditCourseClient({ id }: { id: string }) {
       earlyBirdDueISO: earlyBirdDueISO || undefined,
       earlyBirdFeeHKD: earlyBirdFeeHKD === "" ? undefined : Number(earlyBirdFeeHKD),
       textbook: textbook.trim() || undefined,
+      coverImage: coverImage.trim() || undefined,
       skipPlida,
       description,
     });
@@ -451,6 +455,19 @@ export default function EditCourseClient({ id }: { id: string }) {
           <input list="textbook-options" value={textbook} onChange={(e) => setTextbook(e.target.value)} placeholder="e.g. Nuovo Espresso 1 Plus" className={field} />
           <datalist id="textbook-options">{TEXTBOOK_OPTIONS.map((t) => <option key={t} value={t} />)}</datalist>
         </label>
+
+        {/* Course graphic */}
+        <div>
+          <p className="block text-sm font-medium">Course graphic <span className="text-ink-muted font-normal">(optional — shown on the course card)</span></p>
+          <div className="mt-1 flex items-center gap-3">
+            <div className="w-20 h-20 rounded-xl overflow-hidden bg-paper border border-dashed border-ink/20 inline-flex items-center justify-center text-ink-soft shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {coverImage ? <img src={coverImage} alt="" className="w-full h-full object-cover" /> : <ImageIcon size={22} aria-hidden />}
+            </div>
+            <MediaPicker accept="image" onChange={(url) => setCoverImage(url)} />
+            {coverImage && <button type="button" onClick={() => setCoverImage("")} className="text-xs text-ink-muted hover:text-rosso inline-flex items-center gap-1"><X size={12} /> Remove</button>}
+          </div>
+        </div>
 
         {/* Numbers */}
         <div className="grid md:grid-cols-4 gap-4">

@@ -36,6 +36,7 @@ export function rowToCourse(r: CourseRow): Course {
     ...(r.continuationOf != null && { continuationOf: r.continuationOf }),
     ...(r.description != null && r.description !== "" && { description: r.description }),
     ...(r.textbook != null && r.textbook !== "" && { textbook: r.textbook }),
+    ...(r.coverImage != null && r.coverImage !== "" && { coverImage: r.coverImage }),
   };
 }
 
@@ -70,5 +71,6 @@ export function courseToRow(c: Course): NewCourseRow {
     continuationOf: c.continuationOf ?? null,
     description: c.description?.trim() ? c.description : null,
     textbook: c.textbook?.trim() ? c.textbook : null,
+    coverImage: c.coverImage?.trim() ? c.coverImage : null,
   };
 }

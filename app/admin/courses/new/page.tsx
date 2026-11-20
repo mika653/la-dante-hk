@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, Calendar, Users, MapPin, User, Hash, RefreshCw } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Calendar, Users, MapPin, User, Hash, RefreshCw, ImageIcon, X } from "lucide-react";
+import MediaPicker from "@/components/MediaPicker";
 import { addCourse } from "@/lib/admin-store";
 import type { Course, Language, CourseType, CEFRLevel } from "@/lib/data";
 import { TEXTBOOK_OPTIONS } from "@/lib/data";
@@ -64,6 +65,7 @@ export default function NewCoursePage() {
   const [earlyBirdDueISO, setEarlyBirdDueISO] = useState("");
   const [earlyBirdFeeHKD, setEarlyBirdFeeHKD] = useState<number | "">("");
   const [textbook, setTextbook] = useState("");
+  const [coverImage, setCoverImage] = useState("");
   const [daysTouched, setDaysTouched] = useState(false); // did the admin pick class days by hand?
   const [createNext, setCreateNext] = useState(false);
   const [gapWeeks, setGapWeeks] = useState(1);
@@ -191,6 +193,7 @@ export default function NewCoursePage() {
       earlyBirdDueISO: earlyBirdDueISO || undefined,
       earlyBirdFeeHKD: earlyBirdFeeHKD === "" ? undefined : Number(earlyBirdFeeHKD),
       textbook: textbook.trim() || undefined,
+      coverImage: coverImage.trim() || undefined,
     };
   }
 
@@ -410,6 +413,17 @@ export default function NewCoursePage() {
               <input list="textbook-options" value={textbook} onChange={(e) => setTextbook(e.target.value)} placeholder="e.g. Nuovo Espresso 1 Plus" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white" />
               <datalist id="textbook-options">{TEXTBOOK_OPTIONS.map((t) => <option key={t} value={t} />)}</datalist>
             </label>
+            <div>
+              <p className="text-sm font-medium">Course graphic <span className="text-ink-muted font-normal">(optional — great for special courses; shown on the course card)</span></p>
+              <div className="mt-1 flex items-center gap-3">
+                <div className="w-20 h-20 rounded-xl overflow-hidden bg-paper border border-dashed border-ink/20 inline-flex items-center justify-center text-ink-soft shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {coverImage ? <img src={coverImage} alt="" className="w-full h-full object-cover" /> : <ImageIcon size={22} aria-hidden />}
+                </div>
+                <MediaPicker accept="image" onChange={(url) => setCoverImage(url)} />
+                {coverImage && <button type="button" onClick={() => setCoverImage("")} className="text-xs text-ink-muted hover:text-rosso inline-flex items-center gap-1"><X size={12} /> Remove</button>}
+              </div>
+            </div>
             <div className="flex items-center justify-between">
               <button type="button" onClick={() => setStep(2)} className="btn btn-ghost"><ArrowLeft size={16} /> Back</button>
               <button type="button" onClick={() => { if (feeValue === "" || feeValue <= 0) { setErr("Please enter the course fee."); return; } setErr(null); setStep(4); }} className="btn btn-primary">Preview <ArrowRight size={16} /></button>

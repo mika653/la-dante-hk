@@ -65,6 +65,10 @@ export default function CourseListView({ courses, emptyMessage }: { courses: Cou
         return (
           <div key={c.id} className="frame p-5 md:p-6 bg-white grid md:grid-cols-[1fr_auto] gap-4 items-center">
             <div>
+              {c.coverImage && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={c.coverImage} alt="" className="mb-3 w-full max-w-[260px] aspect-video object-cover rounded-xl border border-line" loading="lazy" />
+              )}
               <p className="text-[11px] font-mono uppercase tracking-widest text-azzurro-deep">{typeof c.level === "string" ? c.level : ""}</p>
               <h3 className="mt-1 text-lg md:text-xl font-semibold">{c.title}</h3>
               <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-[13px] text-ink-muted">
