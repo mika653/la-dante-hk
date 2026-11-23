@@ -162,22 +162,22 @@ export default function Nav() {
       }`}
       style={{ backdropFilter: "saturate(180%) blur(18px)", WebkitBackdropFilter: "saturate(180%) blur(18px)" }}
     >
-      <div className="container-xl flex items-center justify-between h-16 md:h-20 gap-6">
-        <Wordmark size={44} />
+      <div className="container-xl flex items-center justify-between h-16 md:h-20 gap-4">
+        <div className="shrink-0"><Wordmark size={44} /></div>
 
-        <nav className="hidden lg:flex items-center gap-1" onMouseLeave={() => { setOpenGroup(null); setOpenSub(null); }}>
+        <nav className="hidden xl:flex items-center gap-0.5 min-w-0" onMouseLeave={() => { setOpenGroup(null); setOpenSub(null); }}>
           {navGroups.map((g) => (
             <div key={g.label} className="relative" onMouseEnter={() => (g.columns || g.menu) && setOpenGroup(g.label)}>
               {g.href ? (
                 <Link
                   href={localizePath(g.href, locale)}
-                  className={g.label === "Contact" ? "btn btn-primary text-[14px] ml-1" : "inline-flex items-center gap-1 px-3 py-2 text-[15px] font-medium text-ink hover:text-azzurro-deep rounded-full"}
+                  className={g.label === "Contact" ? "btn btn-primary text-[14px] ml-2 whitespace-nowrap" : "inline-flex items-center gap-1 px-2.5 py-2 text-[14.5px] font-medium text-ink hover:text-azzurro-deep rounded-full whitespace-nowrap"}
                 >
                   {labelFor(g.label)}
                   {(g.columns || g.menu) && <ChevronDown size={14} className="opacity-60" aria-hidden />}
                 </Link>
               ) : (
-                <span className="inline-flex items-center gap-1 px-3 py-2 text-[15px] font-medium text-ink rounded-full cursor-default">
+                <span className="inline-flex items-center gap-1 px-2.5 py-2 text-[14.5px] font-medium text-ink rounded-full cursor-default whitespace-nowrap">
                   {labelFor(g.label)}
                   {(g.columns || g.menu) && <ChevronDown size={14} className="opacity-60" aria-hidden />}
                 </span>
@@ -260,7 +260,7 @@ export default function Nav() {
           ))}
         </nav>
 
-        <div className="hidden lg:flex items-center gap-3">
+        <div className="hidden xl:flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
@@ -268,15 +268,15 @@ export default function Nav() {
             aria-label={locale === "zh" ? "搜尋" : "Search"}
           >
             <Search size={15} aria-hidden />
-            <span className="hidden xl:inline text-[13px]">{locale === "zh" ? "搜尋" : "Search"}</span>
-            <kbd className="hidden xl:inline-flex items-center rounded border border-ink/15 px-1.5 text-[10px] font-mono text-ink-muted/80">⌘K</kbd>
+            <span className="text-[13px]">{locale === "zh" ? "搜尋" : "Search"}</span>
+            <kbd className="hidden items-center rounded border border-ink/15 px-1.5 text-[10px] font-mono text-ink-muted/80">⌘K</kbd>
           </button>
           <LanguageSwitcher />
           <Link href={localizePath("/placement-test", locale)} className="hidden text-[14px] font-medium text-ink hover:text-azzurro-deep">{t.nav.placementTest}</Link>
           <a {...enrolLinkProps} className="hidden! btn btn-primary text-[14px]">{t.nav.enrol}</a>
         </div>
 
-        <div className="lg:hidden flex items-center gap-1">
+        <div className="xl:hidden flex items-center gap-1">
           <button type="button" onClick={() => { setMobileOpen(false); setSearchOpen(true); }} className="p-2" aria-label={locale === "zh" ? "搜尋" : "Search"}>
             <Search size={20} />
           </button>
@@ -294,7 +294,7 @@ export default function Nav() {
           absolute panel hangs correctly below the header regardless of the
           announcement bar or scroll position. */}
       {mobileOpen && (
-        <div className="lg:hidden absolute left-0 right-0 top-full max-h-[80vh] overflow-y-auto bg-cream border-t border-line shadow-[0_14px_28px_-16px_rgb(0_0_0_/_0.35)]">
+        <div className="xl:hidden absolute left-0 right-0 top-full max-h-[80vh] overflow-y-auto bg-cream border-t border-line shadow-[0_14px_28px_-16px_rgb(0_0_0_/_0.35)]">
           <div className="container-xl py-6">
             <ul className="divide-y divide-line">
               {navGroups.map((g) => (
