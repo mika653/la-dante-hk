@@ -1,9 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Plus, Trash2, Eye, EyeOff, Check, ExternalLink, Calendar, MapPin, ImageIcon, X, Pencil } from "lucide-react";
 import MediaPicker from "@/components/MediaPicker";
+import Drawer from "@/components/admin/Drawer";
+import LangToggle, { type Lang } from "@/components/admin/LangToggle";
+import { EVENT_ZH_FIELDS, type EventZh } from "@/lib/content-i18n";
 import { getEvents, addEvent, updateEvent, removeEvent, type EventItem, type EventKind } from "@/lib/use-events";
 import { formatDMY } from "@/lib/utils";
 import { REG_FIELDS, DEFAULT_REG_FIELDS, CUSTOM_QUESTION_TYPES, MAX_CUSTOM_QUESTIONS, type CustomQuestion, type CustomQuestionType } from "@/lib/event-registration";
@@ -32,6 +34,18 @@ export default function AdminEventsPage() {
   const [image, setImage] = useState("");
   const [regFields, setRegFields] = useState<string[]>(DEFAULT_REG_FIELDS);
   const [customQs, setCustomQs] = useState<CustomQuestion[]>([]);
+  // Manual Chinese translation + which language the drawer is editing.
+  const [zh, setZh] = useState<EventZh>({});
+  const [lang, setLang] = useState<Lang>("en");
+  const setZhField = (k: keyof EventZh, v: string) => setZh((cur) => ({ ...cur, [k]: v }));
+
+  // One field, two languages: in 中文 mode the input edits the translation and
+  // shows the English as a greyed-out guide.
+  const tx = (k: keyof EventZh, en: string, setEn: (v: string) => void) =>
+    lang === "en"
+      ? { value: en, onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setEn(e.target.value), lang: "en" }
+      : { value: zh[k] ?? "", onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setZhField(k, e.target.value), placeholder: en || "(no English text yet)", lang: "zh-Hant" };
+  const missingZh = EVENT_ZH_FIELDS.filter((k) => ({ title, kind, location, description })[k]?.trim() && !zh[k]?.trim()).length;
 
   const addCustomQ = () =>
     setCustomQs((cur) => [...cur, { id: `cq-${Date.now().toString(36)}`, label: "", type: "short", required: false }]);
@@ -51,20 +65,10 @@ export default function AdminEventsPage() {
     setDescription(""); setBookingUrl(""); setPublished(true); setImage("");
     setRegFields(DEFAULT_REG_FIELDS);
     setCustomQs([]);
+    setZh({}); setLang("en");
   }
   function startCreate() { resetForm(); setErr(null); setShowForm(true); }
   function closeForm() { resetForm(); setShowForm(false); }
-
-  // Drawer: lock page scroll while open, close on Escape.
-  useEffect(() => {
-    if (!showForm) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (ev: KeyboardEvent) => { if (ev.key === "Escape") closeForm(); };
-    window.addEventListener("keydown", onKey);
-    return () => { document.body.style.overflow = prev; window.removeEventListener("keydown", onKey); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- closeForm only calls state setters
-  }, [showForm]);
   function startEdit(ev: EventItem) {
     setEditingId(ev.id);
     setDate(ev.date); setTitle(ev.title); setKind(ev.kind); setLocation(ev.location);
@@ -72,6 +76,7 @@ export default function AdminEventsPage() {
     setPublished(ev.published); setImage(ev.image ?? "");
     setRegFields(ev.regFields && ev.regFields.length > 0 ? ev.regFields : DEFAULT_REG_FIELDS);
     setCustomQs(ev.customQuestions ?? []);
+    setZh(ev.zh ?? {}); setLang("en");
     setErr(null);
     setShowForm(true);
   }
@@ -81,7 +86,10 @@ export default function AdminEventsPage() {
     setErr(null);
     const payload = { date, title, kind: kind as EventKind, location, description: description || undefined, bookingUrl: bookingUrl || undefined, image: image || undefined, published, regFields,
       // Blank questions are dropped; [] clears them on edit.
-      customQuestions: customQs.map((q) => ({ ...q, label: q.label.trim() })).filter((q) => q.label) };
+      customQuestions: customQs
+        .map((q) => ({ ...q, label: q.label.trim(), ...(q.type === "choice" ? { options: (q.options ?? []).map((o) => o.trim()).filter(Boolean) } : { options: undefined, allowOther: undefined }) }))
+        .filter((q) => q.label),
+      zh };
     try {
       if (editingId) {
         await updateEvent(editingId, payload);
@@ -136,24 +144,27 @@ export default function AdminEventsPage() {
         </div>
       )}
 
-      {showForm && typeof document !== "undefined" && createPortal(
-        <div className="fixed inset-0 z-60 flex justify-end" role="dialog" aria-modal="true" aria-labelledby="event-drawer-title">
-          <button type="button" aria-label="Close" onClick={closeForm} className="absolute inset-0 bg-ink/40 drawer-fade" />
-        <form onSubmit={submit} className="relative h-full w-full sm:max-w-xl bg-cream shadow-2xl flex flex-col drawer-slide">
-          <div className="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-line bg-white">
-            <h2 id="event-drawer-title" className="text-lg font-semibold">{editingId ? "Edit event" : "New event"}</h2>
-            <button type="button" onClick={closeForm} aria-label="Close" className="w-9 h-9 rounded-lg hover:bg-cream-2 inline-flex items-center justify-center text-ink-muted"><X size={18} /></button>
-          </div>
-          <div className="flex-1 overflow-y-auto px-5 sm:px-6 py-5 space-y-4">
+      {showForm && (
+        <Drawer
+          title={editingId ? "Edit event" : "New event"}
+          onClose={closeForm}
+          formProps={{ onSubmit: submit }}
+          footer={<>
+            <button type="button" onClick={closeForm} className="btn btn-ghost">Cancel</button>
+            <button type="submit" className="btn btn-primary">{editingId ? "Save changes" : "Publish event"}</button>
+          </>}
+        >
+          <div className="space-y-4">
           {err && <div className="rounded-xl p-3 bg-rosso/10 text-rosso text-sm">{err}</div>}
+          <LangToggle lang={lang} onChange={setLang} missing={missingZh} />
           <div className="grid sm:grid-cols-2 gap-4">
             <label className="text-sm font-medium">Date<input required type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
             <label className="text-sm font-medium">Kind
-              <input list="event-kinds" value={kind} onChange={(e) => setKind(e.target.value)} placeholder="e.g. Workshop, or type your own" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" />
+              <input list={lang === "en" ? "event-kinds" : undefined} placeholder="e.g. Workshop, or type your own" {...tx("kind", kind, setKind)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" />
               <datalist id="event-kinds">{KINDS.map((k) => <option key={k} value={k} />)}</datalist>
             </label>
-            <label className="text-sm font-medium sm:col-span-2">Title<input required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Italian Wine & Language" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
-            <label className="text-sm font-medium">Location<input required value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Wanchai, HK Arts Centre…" className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
+            <label className="text-sm font-medium sm:col-span-2">Title<input required={lang === "en"} placeholder="e.g. Italian Wine & Language" {...tx("title", title, setTitle)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
+            <label className="text-sm font-medium">Location<input required={lang === "en"} placeholder="Wanchai, HK Arts Centre…" {...tx("location", location, setLocation)} className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
             <label className="text-sm font-medium">Booking URL <span className="text-ink-muted font-normal">(optional)</span><input value={bookingUrl} onChange={(e) => setBookingUrl(e.target.value)} placeholder="https://..." className="mt-1 w-full h-12 px-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink font-mono text-sm" /></label>
             <div className="sm:col-span-2">
               <p className="text-sm font-medium">Event graphic <span className="text-ink-muted font-normal">(optional — shown left of the date on the Events page; square works best)</span></p>
@@ -166,7 +177,7 @@ export default function AdminEventsPage() {
                 {image && <button type="button" onClick={() => setImage("")} className="text-xs text-ink-muted hover:text-rosso inline-flex items-center gap-1"><X size={12} /> Remove</button>}
               </div>
             </div>
-            <label className="text-sm font-medium sm:col-span-2">Description <span className="text-ink-muted font-normal">(optional)</span><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="A sentence or two about what guests can expect." className="mt-1 w-full p-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
+            <label className="text-sm font-medium sm:col-span-2">Description <span className="text-ink-muted font-normal">(optional)</span><textarea rows={3} placeholder="A sentence or two about what guests can expect." {...tx("description", description, setDescription)} className="mt-1 w-full p-4 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" /></label>
           </div>
           <div className="pt-3 border-t border-line">
             <p className="text-sm font-medium">Registration form questions</p>
@@ -217,6 +228,23 @@ export default function AdminEventsPage() {
                           Required
                         </label>
                       </div>
+                      {q.type === "choice" && (
+                        <div className="mt-2 pl-7">
+                          <label className="block text-xs font-medium text-ink-muted">Answers, one per line
+                            <textarea
+                              value={(q.options ?? []).join("\n")}
+                              onChange={(e) => updateCustomQ(q.id, { options: e.target.value.split("\n") })}
+                              rows={4}
+                              placeholder={"Instagram\nFacebook\nFriends"}
+                              className="mt-1 w-full px-3 py-2 rounded-lg border border-line bg-white text-sm font-normal text-ink focus:outline-none focus:border-ink"
+                            />
+                          </label>
+                          <label className="mt-1.5 inline-flex items-center gap-1.5 text-sm cursor-pointer select-none">
+                            <input type="checkbox" checked={!!q.allowOther} onChange={(e) => updateCustomQ(q.id, { allowOther: e.target.checked })} className="w-3.5 h-3.5 accent-azzurro-deep" />
+                            Add &ldquo;Other&rdquo; with a text box
+                          </label>
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -233,13 +261,7 @@ export default function AdminEventsPage() {
             Publish immediately (visible on the public Culture page)
           </label>
           </div>
-          <div className="px-5 sm:px-6 py-4 border-t border-line bg-white flex items-center justify-between gap-3">
-            <button type="button" onClick={closeForm} className="btn btn-ghost">Cancel</button>
-            <button type="submit" className="btn btn-primary">{editingId ? "Save changes" : "Publish event"}</button>
-          </div>
-        </form>
-        </div>,
-        document.body,
+        </Drawer>
       )}
 
       <div className="space-y-3">

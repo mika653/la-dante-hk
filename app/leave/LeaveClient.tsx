@@ -108,13 +108,25 @@ function MyLeave({ me, myLeave, holidayDates = [] }: { me: PublicUser; myLeave: 
           return (
             <div key={t} className="frame bg-white p-5">
               <p className="eyebrow">{t === "annual" ? "Annual leave" : "Sick leave"} · {currentYear()}</p>
-              <p className="mt-2 text-3xl font-heading font-bold">
-                {b.remaining}<span className="text-lg text-ink-muted font-body font-normal"> / {b.entitlement} days left</span>
-              </p>
-              <div className="mt-3 h-2 rounded-full bg-cream-2 overflow-hidden">
-                <div className="h-full bg-azzurro-deep" style={{ width: `${b.entitlement ? (b.approved / b.entitlement) * 100 : 0}%` }} />
-              </div>
-              <p className="mt-2 text-sm text-ink-muted">{b.approved} taken · {b.pending} pending</p>
+              {t === "annual" ? (
+                <>
+                  <p className="mt-2 text-3xl font-heading font-bold">
+                    {b.remaining}<span className="text-lg text-ink-muted font-body font-normal"> / {b.entitlement} days left</span>
+                  </p>
+                  <div className="mt-3 h-2 rounded-full bg-cream-2 overflow-hidden">
+                    <div className="h-full bg-azzurro-deep" style={{ width: `${b.entitlement ? (b.approved / b.entitlement) * 100 : 0}%` }} />
+                  </div>
+                  <p className="mt-2 text-sm text-ink-muted">{b.approved} taken · {b.pending} pending</p>
+                </>
+              ) : (
+                // Sick leave is uncapped — show what's been taken, no "left / total".
+                <>
+                  <p className="mt-2 text-3xl font-heading font-bold">
+                    {b.approved}<span className="text-lg text-ink-muted font-body font-normal"> day{b.approved === 1 ? "" : "s"} taken</span>
+                  </p>
+                  <p className="mt-2 text-sm text-ink-muted">{b.pending} pending · no limit</p>
+                </>
+              )}
               {bonus > 0 && (
                 <p className="mt-1 text-xs text-azzurro-deep">Includes +{bonus} day{bonus === 1 ? "" : "s"} in lieu of public holiday{bonus === 1 ? "" : "s"} on your rest day.</p>
               )}
@@ -267,7 +279,7 @@ function TeamLeave({ me, staff, teamLeave, holidayDates = [] }: { me: PublicUser
             <tr>
               <th className="px-5 py-2 text-left font-medium">Name</th>
               <th className="px-5 py-2 text-left font-medium">Annual (left / total)</th>
-              <th className="px-5 py-2 text-left font-medium">Sick (left / total)</th>
+              <th className="px-5 py-2 text-left font-medium">Sick (taken)</th>
               <th className="px-5 py-2 text-left font-medium">Pending</th>
             </tr>
           </thead>
@@ -279,7 +291,7 @@ function TeamLeave({ me, staff, teamLeave, holidayDates = [] }: { me: PublicUser
                 <tr key={u.id} className="border-t border-line">
                   <td className="px-5 py-3 font-medium">{u.name}</td>
                   <td className="px-5 py-3">{a.remaining} / {a.entitlement}</td>
-                  <td className="px-5 py-3">{s.remaining} / {s.entitlement}</td>
+                  <td className="px-5 py-3">{s.approved}</td>
                   <td className="px-5 py-3">{a.pending + s.pending > 0 ? <span className="px-2 py-0.5 rounded-full text-xs bg-sole">{a.pending + s.pending}d</span> : "—"}</td>
                 </tr>
               );
@@ -353,10 +365,7 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
           </label>
           <label className="text-sm font-medium">Employment start <span className="text-ink-muted font-normal">(when they started working)</span><input name="startDate" type="date" className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" /></label>
           <label className="text-sm font-medium">Designation <span className="text-ink-muted font-normal">(e.g. Senior Teacher)</span><input name="designation" maxLength={80} placeholder="Job title / designation" className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" /></label>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="text-sm font-medium">Annual days<input name="annual" type="number" defaultValue={14} className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" /></label>
-            <label className="text-sm font-medium">Sick days<input name="sick" type="number" defaultValue={14} className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" /></label>
-          </div>
+          <label className="text-sm font-medium">Annual days<input name="annual" type="number" defaultValue={14} className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white" /></label>
         </div>
         <label className="mt-4 flex items-center gap-2 text-sm font-medium select-none cursor-pointer w-fit">
           <input type="checkbox" name="partTime" value="1" className="w-4 h-4 accent-azzurro-deep" />
@@ -398,7 +407,6 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
               <th className="px-5 py-2 text-left font-medium">Employment start</th>
               <th className="px-5 py-2 text-left font-medium">Designation</th>
               <th className="px-5 py-2 text-left font-medium">Annual</th>
-              <th className="px-5 py-2 text-left font-medium">Sick</th>
               <th className="px-5 py-2 text-left font-medium">Type</th>
               <th className="px-5 py-2 text-left font-medium">Rest days</th>
               <th className="px-5 py-2 text-left font-medium">Status</th>
@@ -431,9 +439,6 @@ function Staff({ me, staff }: { me: PublicUser; staff: PublicUser[] }) {
                   </td>
                   <td className="px-5 py-3">
                     {editable ? <input type="number" defaultValue={u.annualEntitlement} onBlur={(e) => { const v = Number(e.target.value); if (v !== u.annualEntitlement) patch(u.id, { annualEntitlement: v }); }} className="w-16 h-8 px-2 rounded-lg border border-line" /> : u.annualEntitlement}
-                  </td>
-                  <td className="px-5 py-3">
-                    {editable ? <input type="number" defaultValue={u.sickEntitlement} onBlur={(e) => { const v = Number(e.target.value); if (v !== u.sickEntitlement) patch(u.id, { sickEntitlement: v }); }} className="w-16 h-8 px-2 rounded-lg border border-line" /> : u.sickEntitlement}
                   </td>
                   <td className="px-5 py-3">
                     {editable ? (

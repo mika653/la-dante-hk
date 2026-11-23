@@ -4,6 +4,11 @@ import { formatHKD } from "@/lib/utils";
 import { Check, ArrowLeft, ArrowRight, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 import { usePricing } from "@/lib/use-pricing";
+import { useMembershipContent } from "@/lib/use-membership-content";
+import { fillTokens } from "@/lib/membership-content-shared";
+import { pickLocale } from "@/lib/site-content-shared";
+import { useT } from "@/lib/locale";
+import { RichText } from "@/components/RichText";
 
 type Step = 1 | 2 | 3 | 4;
 type PlanId = "individual";
@@ -22,26 +27,9 @@ type Plan = {
 
 // Per Giulia: the website shows ONLY the Individual membership and the three
 // sponsorship levels (SponsorshipSection). Student membership is not sold here —
-// it's added to the course invoice automatically at enrolment.
-const membershipPlans: Plan[] = [
-  {
-    id: "individual",
-    name: "Individual membership",
-    priceHKD: 800,
-    cadence: "first year",
-    renewal: `then ${formatHKD(600)} / year renewal`,
-    blurb: "For lovers of Italian culture who aren't enrolled in a course. Includes voting rights at the AGM.",
-    perks: [
-      "Special offers at partner restaurants, fashion, home-living shops & more",
-      "Discounts on selected cultural activities & short courses",
-      "Free access to the Dante Library (1,400+ Italian books & DVDs)",
-      "Privileges from the Società Dante Alighieri in Rome",
-      "Voting rights & invitation to the AGM",
-    ],
-    highlight: true,
-    badge: "With voting rights",
-  },
-];
+// it's added to the course invoice automatically at enrolment. The plan copy
+// (name, blurb, perks…) is editable at /admin/content/membership; prices at
+// /admin/content/pricing.
 
 const interestOptions = ["Adult courses", "Latin", "Kids & teens", "Culture events", "Wine & food", "Cinema", "PLIDA", "Bookclub"];
 const heardOptions = ["Instagram", "Friend referral", "Google search", "Work / colleague", "Italian Consulate", "Other"];
@@ -62,12 +50,33 @@ export default function MembershipClient() {
   const [done, setDone] = useState(false);
 
   const pricing = usePricing();
-  // Apply the office-editable prices to the individual plan.
-  const plans = membershipPlans.map((p) =>
-    p.id === "individual"
-      ? { ...p, priceHKD: pricing.individualFirstYear, renewal: `then ${formatHKD(pricing.individualRenewal)} / year renewal` }
-      : p,
-  );
+  const content = useMembershipContent();
+  const { locale } = useT();
+  const L = (b: Parameters<typeof pickLocale>[0]) => pickLocale(b, locale);
+  const tokens = {
+    firstYear: formatHKD(pricing.individualFirstYear),
+    renewal: formatHKD(pricing.individualRenewal),
+    silver: formatHKD(pricing.sponsorSilver),
+    gold: formatHKD(pricing.sponsorGold),
+    diamond: formatHKD(pricing.sponsorDiamond),
+  };
+  // Office-editable copy + prices for the individual plan.
+  const ind = content.individual;
+  const renewal = fillTokens(L(ind.renewal), tokens).trim();
+  const plans: Plan[] = [
+    {
+      id: "individual",
+      name: L(ind.name),
+      priceHKD: pricing.individualFirstYear,
+      cadence: L(ind.cadence),
+      renewal: renewal || undefined,
+      blurb: fillTokens(L(ind.blurb), tokens),
+      perks: ind.perks.map((x) => fillTokens(L(x), tokens)),
+      highlight: true,
+      badge: L(ind.badge) || undefined,
+    },
+  ];
+  const sc = content.sponsorCard;
   const plan = plans.find((p) => p.id === planId);
 
   function toggleInterest(i: string) {
@@ -144,7 +153,7 @@ export default function MembershipClient() {
                       </span>
                     )}
                     <h3 className="mt-3 text-xl font-heading font-bold">{p.name}</h3>
-                    <p className="mt-2 text-ink-muted text-sm">{p.blurb}</p>
+                    <p className="mt-2 text-ink-muted text-sm"><RichText text={p.blurb} /></p>
                     <div className="mt-4">
                       <p className="text-3xl font-heading font-extrabold">
                         {formatHKD(p.priceHKD)}<span className="text-sm font-medium text-ink-muted"> {p.cadence}</span>
@@ -152,8 +161,8 @@ export default function MembershipClient() {
                       {p.renewal && <p className="text-xs text-ink-muted mt-1">{p.renewal}</p>}
                     </div>
                     <ul className="mt-4 space-y-1.5 text-sm">
-                      {p.perks.map((x) => (
-                        <li key={x} className="flex gap-2"><Check size={14} className="text-azzurro-deep mt-1 shrink-0" />{x}</li>
+                      {p.perks.map((x, i) => (
+                        <li key={i} className="flex gap-2"><Check size={14} className="text-azzurro-deep mt-1 shrink-0" /><span><RichText text={x} /></span></li>
                       ))}
                     </ul>
                   </button>
@@ -162,9 +171,9 @@ export default function MembershipClient() {
 
               {/* Sponsorship — chosen in the dedicated section below */}
               <a href="#sponsorship" className="relative text-left frame p-6 bg-white hover:-translate-y-0.5 transition-all flex flex-col">
-                <span className="inline-block self-start px-2.5 py-1 rounded-full text-xs font-medium uppercase tracking-wider bg-azzurro text-ink">Companies & patrons</span>
-                <h3 className="mt-3 text-xl font-heading font-bold">Sponsorship / Corporate</h3>
-                <p className="mt-2 text-ink-muted text-sm">Support Dante&apos;s mission at one of three levels — Silver, Gold or Diamond — with the option to sponsor a classroom.</p>
+                {L(sc.badge) && <span className="inline-block self-start px-2.5 py-1 rounded-full text-xs font-medium uppercase tracking-wider bg-azzurro text-ink">{L(sc.badge)}</span>}
+                <h3 className="mt-3 text-xl font-heading font-bold">{L(sc.title)}</h3>
+                <p className="mt-2 text-ink-muted text-sm"><RichText text={fillTokens(L(sc.blurb), tokens)} /></p>
                 <p className="mt-4 text-3xl font-heading font-extrabold">{formatHKD(pricing.sponsorSilver)}<span className="text-sm font-medium text-ink-muted"> – {formatHKD(pricing.sponsorDiamond)}</span></p>
                 <span className="mt-auto pt-6 inline-flex items-center gap-2 text-sm font-medium text-azzurro-deep">See sponsorship levels <ArrowRight size={14} /></span>
               </a>
@@ -227,7 +236,7 @@ export default function MembershipClient() {
                 </div>
                 {plan.renewal && <p className="text-xs text-ink-muted text-right">{plan.renewal}</p>}
                 <ul className="mt-4 grid grid-cols-2 gap-y-1.5 text-sm">
-                  {plan.perks.map((p) => <li key={p} className="flex gap-2"><Check size={13} className="text-azzurro-deep mt-1 shrink-0" />{p}</li>)}
+                  {plan.perks.map((p, i) => <li key={i} className="flex gap-2"><Check size={13} className="text-azzurro-deep mt-1 shrink-0" /><span><RichText text={p} /></span></li>)}
                 </ul>
 
                 <hr className="my-6 border-line" />

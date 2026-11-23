@@ -19,6 +19,7 @@ export async function GET() {
         // Registration form config, so the public sign-up form matches what admin set.
         ...(Array.isArray(r.regFields) && r.regFields.length > 0 ? { regFields: r.regFields } : {}),
         ...(Array.isArray(r.customQuestions) && r.customQuestions.length > 0 ? { customQuestions: r.customQuestions } : {}),
+        ...(r.zh ? { zh: r.zh } : {}),
       })),
     });
   } catch {

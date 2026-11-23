@@ -1,3 +1,4 @@
+import type { WorkshopZh } from "@/lib/content-i18n";
 export type CEFRLevel =
   | "A1.1" | "A1.2" | "A1.3"
   | "A2.1" | "A2.2" | "A2.3" | "A2.4"
@@ -211,8 +212,17 @@ export type Workshop = {
   status: "planned" | "interest";
   dateLabel?: string;
   interested?: number;
+  /** An icon key from lib/workshop-icons, OR an uploaded photo URL ("/…", "http…"). */
   image: string;
+  timeLabel?: string;   // e.g. "7–9pm"
+  fee?: string;         // e.g. "HK$450 · members HK$380"
+  published?: boolean;  // admin only — hidden workshops never reach the public feed
+  sortOrder?: number;   // admin ordering; the homepage shows the first N
+  zh?: WorkshopZh | null; // manual Chinese translation of the text fields
 };
+
+/** True when a workshop's `image` holds an uploaded photo rather than an icon key. */
+export const isWorkshopPhoto = (image: string | undefined | null) => !!image && /^(\/|https?:|data:image\/)/.test(image);
 
 export const workshops: Workshop[] = [
   { id: "w1", title: "Italian Wine & Language",         description: "Five regions, five grapes, five conversations — all in Italian with a sommelier.", status: "planned",  dateLabel: "15 May · 7pm", image: "wine" },

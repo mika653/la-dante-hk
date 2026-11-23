@@ -11,8 +11,8 @@ import WaveDivider from "@/components/WaveDivider";
 
 // Section order per Giulia's doc:
 //   1 Find Your Course (+ placement-test box + "Why Dante HK" strip)
-//   2 Happening at Dante   3 Our Workshops   4 PLIDA   5 Il Salotto di Dante
-//   6 Join the Comunità (+ reviews)   7 Sponsors   8 Newsletter
+//   2 Happening at Dante   3 Join the Comunità (+ reviews, mural band)
+//   4 Our Workshops   5 PLIDA   6 Il Salotto di Dante   7 Sponsors   8 Newsletter
 // Word of the week lives inside the hero; opening hours live in the footer.
 // The two collage sections draw their own waves so the photos meet the wave line.
 export default function Home() {
@@ -24,23 +24,24 @@ export default function Home() {
       <CourseCircles />
 
       {/* 2. Happening at Dante */}
-      <FeaturedCarousel above="white" below="paper" />
+      <FeaturedCarousel above="white" below="azzurro" />
 
-      {/* 3. Our Workshops */}
-      <WorkshopsGrid />
+      {/* 3. Join the Comunità + reviews: the mural band, restored to its
+          earlier, higher spot (right after Happening at Dante) so it's prominent. */}
+      <MembershipBand />
 
-      {/* 4. PLIDA */}
+      {/* 4. Our Workshops */}
+      <WaveDivider from="azzurro" to="paper" />
+      <WorkshopsGrid home />
+
+      {/* 5. PLIDA */}
       <WaveDivider from="paper" to="white" />
       <PlidaTeaser />
 
-      {/* 5. Il Salotto di Dante */}
-      <LibraryTrio above="white" below="azzurro" />
-
-      {/* 6. Join the Comunità + reviews */}
-      <MembershipBand />
+      {/* 6. Il Salotto di Dante */}
+      <LibraryTrio above="white" below="paper" />
 
       {/* 7. Sponsors */}
-      <WaveDivider from="azzurro" to="paper" />
       <SponsorsStrip />
 
       {/* 8. Newsletter */}

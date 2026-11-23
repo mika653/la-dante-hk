@@ -7,7 +7,7 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { eventRegistrations, events, type EventRegistrationRow } from "@/lib/db/schema";
 import { requireAdminFresh, requireOwnerFresh } from "@/lib/auth-guards";
-import { activeRegFields, sanitizeCustomQuestions, CUSTOM_ANSWER_PREFIX, type CustomQuestion } from "@/lib/event-registration";
+import { activeRegFields, sanitizeCustomQuestions, CUSTOM_ANSWER_PREFIX, OTHER_OPTION, type CustomQuestion } from "@/lib/event-registration";
 
 export type RegisterState = { ok?: boolean; error?: string };
 
@@ -45,7 +45,9 @@ export async function registerForEvent(_prev: RegisterState, formData: FormData)
     custom = sanitizeCustomQuestions(ev?.customQuestions);
   } catch { /* fall back to the default set */ }
   const has = (k: string) => keys.includes(k as never);
+  if (has("phone") && phone.length < 6) return { error: "Please give us your phone number." };
   if (has("source") && !source) return { error: "Please tell us how you found out about the event." };
+  if (has("source") && source === "Other") return { error: "Please tell us where you heard about the event (Other)." };
   if (has("member") && !/^(yes|no)$/i.test(memberRaw)) return { error: "Please tell us if you're a member." };
   if (has("consent") && !consent) return { error: "Please tick the privacy consent to register." };
 
@@ -54,6 +56,16 @@ export async function registerForEvent(_prev: RegisterState, formData: FormData)
   for (const q of custom) {
     let v = clip(formData.get(`cq_${q.id}`), q.type === "long" ? 2000 : 300);
     if (q.type === "yesno") v = /^yes$/i.test(v) ? "Yes" : /^no$/i.test(v) ? "No" : "";
+    if (q.type === "choice") {
+      // Only accept a listed option; "Other" takes the typed text instead.
+      if (q.allowOther && v === OTHER_OPTION) {
+        const other = clip(formData.get(`cq_${q.id}_other`), 200);
+        if (!other) return { error: `Please specify your answer to: "${q.label}"` };
+        v = `Other: ${other}`;
+      } else if (!(q.options ?? []).includes(v)) {
+        v = "";
+      }
+    }
     if (q.required && !v) return { error: `Please answer: "${q.label}"` };
     if (v) customAnswers[CUSTOM_ANSWER_PREFIX + q.label] = v;
   }

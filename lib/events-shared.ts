@@ -2,6 +2,7 @@
 // server actions. No "use client" / "use server" so anything can import it.
 
 import type { CustomQuestion } from "@/lib/event-registration";
+import type { EventZh } from "@/lib/content-i18n";
 
 export type EventKind = "Bookclub" | "Film" | "Aperitivo" | "Workshop" | "Culture" | "Trip" | "Other";
 
@@ -17,6 +18,7 @@ export type EventItem = {
   published: boolean;
   regFields?: string[];  // which registration questions this event shows (undefined = default set)
   customQuestions?: CustomQuestion[];  // extra admin-written registration questions
+  zh?: EventZh | null;                 // manual Chinese translation of the text fields
 };
 
 // Fallback shown for an instant first paint and if the API is briefly down; also

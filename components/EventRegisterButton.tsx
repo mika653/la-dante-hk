@@ -2,7 +2,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { X, Check, Ticket } from "lucide-react";
 import { registerForEvent, type RegisterState } from "@/lib/event-actions";
-import { activeRegFields, SOURCE_OPTIONS, CONSENT_TEXT, NEWSLETTER_TEXT, type CustomQuestion } from "@/lib/event-registration";
+import { activeRegFields, SOURCE_OPTIONS, CONSENT_TEXT, NEWSLETTER_TEXT, MEMBER_QUESTION, OTHER_OPTION, type CustomQuestion } from "@/lib/event-registration";
 
 export default function EventRegisterButton({
   eventId, eventTitle, eventDate, fields, customQuestions = [], className = "",
@@ -67,12 +67,12 @@ export default function EventRegisterButton({
                         <option value="">Please choose…</option>
                         {SOURCE_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
                       </select>
-                      {source === "Other" && <input name="sourceOther" placeholder="Please specify" className={`${input} mt-2`} />}
+                      {source === "Other" && <input name="sourceOther" required placeholder="Please specify" className={`${input} mt-2`} />}
                     </label>
                   )}
                   {has("member") && (
                     <fieldset className="text-sm font-medium">
-                      <legend>Are you a DA member / ICC member / staff of a DA sponsor?</legend>
+                      <legend>{MEMBER_QUESTION}</legend>
                       <div className="mt-1 flex gap-4">
                         <label className="inline-flex items-center gap-2 font-normal"><input type="radio" name="member" value="Yes" required className="accent-azzurro-deep" /> Yes</label>
                         <label className="inline-flex items-center gap-2 font-normal"><input type="radio" name="member" value="No" className="accent-azzurro-deep" /> No</label>
@@ -91,6 +91,9 @@ export default function EventRegisterButton({
                         </div>
                       </fieldset>
                     );
+                    if (q.type === "choice") return (
+                      <ChoiceQuestion key={q.id} q={q} name={name} optional={optional} className={input} />
+                    );
                     return (
                       <label key={q.id} className="block text-sm font-medium">{q.label}{optional}
                         {q.type === "long"
@@ -108,7 +111,7 @@ export default function EventRegisterButton({
                   {has("consent") && (
                     <label className="flex items-start gap-2 text-sm pt-1">
                       <input type="checkbox" name="consent" value="yes" required className="mt-1 w-4 h-4 accent-azzurro-deep" />
-                      <span className="text-ink-muted">{CONSENT_TEXT}</span>
+                      <span className="text-ink-muted">{CONSENT_TEXT.replace(/our Privacy Policy\.$/, "")}<a href="/privacy" target="_blank" rel="noopener" className="underline hover:text-ink">our Privacy Policy</a>.</span>
                     </label>
                   )}
                 </div>
@@ -125,5 +128,21 @@ export default function EventRegisterButton({
         </div>
       )}
     </>
+  );
+}
+
+// Drop-down custom question, with an optional "Other" that reveals a text box
+// (same shape as the standard "How did you find out?" question).
+function ChoiceQuestion({ q, name, optional, className }: { q: CustomQuestion; name: string; optional: React.ReactNode; className: string }) {
+  const [value, setValue] = useState("");
+  return (
+    <label className="block text-sm font-medium">{q.label}{optional}
+      <select name={name} required={q.required} value={value} onChange={(e) => setValue(e.target.value)} className={className}>
+        <option value="">Please choose…</option>
+        {(q.options ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
+        {q.allowOther && <option value={OTHER_OPTION}>{OTHER_OPTION}</option>}
+      </select>
+      {q.allowOther && value === OTHER_OPTION && <input name={`${name}_other`} required placeholder="Please specify" maxLength={200} className={`${className} mt-2`} />}
+    </label>
   );
 }

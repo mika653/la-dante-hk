@@ -10,6 +10,7 @@ import { events, type EventRow } from "@/lib/db/schema";
 import { requireAdminFresh } from "@/lib/auth-guards";
 import type { EventItem } from "@/lib/events-shared";
 import { sanitizeCustomQuestions } from "@/lib/event-registration";
+import { sanitizeZh, EVENT_ZH_FIELDS } from "@/lib/content-i18n";
 
 function rowToEvent(r: EventRow): EventItem {
   return {
@@ -21,6 +22,7 @@ function rowToEvent(r: EventRow): EventItem {
     published: r.published,
     ...(Array.isArray(r.regFields) && r.regFields.length > 0 ? { regFields: r.regFields } : {}),
     ...(Array.isArray(r.customQuestions) && r.customQuestions.length > 0 ? { customQuestions: r.customQuestions } : {}),
+    ...(r.zh ? { zh: r.zh } : {}),
   };
 }
 
@@ -66,6 +68,7 @@ export async function createEvent(e: Omit<EventItem, "id">): Promise<EventItem> 
     published: e.published,
     regFields: Array.isArray(e.regFields) && e.regFields.length > 0 ? e.regFields : null,
     customQuestions: customOrNull(e.customQuestions),
+    zh: sanitizeZh(e.zh, EVENT_ZH_FIELDS),
   });
   refresh();
   return { ...e, id };
@@ -84,6 +87,7 @@ export async function patchEvent(id: string, patch: Partial<EventItem>): Promise
   if (patch.published !== undefined) set.published = !!patch.published;
   if (patch.regFields !== undefined) set.regFields = Array.isArray(patch.regFields) && patch.regFields.length > 0 ? patch.regFields : null;
   if (patch.customQuestions !== undefined) set.customQuestions = customOrNull(patch.customQuestions);
+  if (patch.zh !== undefined) set.zh = sanitizeZh(patch.zh, EVENT_ZH_FIELDS);
   if (Object.keys(set).length === 0) return;
   set.updatedAt = new Date();
   await db.update(events).set(set).where(eq(events.id, id));

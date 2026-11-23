@@ -5,16 +5,19 @@ import { useCourses } from "@/lib/use-courses";
 import { formatHKD } from "@/lib/utils";
 import { useT, localizePath } from "@/lib/locale";
 import { enrolLinkProps } from "@/lib/enroll";
+import { useIconChoices } from "@/lib/use-icon-choices";
+import { slotIconOr } from "@/lib/icon-choices-shared";
 
 const FEATURES = [
-  { icon: CalendarDays,   en: "12 weeks per term",       zh: "每期 12 週" },
-  { icon: Users2,         en: "Small class size",        zh: "小班教學" },
-  { icon: GraduationCap,  en: "CEFR-aligned",             zh: "CEFR 標準課程" },
-  { icon: UserCheck,      en: "Native Italian teachers",  zh: "意大利籍導師" },
+  { slot: "upcoming.weeks", icon: CalendarDays,   en: "12 weeks per term",       zh: "每期 12 週" },
+  { slot: "upcoming.class", icon: Users2,         en: "Small class size",        zh: "小班教學" },
+  { slot: "upcoming.cefr", icon: GraduationCap,  en: "CEFR-aligned",             zh: "CEFR 標準課程" },
+  { slot: "upcoming.teachers", icon: UserCheck,      en: "Native Italian teachers",  zh: "意大利籍導師" },
 ];
 
 export default function UpcomingCourses() {
   const all = useCourses();
+  const icons = useIconChoices();
   const { locale } = useT();
   const isZh = locale === "zh";
   const rows = all
@@ -73,12 +76,15 @@ export default function UpcomingCourses() {
           </div>
 
           <div className="mt-5 flex flex-wrap gap-x-8 gap-y-3">
-            {FEATURES.map(({ icon: Icon, en, zh }) => (
-              <span key={en} className="inline-flex items-center gap-2 text-[13px] text-ink-muted">
-                <Icon size={15} className="text-azzurro-deep" aria-hidden />
-                {isZh ? zh : en}
-              </span>
-            ))}
+            {FEATURES.map(({ slot, icon, en, zh }) => {
+              const Icon = slotIconOr(icons, slot, icon);
+              return (
+                <span key={en} className="inline-flex items-center gap-2 text-[13px] text-ink-muted">
+                  <Icon size={15} className="text-azzurro-deep" aria-hidden />
+                  {isZh ? zh : en}
+                </span>
+              );
+            })}
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import WorkshopsGrid from "@/components/WorkshopsGrid";
+import PastEventsSlideshow from "@/components/PastEventsSlideshow";
 import EnquiryForm from "@/components/EnquiryForm";
 import CultureEventsClient from "./CultureEventsClient";
 
@@ -15,6 +16,7 @@ export default function Culture() {
         crumbs={[{ label: "Home", href: "/" }, { label: "Culture" }]}
       />
       <CultureEventsClient />
+      <PastEventsSlideshow />
       <WorkshopsGrid />
 
       {/* Library teaser — links through to the dedicated Library landing page */}

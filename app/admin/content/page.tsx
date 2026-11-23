@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ArrowRight, Image as ImageIcon, Images, Megaphone, Newspaper, PaintBucket, Sparkles, Type, ClipboardCheck, CircleDollarSign, Tag } from "lucide-react";
+import { ArrowRight, Image as ImageIcon, Images, Megaphone, Newspaper, PaintBucket, Sparkles, Type, ClipboardCheck, CircleDollarSign, Tag, IdCard, Shapes } from "lucide-react";
 
 const sections = [
   { href: "/admin/content/hero",      icon: Type,        title: "Hero section",         blurb: "Headline, subhead, CTAs, and the trust strip on the homepage." },
@@ -10,9 +10,11 @@ const sections = [
   { href: "/admin/content/featured",  icon: Sparkles,    title: "Featured cards",       blurb: "The five “Happening at Dante” cards (coming soon)", disabled: true },
   { href: "/admin/content/sponsors",  icon: PaintBucket, title: "Sponsors",             blurb: "Classroom, gold & silver sponsor logos — add, edit and reorder." },
   { href: "/admin/content/pricing",   icon: CircleDollarSign, title: "Membership pricing", blurb: "Individual membership + sponsorship (Silver/Gold/Diamond) prices shown on the membership page." },
+  { href: "/admin/content/membership", icon: IdCard,    title: "Membership & sponsorship copy", blurb: "Descriptions and benefit lists for the membership card, individual plan, sponsorship tiers and classroom add-on (English + 繁中)." },
   { href: "/admin/content/offers",     icon: Tag,         title: "Special offers",       blurb: "The discount cards on the Special Offers page — edit, add, reorder; supports bold / italic / line breaks." },
+  { href: "/admin/content/icons",     icon: Shapes,      title: "Icon library",         blurb: "Choose icons for the course circles and the feature points (Why Dante HK, Why study Italian…) from a curated set." },
   { href: "/admin/content/placement", icon: ClipboardCheck, title: "Placement test",     blurb: "Add, edit and remove the free placement-test questions and answers." },
-  { href: "/admin/content/team",      icon: Newspaper,   title: "Team & history",        blurb: "About-page staff photos, bios, and the 90-years timeline (coming soon)", disabled: true },
+  { href: "/admin/content/about",     icon: Newspaper,   title: "About page",            blurb: "Every section of the About page — banner, mural text & photo, 90-years timeline, and the team (English + 繁中)." },
 ];
 
 export default function ContentHub() {

@@ -48,20 +48,20 @@ export async function requestLeave(_prev: ActionResult | null, formData: FormDat
   const days = halfDay ? (workingDays(startDate, startDate) >= 1 ? 0.5 : 0) : workingDays(startDate, endDate);
   if (days < 0.5) return { ok: false, error: halfDay ? "That day is a Sunday — pick a working day." : "That range has no working days in it (Sundays don't count)." };
 
-  // Don't let anyone request more than their yearly entitlement (counting days
-  // already approved OR still pending for that type this year).
+  // Annual leave can't exceed the yearly entitlement (counting days already
+  // approved OR still pending this year). Sick leave has no cap — it's recorded
+  // and approved, but never blocked for running out.
+  if (type === "annual") {
   const [u] = await db
-    .select({ annual: users.annualEntitlement, sick: users.sickEntitlement, restDays: users.restDays })
+    .select({ annual: users.annualEntitlement, restDays: users.restDays })
     .from(users)
     .where(eq(users.id, s.userId));
   const year = Number(startDate.slice(0, 4));
-  let entitlement = type === "annual" ? (u?.annual ?? 0) : (u?.sick ?? 0);
-  // Annual leave gets +1 day in lieu for each public holiday that falls on this
-  // person's rest day(s) that year (Sunday never counts).
-  if (type === "annual") {
-    const { holidays } = await getClosures();
-    entitlement += restDayHolidaysInLieu([...holidaySet(holidays)], u?.restDays, year);
-  }
+  let entitlement = u?.annual ?? 0;
+  // +1 day in lieu for each public holiday that falls on this person's rest
+  // day(s) that year (Sunday never counts).
+  const { holidays } = await getClosures();
+  entitlement += restDayHolidaysInLieu([...holidaySet(holidays)], u?.restDays, year);
   const mine = await db
     .select({ days: leaveRequests.days, status: leaveRequests.status, startDate: leaveRequests.startDate, type: leaveRequests.type })
     .from(leaveRequests)
@@ -71,7 +71,8 @@ export async function requestLeave(_prev: ActionResult | null, formData: FormDat
     .reduce((acc, l) => acc + l.days, 0);
   const available = entitlement - used;
   if (days > available) {
-    return { ok: false, error: `That's more ${type} leave than you have left for ${year}: ${Math.max(0, available)} of ${entitlement} day${entitlement === 1 ? "" : "s"} remaining (approved + pending).` };
+    return { ok: false, error: `That's more annual leave than you have left for ${year}: ${Math.max(0, available)} of ${entitlement} day${entitlement === 1 ? "" : "s"} remaining (approved + pending).` };
+  }
   }
 
   await db.insert(leaveRequests).values({

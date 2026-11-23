@@ -50,7 +50,11 @@ export default function MuralHero() {
       </div>
 
       {/* Floating brand dots */}
-      <div className="absolute top-24 right-[10%] w-16 h-16 rounded-full bg-azzurro opacity-70 blur-[1px] float-a hidden lg:block z-[6]" aria-hidden />
+      {/* Blue circle sitting exactly on the wave's edge. The wave SVG stretches
+          horizontally (preserveAspectRatio="none") at a fixed h-20 (80px), so at
+          x = 90% its curve is always 75% down the SVG, i.e. 20px above the
+          section bottom. Centre the circle on that point at every width. */}
+      <div className="absolute right-[10%] bottom-5 translate-x-1/2 translate-y-1/2 w-16 h-16 rounded-full bg-azzurro hidden lg:block z-[8]" aria-hidden />
       <div className="absolute bottom-[26%] right-[28%] w-10 h-10 rounded-full bg-sole opacity-80 float-b hidden lg:block z-[6]" aria-hidden />
 
       {/* Brand-yellow accent bar at the very top */}

@@ -1,5 +1,6 @@
 import PageHeader from "@/components/PageHeader";
 import WorkshopsGrid from "@/components/WorkshopsGrid";
+import PastEventsSlideshow from "@/components/PastEventsSlideshow";
 import EnquiryForm from "@/components/EnquiryForm";
 import CultureEventsClient from "../../culture/CultureEventsClient";
 
@@ -13,6 +14,7 @@ export default function Culture() {
         crumbs={[{ label: "主頁", href: "/zh" }, { label: "文化" }]}
       />
       <CultureEventsClient />
+      <PastEventsSlideshow />
       <WorkshopsGrid />
 
       <section id="enquire" className="bg-cream py-14 md:py-20 scroll-mt-24">

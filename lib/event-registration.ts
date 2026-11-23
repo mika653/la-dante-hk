@@ -17,7 +17,7 @@ export const REG_FIELDS: RegFieldDef[] = [
   { key: "email",     label: "Email", always: true },
   { key: "phone",     label: "Phone number" },
   { key: "source",    label: "How did you find out about the event?" },
-  { key: "member",    label: "Are you a DA member / ICC member / staff of a DA sponsor?" },
+  { key: "member",    label: "Are you a DA member / ICC member / Staff of DA sponsors?" },
   { key: "newsletter", label: "Newsletter opt-in", optional: true },
   { key: "consent",   label: "Privacy consent (required to register)" },
 ];
@@ -35,7 +35,8 @@ export const SOURCE_OPTIONS = [
 ];
 
 export const CONSENT_TEXT =
-  "I expressly authorize the processing of my personal data for purposes related to promotion, advertising, marketing, and profiling according to the Privacy Policy.";
+  "I expressly authorize the processing of my personal data for purposes related to promotion, advertising, marketing, and profiling according to our Privacy Policy.";
+export const MEMBER_QUESTION = "Are you a DA member / ICC member / Staff of DA sponsors?";
 export const NEWSLETTER_TEXT =
   "I wish to receive news about Italian courses, cultural events, workshops, special offers and other promotional emails from the Dante Alighieri Society in Hong Kong.";
 
@@ -54,19 +55,25 @@ export function activeRegFields(stored: string[] | null | undefined): RegFieldKe
 // `CUSTOM_ANSWER_PREFIX + label`, so the question text is snapshotted with each
 // answer even if the event's question is later edited or removed.
 
-export type CustomQuestionType = "short" | "long" | "yesno";
+export type CustomQuestionType = "short" | "long" | "yesno" | "choice";
 
 export type CustomQuestion = {
   id: string;
   label: string;
   type: CustomQuestionType;
   required: boolean;
+  options?: string[];   // "choice" only: the drop-down answers
+  allowOther?: boolean; // "choice" only: add an "Other" option with a text box
 };
+
+export const OTHER_OPTION = "Other";
+export const MAX_CHOICE_OPTIONS = 20;
 
 export const CUSTOM_QUESTION_TYPES: { value: CustomQuestionType; label: string }[] = [
   { value: "short", label: "Short answer" },
   { value: "long",  label: "Paragraph" },
   { value: "yesno", label: "Yes / No" },
+  { value: "choice", label: "Drop-down choice" },
 ];
 
 export const CUSTOM_ANSWER_PREFIX = "q:";
@@ -85,8 +92,17 @@ export function sanitizeCustomQuestions(input: unknown): CustomQuestion[] {
     let id = String(q.id ?? "").trim().slice(0, 40) || `cq-${out.length}-${label.length}`;
     while (seen.has(id)) id = `${id}-x`;
     seen.add(id);
-    const type: CustomQuestionType = q.type === "long" || q.type === "yesno" ? q.type : "short";
-    out.push({ id, label, type, required: !!q.required });
+    const type: CustomQuestionType = q.type === "long" || q.type === "yesno" || q.type === "choice" ? q.type : "short";
+    if (type === "choice") {
+      const options = Array.from(new Set(
+        (Array.isArray(q.options) ? q.options : []).map((o) => String(o ?? "").trim().slice(0, 120)).filter(Boolean),
+      )).slice(0, MAX_CHOICE_OPTIONS);
+      const allowOther = !!q.allowOther;
+      if (options.length === 0 && !allowOther) continue; // a drop-down with nothing to pick is useless
+      out.push({ id, label, type, required: !!q.required, options, allowOther });
+    } else {
+      out.push({ id, label, type, required: !!q.required });
+    }
     if (out.length >= MAX_CUSTOM_QUESTIONS) break;
   }
   return out;

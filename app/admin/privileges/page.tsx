@@ -9,6 +9,8 @@ import {
   type SaveState,
 } from "@/lib/privilege-actions";
 import type { PrivilegeRow, Social } from "@/lib/db/schema";
+import Drawer from "@/components/admin/Drawer";
+import ImageSizeHint from "@/components/admin/ImageSizeHint";
 
 const SEED_CATEGORIES = ["Dining", "E-Shop", "Wines", "Shopping", "Culture & travel", "Services"];
 const SOCIAL_PLATFORMS = [
@@ -50,8 +52,8 @@ export default function AdminPrivileges() {
 
   return (
     <div className="max-w-5xl">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
+      <div className="flex items-end justify-between gap-4 flex-wrap">
+        <div className="min-w-0 flex-1 basis-80">
           <p className="eyebrow">Admin · Privileges</p>
           <h1 className="mt-2 text-3xl md:text-4xl">Privileges.</h1>
           <p className="mt-3 text-ink-muted">Partner brands and the discounts members get. These power the perks directory on the membership page.</p>
@@ -78,26 +80,30 @@ export default function AdminPrivileges() {
           <p className="text-ink-muted text-sm">No privileges yet. Add your first partner with the button above.</p>
         )}
         {rows.map((p) => (
-          <div key={p.id} className="frame bg-white p-4 flex items-center gap-4">
+          // Phones: logo + actions on top, brand/discount below at full width.
+          // sm+: one row, discount clamped to two lines.
+          <div key={p.id} className="frame bg-white p-4 grid grid-cols-[auto_1fr] sm:grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-2">
             <Logo logo={p.logo} brand={p.brand} />
-            <div className="min-w-0 flex-1">
+            <div className="col-span-2 row-start-2 sm:col-span-1 sm:row-start-1 sm:col-start-2 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-medium">{p.brand}</span>
+                <span className="font-medium wrap-break-word">{p.brand}</span>
                 <span className="text-[11px] uppercase tracking-wider text-azzurro-deep bg-azzurro-soft rounded px-1.5 py-0.5">{p.category}</span>
               </div>
-              <p className="text-sm text-ink-muted truncate">{p.discount}</p>
+              <p className="mt-0.5 text-sm text-ink-muted line-clamp-2 wrap-break-word">{p.discount}</p>
             </div>
-            {p.website && (
-              <a href={p.website} target="_blank" rel="noopener noreferrer" className="text-ink-muted hover:text-ink" aria-label="Open website">
-                <ExternalLink size={16} />
-              </a>
-            )}
-            <button type="button" onClick={() => { setEditing(p); setShowForm(true); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="text-ink-muted hover:text-azzurro-deep" aria-label="Edit">
-              <Pencil size={16} />
-            </button>
-            <button type="button" onClick={() => del(p.id, p.brand)} className="text-ink-muted hover:text-rosso" aria-label="Delete">
-              <Trash2 size={16} />
-            </button>
+            <div className="col-start-2 row-start-1 sm:col-start-3 justify-self-end flex items-center gap-1 shrink-0">
+              {p.website && (
+                <a href={p.website} target="_blank" rel="noopener noreferrer" title="Open website" aria-label="Open website" className="w-9 h-9 rounded-lg hover:bg-cream-2 inline-flex items-center justify-center text-ink-muted hover:text-ink">
+                  <ExternalLink size={16} />
+                </a>
+              )}
+              <button type="button" onClick={() => { setEditing(p); setShowForm(true); }} title="Edit" aria-label="Edit" className="w-9 h-9 rounded-lg hover:bg-cream-2 inline-flex items-center justify-center text-ink-muted hover:text-azzurro-deep">
+                <Pencil size={16} />
+              </button>
+              <button type="button" onClick={() => del(p.id, p.brand)} title="Delete" aria-label="Delete" className="w-9 h-9 rounded-lg hover:bg-rosso/10 inline-flex items-center justify-center text-ink-muted hover:text-rosso">
+                <Trash2 size={16} />
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -145,19 +151,25 @@ function PrivilegeForm({ editing, categories, onDone, onCancel }: { editing: Pri
   const cleanSocials = socials.filter((s) => s.platform.trim() && s.url.trim());
 
   return (
-    <form action={action} className="frame bg-cream-2/50 p-6 mt-6 relative">
-      <button type="button" onClick={onCancel} className="absolute top-4 right-4 text-ink-muted hover:text-ink" aria-label="Close"><X size={18} /></button>
-      <h2 className="text-lg font-heading font-bold">{editing ? "Edit privilege" : "New privilege"}</h2>
+    <Drawer
+      title={editing ? "Edit privilege" : "New privilege"}
+      onClose={onCancel}
+      formProps={{ action }}
+      footer={<>
+        <button type="button" onClick={onCancel} className="btn btn-ghost">Cancel</button>
+        <button type="submit" disabled={pending} className="btn btn-primary disabled:opacity-50">{pending ? "Saving…" : editing ? "Save changes" : "Save privilege"}</button>
+      </>}
+    >
 
       {/* Hidden inputs carrying the logo data URL + serialised socials into the action */}
       <input type="hidden" name="logo" value={logo} />
       <input type="hidden" name="socials" value={JSON.stringify(cleanSocials)} />
 
-      <div className="mt-5 grid md:grid-cols-2 gap-4">
+      <div className="grid sm:grid-cols-2 gap-4">
         {/* Logo upload */}
-        <div className="md:col-span-2">
+        <div className="sm:col-span-2">
           <p className="text-sm font-medium">Logo</p>
-          <div className="mt-1 flex items-center gap-4">
+          <div className="mt-1 flex flex-wrap items-center gap-4">
             <LogoPreview logo={logo} />
             <div>
               <label className="btn btn-ghost cursor-pointer py-2!">
@@ -165,7 +177,7 @@ function PrivilegeForm({ editing, categories, onDone, onCancel }: { editing: Pri
                 <input type="file" accept="image/*" onChange={onFile} className="sr-only" />
               </label>
               {logo && <button type="button" onClick={() => setLogo("")} className="ml-3 text-sm text-ink-muted hover:text-rosso">Remove</button>}
-              <p className="mt-1 text-xs text-ink-muted">PNG or JPG, under 1 MB.</p>
+              <ImageSizeHint className="mt-1" src={logo} minWidth={200} minHeight={200} guideline="Square PNG or JPG, at least 300 × 300 px, under 1 MB." />
             </div>
           </div>
           {logoErr && <p className="mt-2 text-sm text-rosso">{logoErr}</p>}
@@ -174,14 +186,14 @@ function PrivilegeForm({ editing, categories, onDone, onCancel }: { editing: Pri
         <Field label="Brand name *" name="brand" required placeholder="Alice Pizza" defaultValue={editing?.brand} />
         <CategoryField categories={categories} initial={editing?.category} />
 
-        <Field label="Discount details *" name="discount" required placeholder="10% discount on à la carte menu" className="md:col-span-2" defaultValue={editing?.discount} />
-        <Field label="Fine print (optional)" name="note" placeholder="The offer cannot be combined with other promotions" className="md:col-span-2" defaultValue={editing?.note ?? ""} />
-        <Field label="Address" name="address" placeholder="G/F, 92 Queen's Road East, Wan Chai" className="md:col-span-2" defaultValue={editing?.address ?? ""} />
+        <Field label="Discount details *" name="discount" required placeholder="10% discount on à la carte menu" className="sm:col-span-2" defaultValue={editing?.discount} />
+        <Field label="Fine print (optional)" name="note" placeholder="The offer cannot be combined with other promotions" className="sm:col-span-2" defaultValue={editing?.note ?? ""} />
+        <Field label="Address" name="address" placeholder="G/F, 92 Queen's Road East, Wan Chai" className="sm:col-span-2" defaultValue={editing?.address ?? ""} />
         <Field label="Contact number" name="phone" placeholder="+852 2518 3502" defaultValue={editing?.phone ?? ""} />
         <Field label="Website" name="website" placeholder="https://www.alicepizzahk.com" defaultValue={editing?.website ?? ""} />
 
         {/* Social links */}
-        <div className="md:col-span-2">
+        <div className="sm:col-span-2">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium">Social media</p>
             <button type="button" onClick={addSocial} className="text-sm text-azzurro-deep hover:underline inline-flex items-center gap-1"><Plus size={14} /> Add social</button>
@@ -191,11 +203,11 @@ function PrivilegeForm({ editing, categories, onDone, onCancel }: { editing: Pri
             {socials.map((s, i) => {
               const isCustom = !SOCIAL_PLATFORMS.includes(s.platform);
               return (
-                <div key={i} className="flex gap-2 flex-wrap">
+                <div key={i} className="flex gap-2 flex-wrap items-center rounded-xl sm:rounded-none border border-line sm:border-0 p-2 sm:p-0">
                   <select
                     value={isCustom ? OTHER : s.platform}
                     onChange={(e) => setSocial(i, { platform: e.target.value === OTHER ? "" : e.target.value })}
-                    className="w-40 h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink text-sm"
+                    className="flex-1 sm:flex-none min-w-0 sm:w-40 h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink text-sm"
                   >
                     {SOCIAL_PLATFORMS.map((p) => <option key={p} value={p}>{p}</option>)}
                     <option value={OTHER}>{OTHER}</option>
@@ -205,16 +217,16 @@ function PrivilegeForm({ editing, categories, onDone, onCancel }: { editing: Pri
                       value={s.platform}
                       onChange={(e) => setSocial(i, { platform: e.target.value })}
                       placeholder="Platform name"
-                      className="w-40 h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink text-sm"
+                      className="flex-1 sm:flex-none min-w-0 sm:w-40 h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink text-sm"
                     />
                   )}
                   <input
                     value={s.url}
                     onChange={(e) => setSocial(i, { url: e.target.value })}
                     placeholder="https://…"
-                    className="flex-1 min-w-[12rem] h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink text-sm"
+                    className="order-3 sm:order-0 flex-1 basis-full sm:basis-auto min-w-0 sm:min-w-48 h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink text-sm"
                   />
-                  <button type="button" onClick={() => removeSocial(i)} className="text-ink-muted hover:text-rosso px-2" aria-label="Remove social"><X size={16} /></button>
+                  <button type="button" onClick={() => removeSocial(i)} className="order-2 sm:order-0 w-9 h-9 shrink-0 rounded-lg hover:bg-rosso/10 inline-flex items-center justify-center text-ink-muted hover:text-rosso" aria-label="Remove social"><X size={16} /></button>
                 </div>
               );
             })}
@@ -222,13 +234,8 @@ function PrivilegeForm({ editing, categories, onDone, onCancel }: { editing: Pri
         </div>
       </div>
 
-      {state.error && <p className="mt-4 text-sm text-rosso">{state.error}</p>}
-
-      <div className="mt-6 flex gap-3">
-        <button type="submit" disabled={pending} className="btn btn-primary">{pending ? "Saving…" : editing ? "Save changes" : "Save privilege"}</button>
-        <button type="button" onClick={onCancel} className="btn btn-ghost">Cancel</button>
-      </div>
-    </form>
+      {state.error && <p className="mt-4 rounded-xl p-3 bg-rosso/10 text-sm text-rosso">{state.error}</p>}
+    </Drawer>
   );
 }
 

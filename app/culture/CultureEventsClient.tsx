@@ -5,9 +5,14 @@ import { useEvents, type EventItem } from "@/lib/use-events";
 import { todayISO } from "@/lib/course-schedule";
 import { formatDMY } from "@/lib/utils";
 import EventRegisterButton from "@/components/EventRegisterButton";
+import { useT } from "@/lib/locale";
+import { localizeItem } from "@/lib/content-i18n";
 
 export default function CultureEventsClient() {
-  const all = useEvents(true);
+  const raw = useEvents(true);
+  const { locale } = useT();
+  // Chinese site: swap in the manual zh translation where one exists.
+  const all = useMemo(() => raw.map((e) => localizeItem(e, locale)), [raw, locale]);
   // "Upcoming" means upcoming: show today's and future events, soonest first.
   // (The admin list stays newest-first for management.)
   const events = useMemo(() => {

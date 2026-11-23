@@ -1,6 +1,7 @@
 // Database schema (Drizzle / Postgres) for authentication + staff leave.
 import { pgTable, pgEnum, uuid, text, integer, doublePrecision, date, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 import type { CustomQuestion } from "@/lib/event-registration";
+import type { EventZh, WorkshopZh } from "@/lib/content-i18n";
 
 export const roleEnum = pgEnum("role", ["owner", "manager", "teacher"]);
 export const leaveTypeEnum = pgEnum("leave_type", ["annual", "sick"]);
@@ -199,7 +200,8 @@ export const events = pgTable("events", {
   image: text("image"),                      // event graphic URL (Media Library); placeholder shown if blank
   published: boolean("published").notNull().default(true),
   regFields: jsonb("reg_fields").$type<string[]>(),  // which registration questions this event shows (null = default set)
-  customQuestions: jsonb("custom_questions").$type<CustomQuestion[]>(),  // admin-written extra registration questions (null = none)
+  customQuestions: jsonb("custom_questions").$type<CustomQuestion[]>(),
+  zh: jsonb("zh").$type<EventZh>(),  // manual Traditional-Chinese text (null = English only)  // admin-written extra registration questions (null = none)
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -237,7 +239,11 @@ export const workshopsTable = pgTable("workshops", {
   status: text("status").notNull().default("interest"),  // "planned" | "interest"
   dateLabel: text("date_label"),
   interested: integer("interested"),
-  image: text("image").notNull().default(""),
+  image: text("image").notNull().default(""),   // icon key OR uploaded photo URL
+  timeLabel: text("time_label"),                 // e.g. "7–9pm"
+  fee: text("fee"),                              // free text, e.g. "HK$450"
+  sortOrder: integer("sort_order").notNull().default(0),  // admin ordering; homepage shows the first N
+  zh: jsonb("zh").$type<WorkshopZh>(),  // manual Traditional-Chinese text (null = English only)
   published: boolean("published").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

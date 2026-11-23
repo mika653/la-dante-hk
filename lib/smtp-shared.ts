@@ -8,6 +8,7 @@ export type SmtpSettings = {
   secure: boolean;   // true = implicit TLS (port 465); false = STARTTLS (587/25)
   user: string;
   from: string;      // "Name <email@domain>" or a bare address
+  notifyTo: string;  // staff inbox for automatic notifications (e.g. placement-test results); comma-separated OK
 };
 
 export type SmtpPublic = SmtpSettings & { hasPassword: boolean; updatedBy: string; updatedAt: string | null };
@@ -28,6 +29,7 @@ export const defaultSmtp: SmtpSettings = {
   secure: false,
   user: "",
   from: "",
+  notifyTo: "",
 };
 
 export function normaliseSmtpInput(parsed: unknown): SmtpInput {
@@ -41,6 +43,7 @@ export function normaliseSmtpInput(parsed: unknown): SmtpInput {
     secure: !!p.secure,
     user: s(p.user, 200),
     from: s(p.from, 200),
+    notifyTo: s(p.notifyTo, 400),
     password: typeof p.password === "string" ? p.password.slice(0, 400) : undefined,
   };
 }

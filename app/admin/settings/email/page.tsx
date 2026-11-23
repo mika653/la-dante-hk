@@ -36,7 +36,7 @@ export default function EmailSettings() {
     if (!s) return;
     setSaving(true); setErr(null);
     try {
-      const res = await saveSmtpSettings({ host: s.host, port: s.port, secure: s.secure, user: s.user, from: s.from, password: password || undefined });
+      const res = await saveSmtpSettings({ host: s.host, port: s.port, secure: s.secure, user: s.user, from: s.from, notifyTo: s.notifyTo, password: password || undefined });
       if (!res.ok) { setErr(res.error ?? "Couldn't save."); return; }
       setSaved(true);
       setPassword("");
@@ -128,6 +128,10 @@ export default function EmailSettings() {
               </label>
               <label className="text-sm font-medium sm:col-span-2">From address
                 <input value={s.from} onChange={(e) => set("from", e.target.value)} placeholder='La Dante <no-reply@ladante.cc>' className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink font-normal" />
+              </label>
+              <label className="text-sm font-medium sm:col-span-2">Send staff notifications to
+                <input value={s.notifyTo ?? ""} onChange={(e) => set("notifyTo", e.target.value)} placeholder="office@ladante.cc, another@ladante.cc" className="mt-1 w-full h-11 px-3 rounded-xl border border-line bg-white focus:outline-none focus:border-ink font-normal" />
+                <span className="mt-1 block text-xs text-ink-muted font-normal">Gets an email with the person&apos;s details and result each time someone finishes the placement test. Separate several addresses with commas.</span>
               </label>
             </div>
 

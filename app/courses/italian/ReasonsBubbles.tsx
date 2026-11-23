@@ -2,6 +2,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Landmark, Briefcase, HeartHandshake, Languages, Users, Plane, Brain, type LucideIcon } from "lucide-react";
+import { useIconChoices } from "@/lib/use-icon-choices";
+import { slotIconOr } from "@/lib/icon-choices-shared";
 
 // "Why study Italian?" — a friendly espresso-cup mascot with seven colourful
 // reason-bubbles orbiting it (desktop) / clustered below it (mobile). Click a
@@ -43,9 +45,12 @@ const REASONS: Reason[] = [
 
 export default function ReasonsBubbles() {
   const [openKey, setOpenKey] = useState<string | null>(null);
+  // Icons can be swapped from the dashboard (Admin → Content → Icons).
+  const choices = useIconChoices();
+  const reasons = useMemo(() => REASONS.map((r) => ({ ...r, Icon: slotIconOr(choices, `reasons.${r.key}`, r.Icon) })), [choices]);
   const triggers = useRef<Record<string, HTMLButtonElement | null>>({});
   const closeRef = useRef<HTMLButtonElement>(null);
-  const active = useMemo(() => REASONS.find((r) => r.key === openKey) ?? null, [openKey]);
+  const active = useMemo(() => reasons.find((r) => r.key === openKey) ?? null, [reasons, openKey]);
 
   // Focus the dialog on open; Esc closes; return focus to the bubble on close.
   useEffect(() => {
@@ -105,7 +110,7 @@ export default function ReasonsBubbles() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/why-italian-3d.png" alt="A student thinking about why to study Italian" className="rb-float w-full h-auto rounded-full bg-white shadow-[var(--shadow-card)]" />
           </div>
-          {REASONS.map((r) => (
+          {reasons.map((r) => (
             // 3 layers so the centering transform and the float transform don't fight:
             // wrapper = absolute position + centre; floater = bob (translateY); button = hover scale.
             <div key={r.key} className="absolute z-20" style={{ left: `${r.pos.left}%`, top: `${r.pos.top}%`, transform: "translate(-50%, -50%)" }}>
@@ -131,7 +136,7 @@ export default function ReasonsBubbles() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/why-italian-3d.png" alt="A student thinking about why to study Italian" className="mx-auto w-40 h-40 rounded-full bg-white shadow-[var(--shadow-card)]" />
           <div className="mt-6 flex flex-wrap justify-center gap-4">
-            {REASONS.map((r) => (
+            {reasons.map((r) => (
               <button
                 key={r.key}
                 ref={(el) => { triggers.current[r.key] = el; }}

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, AlertTriangle, RotateCcw } from "lucide-react";
 import MediaPicker from "@/components/MediaPicker";
+import ImageSizeHint from "@/components/admin/ImageSizeHint";
 import { getBranding, saveBranding } from "@/lib/branding-actions";
 import { defaultBranding, type Branding } from "@/lib/branding-shared";
 
@@ -58,6 +59,7 @@ export default function BrandingSettings() {
               )}
             </div>
             <input value={b.logo} onChange={(e) => set("logo", e.target.value)} placeholder="/logo.png or https://…" className="mt-2 w-full h-10 px-3 rounded-lg border border-line bg-white focus:outline-none focus:border-ink font-mono text-xs" />
+            <ImageSizeHint className="mt-2" src={b.logo} minWidth={400} minHeight={120} guideline="Recommended: transparent PNG or SVG, at least 600 × 200 px." />
           </div>
 
           {/* Favicon */}

@@ -6,6 +6,7 @@ import { ArrowLeft, Check, RotateCcw, ExternalLink, Plus, Trash2, ArrowUp, Arrow
 import { defaultSponsors, type Sponsors, type SponsorItem } from "@/lib/site-content";
 import { getSiteContent, saveSiteContent } from "@/lib/site-content-actions";
 import MediaPicker from "@/components/MediaPicker";
+import ImageSizeHint from "@/components/admin/ImageSizeHint";
 
 // Edit the sponsor logos shown on the homepage — classroom (A–G), gold and
 // silver tiers. Saves into the shared site content, like the hero carousel.
@@ -92,6 +93,7 @@ function SponsorList({
                 <MediaPicker accept="image" onChange={(url) => patch(i, { logo: url })} />
               </div>
               <input value={s.logo} onChange={(e) => patch(i, { logo: e.target.value })} placeholder="/sponsors/… or https://… or choose from library" className="w-full h-10 px-3 rounded-lg border border-line bg-white font-mono text-xs" />
+              <ImageSizeHint src={s.logo} minWidth={300} guideline="Recommended: transparent PNG or SVG, at least 400 px wide." />
             </div>
             <div className="flex md:flex-col items-center gap-1 shrink-0">
               <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up" className="w-9 h-9 rounded-lg hover:bg-cream-2 disabled:opacity-30 inline-flex items-center justify-center text-ink-muted"><ArrowUp size={14} /></button>

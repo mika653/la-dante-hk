@@ -1,60 +1,48 @@
 "use client";
 import { useState } from "react";
 import { formatHKD } from "@/lib/utils";
-import { Check, Mail, Gem, Award, Medal, DoorOpen, Megaphone, BookImage, type LucideIcon } from "lucide-react";
+import { Check, Mail, Gem, Award, Medal, type LucideIcon } from "lucide-react";
 import { usePricing } from "@/lib/use-pricing";
+import { useMembershipContent } from "@/lib/use-membership-content";
+import { fillTokens, TIER_IDS, type TierId } from "@/lib/membership-content-shared";
+import { MEMBERSHIP_ICON } from "@/lib/membership-icons";
+import { pickLocale } from "@/lib/site-content-shared";
+import { useT } from "@/lib/locale";
+import { RichText } from "@/components/RichText";
 
 const CONTACT = "dantealighieri@ladante.cc";
 
-type TierId = "silver" | "gold" | "diamond";
-
-type Tier = {
-  id: TierId;
-  name: string;
-  priceHKD: number;
-  nominees: number; // membership cards for nominees
-  tagline: string;
-  badge?: string;
-  Icon: LucideIcon;
-};
-
-// Sponsorship tiers & fees per Giulia. Nominee counts are the client's figures;
-// the other allowances (lesson hours, hall rental, discounts) scale with the
-// tier and are quoted when we talk — so they're described, not numbered here.
-const tiers: Tier[] = [
-  { id: "silver", name: "Silver", priceHKD: 7500, nominees: 5, Icon: Medal, tagline: "An entry-level partnership with real brand visibility." },
-  { id: "gold", name: "Gold", priceHKD: 35000, nominees: 10, Icon: Award, badge: "Most popular", tagline: "Our most popular corporate partnership." },
-  { id: "diamond", name: "Diamond", priceHKD: 55000, nominees: 15, Icon: Gem, tagline: "Our flagship tier, with the most generous allowances." },
-];
-
-function benefits(nominees: number): string[] {
-  return [
-    "Your logo across our Wan Chai centre & materials",
-    "Discounts on corporate courses & team-building",
-    "Private & group lesson hours",
-    "A discount on translation services",
-    `${nominees} membership cards for your nominees`,
-    "Free hall-rental hours",
-    "Library access for your team",
-    "Discounts on our cultural events",
-    "Invitation to the annual Dante dinner",
-  ];
-}
-
-const classroomPerks: { Icon: LucideIcon; label: string }[] = [
-  { Icon: DoorOpen, label: "Your logo at the centre entrance and on a classroom door" },
-  { Icon: Megaphone, label: "Promotional materials displayed at our reception" },
-  { Icon: BookImage, label: "Your logo featured in our brochure and events calendar" },
-];
+// Sponsorship tiers per Giulia. Prices are editable at /admin/content/pricing;
+// names, taglines, badges and benefit lists at /admin/content/membership.
+const TIER_ICON: Record<TierId, LucideIcon> = { silver: Medal, gold: Award, diamond: Gem };
 
 export default function SponsorshipSection() {
   const [selected, setSelected] = useState<TierId | null>(null);
   const pricing = usePricing();
-  // Apply the office-editable tier prices.
-  const tierList = tiers.map((t) => ({
-    ...t,
-    priceHKD: t.id === "silver" ? pricing.sponsorSilver : t.id === "gold" ? pricing.sponsorGold : pricing.sponsorDiamond,
-  }));
+  const { sponsorship: copy } = useMembershipContent();
+  const { locale } = useT();
+  const L = (b: Parameters<typeof pickLocale>[0]) => pickLocale(b, locale);
+  const tokens = {
+    silver: formatHKD(pricing.sponsorSilver),
+    gold: formatHKD(pricing.sponsorGold),
+    diamond: formatHKD(pricing.sponsorDiamond),
+    firstYear: formatHKD(pricing.individualFirstYear),
+    renewal: formatHKD(pricing.individualRenewal),
+  };
+  const T = (b: Parameters<typeof pickLocale>[0]) => fillTokens(L(b), tokens);
+  // Office-editable copy + tier prices.
+  const tierList = TIER_IDS.map((id) => {
+    const t = copy.tiers[id];
+    return {
+      id,
+      name: L(t.name),
+      tagline: T(t.tagline),
+      badge: L(t.badge),
+      benefits: t.benefits.map(T),
+      Icon: TIER_ICON[id],
+      priceHKD: id === "silver" ? pricing.sponsorSilver : id === "gold" ? pricing.sponsorGold : pricing.sponsorDiamond,
+    };
+  });
   const chosen = tierList.find((t) => t.id === selected);
 
   const subject = chosen ? `Sponsorship enquiry — ${chosen.name} (${formatHKD(chosen.priceHKD)})` : "Sponsorship enquiry";
@@ -65,9 +53,9 @@ export default function SponsorshipSection() {
       <div className="container-xl">
         <div className="max-w-2xl">
           <p className="eyebrow text-cream/70!">Corporate sponsorship</p>
-          <h2 className="mt-3 text-3xl md:text-5xl font-heading font-bold text-balance text-cream!">Put your brand behind Italian&nbsp;culture.</h2>
+          <h2 className="mt-3 text-3xl md:text-5xl font-heading font-bold text-balance text-cream!">{L(copy.title)}</h2>
           <p className="mt-4 text-cream/80">
-            For individuals or companies who want to support Dante&apos;s mission. Three sponsorship levels from {formatHKD(pricing.sponsorSilver)} to {formatHKD(pricing.sponsorDiamond)} — each with logo placement, course and team-building discounts, lesson hours, member cards for your team, and an invitation to our annual Dante&nbsp;dinner.
+            <RichText text={T(copy.intro)} />
           </p>
         </div>
 
@@ -98,14 +86,14 @@ export default function SponsorshipSection() {
                 </div>
 
                 <h3 className="mt-4 text-2xl font-heading font-bold">{t.name}</h3>
-                <p className="mt-1 text-sm text-ink-muted">{t.tagline}</p>
+                <p className="mt-1 text-sm text-ink-muted"><RichText text={t.tagline} /></p>
                 <p className="mt-4 text-3xl font-heading font-extrabold">
                   {formatHKD(t.priceHKD)}<span className="text-sm font-medium text-ink-muted"> / year</span>
                 </p>
 
                 <ul className="mt-5 space-y-2 text-sm">
-                  {benefits(t.nominees).map((b) => (
-                    <li key={b} className="flex gap-2"><Check size={14} className="text-azzurro-deep mt-1 shrink-0" aria-hidden />{b}</li>
+                  {t.benefits.map((b, i) => (
+                    <li key={i} className="flex gap-2"><Check size={14} className="text-azzurro-deep mt-1 shrink-0" aria-hidden /><span><RichText text={b} /></span></li>
                   ))}
                 </ul>
               </button>
@@ -129,21 +117,24 @@ export default function SponsorshipSection() {
           <div className="grid md:grid-cols-[1.2fr_1fr] gap-8 items-center">
             <div>
               <p className="eyebrow text-cream/70!">Add-on</p>
-              <h3 className="mt-3 text-2xl md:text-3xl font-heading font-bold text-cream!">Classroom sponsorship.</h3>
+              <h3 className="mt-3 text-2xl md:text-3xl font-heading font-bold text-cream!">{L(copy.classroom.title)}</h3>
               <p className="mt-3 text-cream/80 max-w-md">
-                Sponsors at any level are also entitled to sponsor one of our classrooms — your name on the door and your brand in front of our whole community.
+                <RichText text={T(copy.classroom.body)} />
               </p>
               <a href={`mailto:${CONTACT}?subject=${encodeURIComponent("Classroom sponsorship enquiry")}`} className="btn btn-outline-white mt-6">
                 <Mail size={16} aria-hidden /> Sponsor a classroom
               </a>
             </div>
             <ul className="space-y-3">
-              {classroomPerks.map(({ Icon, label }) => (
-                <li key={label} className="flex gap-3 items-start">
-                  <span className="w-9 h-9 rounded-full bg-sole text-ink inline-flex items-center justify-center shrink-0"><Icon size={18} aria-hidden /></span>
-                  <span className="text-cream/90 text-sm leading-relaxed pt-1.5">{label}</span>
-                </li>
-              ))}
+              {copy.classroom.perks.map((p, i) => {
+                const Icon = MEMBERSHIP_ICON[p.icon] ?? MEMBERSHIP_ICON.star;
+                return (
+                  <li key={i} className="flex gap-3 items-start">
+                    <span className="w-9 h-9 rounded-full bg-sole text-ink inline-flex items-center justify-center shrink-0"><Icon size={18} aria-hidden /></span>
+                    <span className="text-cream/90 text-sm leading-relaxed pt-1.5"><RichText text={T(p.label)} /></span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>
