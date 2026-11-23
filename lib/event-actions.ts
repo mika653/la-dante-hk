@@ -7,7 +7,7 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { eventRegistrations, events, type EventRegistrationRow } from "@/lib/db/schema";
 import { requireAdminFresh, requireOwnerFresh } from "@/lib/auth-guards";
-import { activeRegFields } from "@/lib/event-registration";
+import { activeRegFields, sanitizeCustomQuestions, CUSTOM_ANSWER_PREFIX, type CustomQuestion } from "@/lib/event-registration";
 
 export type RegisterState = { ok?: boolean; error?: string };
 
@@ -38,14 +38,25 @@ export async function registerForEvent(_prev: RegisterState, formData: FormData)
 
   // Trusted check of which questions this event requires (don't rely on the form).
   let keys = activeRegFields(undefined);
+  let custom: CustomQuestion[] = [];
   try {
-    const [ev] = await db.select({ regFields: events.regFields }).from(events).where(eq(events.id, eventId));
+    const [ev] = await db.select({ regFields: events.regFields, customQuestions: events.customQuestions }).from(events).where(eq(events.id, eventId));
     keys = activeRegFields(ev?.regFields);
+    custom = sanitizeCustomQuestions(ev?.customQuestions);
   } catch { /* fall back to the default set */ }
   const has = (k: string) => keys.includes(k as never);
   if (has("source") && !source) return { error: "Please tell us how you found out about the event." };
   if (has("member") && !/^(yes|no)$/i.test(memberRaw)) return { error: "Please tell us if you're a member." };
   if (has("consent") && !consent) return { error: "Please tick the privacy consent to register." };
+
+  // Custom questions — read by question id, stored under the question text.
+  const customAnswers: Record<string, string> = {};
+  for (const q of custom) {
+    let v = clip(formData.get(`cq_${q.id}`), q.type === "long" ? 2000 : 300);
+    if (q.type === "yesno") v = /^yes$/i.test(v) ? "Yes" : /^no$/i.test(v) ? "No" : "";
+    if (q.required && !v) return { error: `Please answer: "${q.label}"` };
+    if (v) customAnswers[CUSTOM_ANSWER_PREFIX + q.label] = v;
+  }
 
   const answers: Record<string, string> = {};
   if (has("firstName")) answers.firstName = firstName;
@@ -54,6 +65,7 @@ export async function registerForEvent(_prev: RegisterState, formData: FormData)
   if (has("member") && memberRaw) answers.member = /^yes$/i.test(memberRaw) ? "Yes" : "No";
   if (has("newsletter")) answers.newsletter = newsletter ? "Yes" : "No";
   if (has("consent")) answers.consent = consent ? "Yes" : "No";
+  Object.assign(answers, customAnswers);
 
   try {
     await db.insert(eventRegistrations).values({

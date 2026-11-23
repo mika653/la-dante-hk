@@ -2,11 +2,11 @@
 import { useActionState, useEffect, useState } from "react";
 import { X, Check, Ticket } from "lucide-react";
 import { registerForEvent, type RegisterState } from "@/lib/event-actions";
-import { activeRegFields, SOURCE_OPTIONS, CONSENT_TEXT, NEWSLETTER_TEXT } from "@/lib/event-registration";
+import { activeRegFields, SOURCE_OPTIONS, CONSENT_TEXT, NEWSLETTER_TEXT, type CustomQuestion } from "@/lib/event-registration";
 
 export default function EventRegisterButton({
-  eventId, eventTitle, eventDate, fields, className = "",
-}: { eventId: string; eventTitle: string; eventDate?: string; fields?: string[]; className?: string }) {
+  eventId, eventTitle, eventDate, fields, customQuestions = [], className = "",
+}: { eventId: string; eventTitle: string; eventDate?: string; fields?: string[]; customQuestions?: CustomQuestion[]; className?: string }) {
   const [open, setOpen] = useState(false);
   const [source, setSource] = useState("");
   const [state, action, pending] = useActionState<RegisterState, FormData>(registerForEvent, {});
@@ -79,6 +79,26 @@ export default function EventRegisterButton({
                       </div>
                     </fieldset>
                   )}
+                  {customQuestions.map((q) => {
+                    const name = `cq_${q.id}`;
+                    const optional = !q.required && <span className="text-ink-muted font-normal"> (optional)</span>;
+                    if (q.type === "yesno") return (
+                      <fieldset key={q.id} className="text-sm font-medium">
+                        <legend>{q.label}{optional}</legend>
+                        <div className="mt-1 flex gap-4">
+                          <label className="inline-flex items-center gap-2 font-normal"><input type="radio" name={name} value="Yes" required={q.required} className="accent-azzurro-deep" /> Yes</label>
+                          <label className="inline-flex items-center gap-2 font-normal"><input type="radio" name={name} value="No" className="accent-azzurro-deep" /> No</label>
+                        </div>
+                      </fieldset>
+                    );
+                    return (
+                      <label key={q.id} className="block text-sm font-medium">{q.label}{optional}
+                        {q.type === "long"
+                          ? <textarea name={name} required={q.required} rows={3} maxLength={2000} className="mt-1 w-full px-3 py-2 rounded-xl border border-line bg-white focus:outline-none focus:border-ink" />
+                          : <input name={name} required={q.required} maxLength={300} className={input} />}
+                      </label>
+                    );
+                  })}
                   {has("newsletter") && (
                     <label className="flex items-start gap-2 text-sm pt-1">
                       <input type="checkbox" name="newsletter" value="yes" className="mt-1 w-4 h-4 accent-azzurro-deep" />

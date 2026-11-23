@@ -16,6 +16,9 @@ export async function GET() {
       events: rows.map((r) => ({
         id: r.id, date: r.date, title: r.title, kind: r.kind, location: r.location,
         description: r.description ?? undefined, bookingUrl: r.bookingUrl ?? undefined, image: r.image ?? undefined, published: r.published,
+        // Registration form config, so the public sign-up form matches what admin set.
+        ...(Array.isArray(r.regFields) && r.regFields.length > 0 ? { regFields: r.regFields } : {}),
+        ...(Array.isArray(r.customQuestions) && r.customQuestions.length > 0 ? { customQuestions: r.customQuestions } : {}),
       })),
     });
   } catch {

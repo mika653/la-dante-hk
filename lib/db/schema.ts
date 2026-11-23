@@ -1,5 +1,6 @@
 // Database schema (Drizzle / Postgres) for authentication + staff leave.
 import { pgTable, pgEnum, uuid, text, integer, doublePrecision, date, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
+import type { CustomQuestion } from "@/lib/event-registration";
 
 export const roleEnum = pgEnum("role", ["owner", "manager", "teacher"]);
 export const leaveTypeEnum = pgEnum("leave_type", ["annual", "sick"]);
@@ -198,6 +199,7 @@ export const events = pgTable("events", {
   image: text("image"),                      // event graphic URL (Media Library); placeholder shown if blank
   published: boolean("published").notNull().default(true),
   regFields: jsonb("reg_fields").$type<string[]>(),  // which registration questions this event shows (null = default set)
+  customQuestions: jsonb("custom_questions").$type<CustomQuestion[]>(),  // admin-written extra registration questions (null = none)
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

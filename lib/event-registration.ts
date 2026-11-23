@@ -47,3 +47,47 @@ export function activeRegFields(stored: string[] | null | undefined): RegFieldKe
   for (const f of REG_FIELDS) if (f.always) set.add(f.key);
   return REG_FIELDS.filter((f) => set.has(f.key)).map((f) => f.key);
 }
+
+// -------- Custom questions --------
+// Admin-written questions added per event, on top of the standard set above.
+// Answers are stored in the registration's `answers` JSON under
+// `CUSTOM_ANSWER_PREFIX + label`, so the question text is snapshotted with each
+// answer even if the event's question is later edited or removed.
+
+export type CustomQuestionType = "short" | "long" | "yesno";
+
+export type CustomQuestion = {
+  id: string;
+  label: string;
+  type: CustomQuestionType;
+  required: boolean;
+};
+
+export const CUSTOM_QUESTION_TYPES: { value: CustomQuestionType; label: string }[] = [
+  { value: "short", label: "Short answer" },
+  { value: "long",  label: "Paragraph" },
+  { value: "yesno", label: "Yes / No" },
+];
+
+export const CUSTOM_ANSWER_PREFIX = "q:";
+export const MAX_CUSTOM_QUESTIONS = 10;
+
+/** Clean an untrusted list of custom questions: drop blanks, clamp sizes, dedupe ids. */
+export function sanitizeCustomQuestions(input: unknown): CustomQuestion[] {
+  if (!Array.isArray(input)) return [];
+  const seen = new Set<string>();
+  const out: CustomQuestion[] = [];
+  for (const raw of input) {
+    if (!raw || typeof raw !== "object") continue;
+    const q = raw as Record<string, unknown>;
+    const label = String(q.label ?? "").trim().slice(0, 200);
+    if (!label) continue;
+    let id = String(q.id ?? "").trim().slice(0, 40) || `cq-${out.length}-${label.length}`;
+    while (seen.has(id)) id = `${id}-x`;
+    seen.add(id);
+    const type: CustomQuestionType = q.type === "long" || q.type === "yesno" ? q.type : "short";
+    out.push({ id, label, type, required: !!q.required });
+    if (out.length >= MAX_CUSTOM_QUESTIONS) break;
+  }
+  return out;
+}

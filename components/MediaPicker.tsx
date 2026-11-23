@@ -35,7 +35,7 @@ export default function MediaPicker({
   ) : null;
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className="btn btn-ghost text-xs py-1.5!">
+      <button type="button" onClick={() => setOpen(true)} className="btn btn-ghost text-xs! px-3! py-1.5! gap-1.5! whitespace-nowrap">
         <ImageIcon size={13} /> {label}
       </button>
       {modal && typeof document !== "undefined" ? createPortal(modal, document.body) : null}

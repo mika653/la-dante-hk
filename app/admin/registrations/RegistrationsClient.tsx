@@ -2,6 +2,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { Download, Users, GraduationCap, Repeat, CalendarCheck, ChevronDown, Trash2 } from "lucide-react";
 import { deleteRegistration } from "@/lib/event-actions";
+import { CUSTOM_ANSWER_PREFIX } from "@/lib/event-registration";
 
 type Row = {
   id: string; eventId: string; eventTitle: string; eventDate: string | null;
@@ -12,12 +13,21 @@ type Row = {
 function fmt(iso: string) { const d = new Date(iso); return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`; }
 const yearOf = (r: Row) => (r.eventDate ?? r.createdAt).slice(0, 4);
 const ans = (r: Row, k: string) => r.answers?.[k] ?? "";
+// Custom-question answers are keyed "q:<question text>"; collect every question
+// asked across these rows, in first-seen order.
+function customKeys(rows: Row[]) {
+  const keys: string[] = [];
+  for (const r of rows) for (const k of Object.keys(r.answers ?? {})) if (k.startsWith(CUSTOM_ANSWER_PREFIX) && !keys.includes(k)) keys.push(k);
+  return keys;
+}
+const customLabel = (k: string) => k.slice(CUSTOM_ANSWER_PREFIX.length);
 
 function csv(rows: Row[]) {
-  const head = ["Event", "Event date", "Name", "Email", "Phone", "Source", "Member", "Newsletter", "Consent", "Age group", "Student", "Registered"];
+  const extra = customKeys(rows);
+  const head = ["Event", "Event date", "Name", "Email", "Phone", "Source", "Member", "Newsletter", "Consent", "Age group", "Student", "Registered", ...extra.map(customLabel)];
   const esc = (v: string) => `"${(v ?? "").replace(/"/g, '""')}"`;
   const lines = rows.map((r) =>
-    [r.eventTitle, r.eventDate ?? "", r.name, r.email, r.phone ?? "", ans(r, "source"), ans(r, "member"), ans(r, "newsletter"), ans(r, "consent"), r.ageGroup ?? "", r.isStudent ? "Yes" : "No", fmt(r.createdAt)]
+    [r.eventTitle, r.eventDate ?? "", r.name, r.email, r.phone ?? "", ans(r, "source"), ans(r, "member"), ans(r, "newsletter"), ans(r, "consent"), r.ageGroup ?? "", r.isStudent ? "Yes" : "No", fmt(r.createdAt), ...extra.map((k) => ans(r, k))]
       .map((v) => esc(String(v))).join(","));
   return [head.join(","), ...lines].join("\n");
 }
@@ -123,7 +133,7 @@ export default function RegistrationsClient({ rows, error, isOwner = false }: { 
         <div className="frame bg-white p-12 text-center text-ink-muted">No registrations yet.</div>
       ) : (
         <div className="space-y-3">
-          {byEvent.map(([id, g]) => (
+          {byEvent.map(([id, g]) => { const extra = customKeys(g.regs); return (
             <div key={id} className="frame bg-white overflow-hidden">
               <button type="button" onClick={() => setOpenEvent(openEvent === id ? null : id)} className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left hover:bg-cream-2/40">
                 <div>
@@ -145,6 +155,7 @@ export default function RegistrationsClient({ rows, error, isOwner = false }: { 
                         <th className="px-5 py-2 text-left font-medium">Phone</th>
                         <th className="px-5 py-2 text-left font-medium">Source</th>
                         <th className="px-5 py-2 text-left font-medium">Member</th>
+                        {extra.map((k) => <th key={k} className="px-5 py-2 text-left font-medium normal-case tracking-normal min-w-40">{customLabel(k)}</th>)}
                         <th className="px-5 py-2 text-left font-medium">Registered</th>
                         {isOwner && <th className="px-3 py-2 sticky right-0 bg-cream-2"><span className="sr-only">Actions</span></th>}
                       </tr>
@@ -157,6 +168,7 @@ export default function RegistrationsClient({ rows, error, isOwner = false }: { 
                           <td className="px-5 py-3 text-ink-muted">{r.phone ?? "—"}</td>
                           <td className="px-5 py-3 text-ink-muted">{ans(r, "source") || "—"}</td>
                           <td className="px-5 py-3 text-ink-muted">{ans(r, "member") || "—"}</td>
+                          {extra.map((k) => <td key={k} className="px-5 py-3 text-ink-muted whitespace-pre-line">{ans(r, k) || "—"}</td>)}
                           <td className="px-5 py-3 text-ink-muted">{fmt(r.createdAt)}</td>
                           {isOwner && (
                             <td className="px-3 py-3 text-right sticky right-0 bg-white shadow-[-6px_0_6px_-6px_rgba(25,25,25,0.12)]">
@@ -172,7 +184,7 @@ export default function RegistrationsClient({ rows, error, isOwner = false }: { 
                 </div>
               )}
             </div>
-          ))}
+          ); })}
         </div>
       )}
     </div>

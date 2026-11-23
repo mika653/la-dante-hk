@@ -1,6 +1,8 @@
 // Event types + seed data, shared by the client hook, the admin store, and the
 // server actions. No "use client" / "use server" so anything can import it.
 
+import type { CustomQuestion } from "@/lib/event-registration";
+
 export type EventKind = "Bookclub" | "Film" | "Aperitivo" | "Workshop" | "Culture" | "Trip" | "Other";
 
 export type EventItem = {
@@ -14,6 +16,7 @@ export type EventItem = {
   image?: string;    // event graphic (shown left of the date tile)
   published: boolean;
   regFields?: string[];  // which registration questions this event shows (undefined = default set)
+  customQuestions?: CustomQuestion[];  // extra admin-written registration questions
 };
 
 // Fallback shown for an instant first paint and if the API is briefly down; also
