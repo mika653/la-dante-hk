@@ -89,8 +89,8 @@ export default function AdminWorkshops() {
       zh: draft.zh,
     };
     try {
-      if (editing) await updateWorkshop(editing.id, payload);
-      else await addWorkshop(payload);
+      const res = editing ? await updateWorkshop(editing.id, payload) : await addWorkshop(payload);
+      if (!res.ok) { setErr(res.error); return; }
       closeForm();
       await refresh();
     } catch (e) { setErr(errText(e)); }

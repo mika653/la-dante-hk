@@ -39,10 +39,15 @@ export async function listAllWorkshops(): Promise<Workshop[]> {
   return rows.map(rowToWorkshop);
 }
 
-export async function createWorkshop(w: Omit<Workshop, "id">): Promise<Workshop> {
+// Result types so validation messages reach the admin UI (thrown Error messages
+// are stripped in production; returned values survive).
+export type WorkshopWriteResult = { ok: true; workshop: Workshop } | { ok: false; error: string };
+export type WorkshopPatchResult = { ok: true } | { ok: false; error: string };
+
+export async function createWorkshop(w: Omit<Workshop, "id">): Promise<WorkshopWriteResult> {
   await requireAdminFresh();
   const title = clip(w.title, 200);
-  if (!title) throw new Error("Please give the workshop a title.");
+  if (!title) return { ok: false, error: "Please give the workshop a title." };
   const id = `w-${Date.now()}`;
   // New workshops go to the end of the list.
   const all = await db.select({ o: workshopsTable.sortOrder }).from(workshopsTable);
@@ -55,15 +60,15 @@ export async function createWorkshop(w: Omit<Workshop, "id">): Promise<Workshop>
     zh: sanitizeZh(w.zh, WORKSHOP_ZH_FIELDS),
   });
   refresh();
-  return { ...w, id, title, sortOrder };
+  return { ok: true, workshop: { ...w, id, title, sortOrder } };
 }
 
-export async function patchWorkshop(id: string, patch: Partial<Workshop>): Promise<void> {
+export async function patchWorkshop(id: string, patch: Partial<Workshop>): Promise<WorkshopPatchResult> {
   await requireAdminFresh();
   const set: Partial<WorkshopRow> = {};
   if (patch.title !== undefined) {
     const t = clip(patch.title, 200);
-    if (!t) throw new Error("Please give the workshop a title.");
+    if (!t) return { ok: false, error: "Please give the workshop a title." };
     set.title = t;
   }
   if (patch.description !== undefined) set.description = clip(patch.description, 4000);
@@ -75,10 +80,11 @@ export async function patchWorkshop(id: string, patch: Partial<Workshop>): Promi
   if (patch.fee !== undefined) set.fee = clip(patch.fee, 200) || null;
   if (patch.published !== undefined) set.published = !!patch.published;
   if (patch.zh !== undefined) set.zh = sanitizeZh(patch.zh, WORKSHOP_ZH_FIELDS);
-  if (Object.keys(set).length === 0) return;
+  if (Object.keys(set).length === 0) return { ok: true };
   set.updatedAt = new Date();
   await db.update(workshopsTable).set(set).where(eq(workshopsTable.id, id));
   refresh();
+  return { ok: true };
 }
 
 /** Persist a new display order (the homepage shows the first N published). */

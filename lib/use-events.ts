@@ -7,8 +7,8 @@ export type { EventItem, EventKind };
 
 // -------- admin store (database-backed via role-gated server actions) --------
 export async function getEvents(): Promise<EventItem[]> { return listAllEvents(); }
-export async function addEvent(e: Omit<EventItem, "id">): Promise<EventItem> { return createEvent(e); }
-export async function updateEvent(id: string, patch: Partial<EventItem>): Promise<void> { return patchEvent(id, patch); }
+export async function addEvent(e: Omit<EventItem, "id">) { return createEvent(e); }
+export async function updateEvent(id: string, patch: Partial<EventItem>) { return patchEvent(id, patch); }
 export async function removeEvent(id: string): Promise<void> { return deleteEvent(id); }
 
 // -------- public read hook --------
@@ -22,7 +22,10 @@ export function useEvents(publishedOnly = false): EventItem[] {
     fetch("/api/events", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (alive && data && Array.isArray(data.events) && data.events.length > 0) {
+        // Reflect the live list even when it's empty — otherwise deleting every
+        // event would leave the bundled seed events showing with no way to clear
+        // them (matches the workshops feed behaviour in use-workshops.ts).
+        if (alive && data && Array.isArray(data.events)) {
           setList(data.events as EventItem[]);
         }
       })

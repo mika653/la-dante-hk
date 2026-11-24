@@ -92,10 +92,12 @@ export default function AdminEventsPage() {
       zh };
     try {
       if (editingId) {
-        await updateEvent(editingId, payload);
+        const res = await updateEvent(editingId, payload);
+        if (!res.ok) { setErr(res.error); return; }
       } else {
-        const ev = await addEvent(payload);
-        setJustAdded(ev.title);
+        const res = await addEvent(payload);
+        if (!res.ok) { setErr(res.error); return; }
+        setJustAdded(res.event.title);
         setTimeout(() => setJustAdded(null), 6000);
       }
       resetForm();

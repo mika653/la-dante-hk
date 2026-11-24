@@ -8,8 +8,8 @@ export type { Workshop };
 
 // -------- admin store (database-backed via role-gated server actions) --------
 export async function getWorkshops(): Promise<Workshop[]> { return listAllWorkshops(); }
-export async function addWorkshop(w: Omit<Workshop, "id">): Promise<Workshop> { return createWorkshop(w); }
-export async function updateWorkshop(id: string, patch: Partial<Workshop>): Promise<void> { return patchWorkshop(id, patch); }
+export async function addWorkshop(w: Omit<Workshop, "id">) { return createWorkshop(w); }
+export async function updateWorkshop(id: string, patch: Partial<Workshop>) { return patchWorkshop(id, patch); }
 export async function removeWorkshop(id: string): Promise<void> { return deleteWorkshop(id); }
 export async function setWorkshopOrder(ids: string[]): Promise<void> { return reorderWorkshops(ids); }
 export async function loadWorkshopSettings(): Promise<WorkshopSettings> { return getWorkshopSettings(); }

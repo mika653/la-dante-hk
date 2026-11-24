@@ -83,12 +83,22 @@ export const MAX_CUSTOM_QUESTIONS = 10;
 export function sanitizeCustomQuestions(input: unknown): CustomQuestion[] {
   if (!Array.isArray(input)) return [];
   const seen = new Set<string>();
+  const seenLabels = new Set<string>();
   const out: CustomQuestion[] = [];
   for (const raw of input) {
     if (!raw || typeof raw !== "object") continue;
     const q = raw as Record<string, unknown>;
-    const label = String(q.label ?? "").trim().slice(0, 200);
+    let label = String(q.label ?? "").trim().slice(0, 200);
     if (!label) continue;
+    // Answers are stored keyed by label (q:<label>), so two questions sharing a
+    // label would overwrite each other's answers. Keep labels unique by
+    // suffixing " (n)" on a repeat.
+    if (seenLabels.has(label)) {
+      let n = 2;
+      while (seenLabels.has(`${label} (${n})`)) n++;
+      label = `${label} (${n})`;
+    }
+    seenLabels.add(label);
     let id = String(q.id ?? "").trim().slice(0, 40) || `cq-${out.length}-${label.length}`;
     while (seen.has(id)) id = `${id}-x`;
     seen.add(id);

@@ -40,15 +40,19 @@ export async function listAllEvents(): Promise<EventItem[]> {
   return rows.map(rowToEvent);
 }
 
+// Result types so validation messages reach the admin UI — thrown Error
+// messages are stripped in production, returned values survive.
+export type EventWriteResult = { ok: true; event: EventItem } | { ok: false; error: string };
+export type EventPatchResult = { ok: true } | { ok: false; error: string };
+
 // Every event needs a real "YYYY-MM-DD" date and a title — a blank row breaks
 // the calendar/date rendering on the admin and public pages.
-function assertValidDate(date: unknown) {
-  if (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date))) {
-    throw new Error("Please pick a valid date for the event.");
-  }
+function dateError(date: unknown): string | null {
+  return typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date))
+    ? "Please pick a valid date for the event." : null;
 }
-function assertValidTitle(title: unknown) {
-  if (typeof title !== "string" || !title.trim()) throw new Error("Please give the event a title.");
+function titleError(title: unknown): string | null {
+  return typeof title !== "string" || !title.trim() ? "Please give the event a title." : null;
 }
 
 function customOrNull(input: unknown) {
@@ -56,10 +60,10 @@ function customOrNull(input: unknown) {
   return qs.length > 0 ? qs : null;
 }
 
-export async function createEvent(e: Omit<EventItem, "id">): Promise<EventItem> {
+export async function createEvent(e: Omit<EventItem, "id">): Promise<EventWriteResult> {
   await requireAdmin();
-  assertValidDate(e.date);
-  assertValidTitle(e.title);
+  const err = dateError(e.date) ?? titleError(e.title);
+  if (err) return { ok: false, error: err };
   const id = `e-${Date.now()}`;
   await db.insert(events).values({
     id, date: e.date, title: e.title, kind: e.kind, location: e.location,
@@ -71,14 +75,14 @@ export async function createEvent(e: Omit<EventItem, "id">): Promise<EventItem> 
     zh: sanitizeZh(e.zh, EVENT_ZH_FIELDS),
   });
   refresh();
-  return { ...e, id };
+  return { ok: true, event: { ...e, id } };
 }
 
-export async function patchEvent(id: string, patch: Partial<EventItem>): Promise<void> {
+export async function patchEvent(id: string, patch: Partial<EventItem>): Promise<EventPatchResult> {
   await requireAdmin();
   const set: Partial<EventRow> = {};
-  if (patch.date !== undefined) { assertValidDate(patch.date); set.date = patch.date; }
-  if (patch.title !== undefined) { assertValidTitle(patch.title); set.title = patch.title.trim(); }
+  if (patch.date !== undefined) { const err = dateError(patch.date); if (err) return { ok: false, error: err }; set.date = patch.date; }
+  if (patch.title !== undefined) { const err = titleError(patch.title); if (err) return { ok: false, error: err }; set.title = patch.title.trim(); }
   if (patch.kind !== undefined) set.kind = String(patch.kind);
   if (patch.location !== undefined) set.location = String(patch.location);
   if (patch.description !== undefined) set.description = patch.description || null;
@@ -88,10 +92,11 @@ export async function patchEvent(id: string, patch: Partial<EventItem>): Promise
   if (patch.regFields !== undefined) set.regFields = Array.isArray(patch.regFields) && patch.regFields.length > 0 ? patch.regFields : null;
   if (patch.customQuestions !== undefined) set.customQuestions = customOrNull(patch.customQuestions);
   if (patch.zh !== undefined) set.zh = sanitizeZh(patch.zh, EVENT_ZH_FIELDS);
-  if (Object.keys(set).length === 0) return;
+  if (Object.keys(set).length === 0) return { ok: true };
   set.updatedAt = new Date();
   await db.update(events).set(set).where(eq(events.id, id));
   refresh();
+  return { ok: true };
 }
 
 export async function deleteEvent(id: string): Promise<void> {

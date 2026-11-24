@@ -29,7 +29,7 @@ function csv(rows: Row[]) {
   const lines = rows.map((r) =>
     [r.eventTitle, r.eventDate ?? "", r.name, r.email, r.phone ?? "", ans(r, "source"), ans(r, "member"), ans(r, "newsletter"), ans(r, "consent"), r.ageGroup ?? "", r.isStudent ? "Yes" : "No", fmt(r.createdAt), ...extra.map((k) => ans(r, k))]
       .map((v) => esc(String(v))).join(","));
-  return [head.join(","), ...lines].join("\n");
+  return [head.map(esc).join(","), ...lines].join("\n");
 }
 function download(name: string, rows: Row[]) {
   // Lead with a UTF-8 BOM so Excel reads it as UTF-8 — otherwise the en-dash in
