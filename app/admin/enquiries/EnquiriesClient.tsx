@@ -123,7 +123,7 @@ export default function EnquiriesClient({ rows, error, isOwner = false }: { rows
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-cream-2 border border-line">{TYPE_LABEL[r.type] ?? r.type}</span>
                       <span className="font-heading font-bold">{r.name}</span>
-                      {r.level && <span className="text-xs text-ink-muted">· wants {r.level}</span>}
+                      {r.level && <span className="text-xs text-ink-muted">· {r.type === "placement" ? "scored" : "wants"} {r.level}</span>}
                       <span className="text-xs text-ink-muted">· {fmt(r.createdAt)}</span>
                     </div>
                     <div className="mt-1.5 flex items-center gap-4 text-sm flex-wrap">
