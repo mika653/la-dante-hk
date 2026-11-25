@@ -10,7 +10,7 @@ type Row = {
 };
 
 const TYPE_LABEL: Record<string, string> = {
-  course: "Course", private: "Private", plida: "PLIDA", workshop: "Workshop", trial: "Trial class", general: "General", special: "Special course", training: "Teacher training",
+  course: "Course", private: "Private", plida: "PLIDA", workshop: "Workshop", trial: "Trial class", general: "General", special: "Special course", training: "Teacher training", placement: "Placement test", event: "Event", newsletter: "Newsletter",
 };
 const STATUS_STYLE: Record<string, string> = {
   new: "bg-sole/40 text-ink", contacted: "bg-azzurro/15 text-azzurro-deep", closed: "bg-ink/5 text-ink-muted",
@@ -77,7 +77,7 @@ export default function EnquiriesClient({ rows, error, isOwner = false }: { rows
     return <div className="max-w-3xl"><div className="frame p-8 bg-white text-center text-ink-muted">{error}</div></div>;
   }
 
-  const types: ("all" | EnquiryType)[] = ["all", "course", "private", "plida", "workshop", "trial", "special", "training", "general"];
+  const types: ("all" | EnquiryType)[] = ["all", "course", "private", "plida", "workshop", "trial", "special", "training", "placement", "event", "newsletter", "general"];
 
   return (
     <div className="max-w-6xl">

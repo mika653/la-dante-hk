@@ -2,7 +2,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { X, Check, Ticket } from "lucide-react";
 import { registerForEvent, type RegisterState } from "@/lib/event-actions";
-import { activeRegFields, SOURCE_OPTIONS, CONSENT_TEXT, NEWSLETTER_TEXT, MEMBER_QUESTION, OTHER_OPTION, type CustomQuestion } from "@/lib/event-registration";
+import { activeRegFields, AGE_OPTIONS, SOURCE_OPTIONS, CONSENT_TEXT, NEWSLETTER_TEXT, MEMBER_QUESTION, OTHER_OPTION, type CustomQuestion } from "@/lib/event-registration";
 
 export default function EventRegisterButton({
   eventId, eventTitle, eventDate, fields, customQuestions = [], className = "",
@@ -61,6 +61,14 @@ export default function EventRegisterButton({
                   </div>
                   <label className="block text-sm font-medium">Email<input name="email" type="email" required className={input} /></label>
                   {has("phone") && <label className="block text-sm font-medium">Phone number<input name="phone" required className={input} /></label>}
+                  {has("age") && (
+                    <label className="block text-sm font-medium">Age group
+                      <select name="age" required defaultValue="" className={input}>
+                        <option value="" disabled>Please choose…</option>
+                        {AGE_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    </label>
+                  )}
                   {has("source") && (
                     <label className="block text-sm font-medium">How did you find out about the event?
                       <select name="source" required value={source} onChange={(e) => setSource(e.target.value)} className={input}>

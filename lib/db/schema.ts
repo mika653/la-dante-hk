@@ -147,7 +147,7 @@ export const eventRegistrations = pgTable("event_registrations", {
   name: text("name").notNull(),
   email: text("email").notNull(),
   phone: text("phone"),
-  ageGroup: text("age_group"),               // "Under 18" | "18-24" | ... (legacy; superseded by `answers`)
+  ageGroup: text("age_group"),               // optional age band from the sign-up form ("Under 6" | "6–11" | "12–17" | "18+"); filtered on in admin
   isStudent: boolean("is_student").notNull().default(false),
   answers: jsonb("answers").$type<Record<string, string>>(),  // custom registration answers (source, member, newsletter, consent, …)
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

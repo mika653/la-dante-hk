@@ -7,7 +7,7 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { eventRegistrations, events, type EventRegistrationRow } from "@/lib/db/schema";
 import { requireAdminFresh, requireOwnerFresh } from "@/lib/auth-guards";
-import { activeRegFields, sanitizeCustomQuestions, CUSTOM_ANSWER_PREFIX, OTHER_OPTION, type CustomQuestion } from "@/lib/event-registration";
+import { activeRegFields, AGE_OPTIONS, sanitizeCustomQuestions, CUSTOM_ANSWER_PREFIX, OTHER_OPTION, type CustomQuestion } from "@/lib/event-registration";
 
 export type RegisterState = { ok?: boolean; error?: string };
 
@@ -24,6 +24,7 @@ export async function registerForEvent(_prev: RegisterState, formData: FormData)
   const surname = clip(formData.get("surname"), 80);
   const email = clip(formData.get("email"), 200);
   const phone = clip(formData.get("phone"), 40);
+  const age = clip(formData.get("age"), 40);
   let source = clip(formData.get("source"), 120);
   const sourceOther = clip(formData.get("sourceOther"), 120);
   if (source === "Other") source = sourceOther || "Other";
@@ -46,6 +47,7 @@ export async function registerForEvent(_prev: RegisterState, formData: FormData)
   } catch { /* fall back to the default set */ }
   const has = (k: string) => keys.includes(k as never);
   if (has("phone") && phone.length < 6) return { error: "Please give us your phone number." };
+  if (has("age") && !AGE_OPTIONS.includes(age)) return { error: "Please choose an age group." };
   if (has("source") && !source) return { error: "Please tell us how you found out about the event." };
   if (has("source") && source === "Other") return { error: "Please tell us where you heard about the event (Other)." };
   if (has("member") && !/^(yes|no)$/i.test(memberRaw)) return { error: "Please tell us if you're a member." };
@@ -84,6 +86,7 @@ export async function registerForEvent(_prev: RegisterState, formData: FormData)
       eventId, eventTitle, eventDate,
       name, email,
       phone: phone || null,
+      ageGroup: has("age") && age ? age : null,
       answers,
     });
   } catch {

@@ -2,7 +2,7 @@
 // is configurable per event (admin ticks them when creating/editing the event);
 // the identity fields are always on. Pure / storage-agnostic.
 
-export type RegFieldKey = "firstName" | "surname" | "email" | "phone" | "source" | "member" | "newsletter" | "consent";
+export type RegFieldKey = "firstName" | "surname" | "email" | "phone" | "age" | "source" | "member" | "newsletter" | "consent";
 
 export type RegFieldDef = {
   key: RegFieldKey;
@@ -16,6 +16,7 @@ export const REG_FIELDS: RegFieldDef[] = [
   { key: "surname",   label: "Surname", always: true },
   { key: "email",     label: "Email", always: true },
   { key: "phone",     label: "Phone number" },
+  { key: "age",       label: "Age group" },
   { key: "source",    label: "How did you find out about the event?" },
   { key: "member",    label: "Are you a DA member / ICC member / Staff of DA sponsors?" },
   { key: "newsletter", label: "Newsletter opt-in", optional: true },
@@ -23,6 +24,11 @@ export const REG_FIELDS: RegFieldDef[] = [
 ];
 
 export const DEFAULT_REG_FIELDS: RegFieldKey[] = REG_FIELDS.map((f) => f.key);
+
+// Age bands for the optional "Age group" question (Giulia filters attendees by
+// these, e.g. to see all the kids who came). Kept in one place so the form,
+// the server validation, and the admin filter all use the exact same strings.
+export const AGE_OPTIONS = ["Under 6", "6–11", "12–17", "18+"];
 
 export const SOURCE_OPTIONS = [
   "Dante Alighieri Hong Kong Instagram",
